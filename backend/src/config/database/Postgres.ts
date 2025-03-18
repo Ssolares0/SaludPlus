@@ -1,21 +1,36 @@
-import pkg from 'pg';
-const { Pool } = pkg;
+import { DataSource } from 'typeorm';
 
-export const pool = new Pool({
-  user: "postgres",
-  host: "db.ayvouzycmojxlbcxhquy.supabase.co",
-  database: "postgres",
-  password: "AYD1_G8_1S2025",
-  port: 5432, 
+// Configuración equivalente a tu Pool de pg
+export const AppDataSource = new DataSource({
+    type: "postgres",
+    host: "db.ayvouzycmojxlbcxhquy.supabase.co", // Host de Supabase
+    port: 5432,
+    username: "postgres",
+    password: "AYD1_G8_1S2025",
+    database: 'postgres',
+    entities: [
+        // Ruta a tus entidades TypeORM (ej: './src/models/*.ts')
+        'src/models/**/*.ts'
+    ],
+    // Crear tablas automaticamente (solo desarrollo)
+    synchronize: false,
+    // Obligatorio para Supabase
+    ssl: true, 
+    extra: {
+        ssl: {
+            // Para conexión segura con Supabase
+            rejectUnauthorized: false 
+        }
+    }
 });
 
-export const connectPg= async() =>{
-  try {
-    const client = await pool.connect();
-    const res = await client.query("SELECT NOW()");
-    console.log("Conectado a PostgreSQL:", res.rows);
-    client.release();
-  } catch (err) {
-    console.error("Error de conexión:", err);
-  }
-}
+// Versión TypeORM de tu función connectPg
+export const connectPg = async () => {
+    try {
+        await AppDataSource.initialize();
+        const result = await AppDataSource.query('SELECT NOW()');
+        console.log('Conectado a PostgreSQL:', result[0].now);
+    } catch (err) {
+        console.error('Error de conexión:', err);
+    }
+};

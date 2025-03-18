@@ -31,23 +31,29 @@ export class AuthService {
       person.last_name = patientData.lastName;
       person.national_id = patientData.dpi;
       person.email = patientData.email;
+      person.birth_date = patientData.birth_date;
+      person.gender = patientData.gender;
+      person.phone = patientData.phone;
+      person.address = patientData.address;
       await queryRunner.manager.save(person);
 
       // 2. Crear Usuario (con contraseña encriptada)
       const user = new User();
+      user.name = patientData.firstName+patientData.lastName;
       user.email = patientData.email;
       user.password = await hashPassword(patientData.password);
-      const role = await AppDataSource.manager.findOne(Role, {where: {id: patientData.role_id}});
+      user.person = person;
+      const role = await AppDataSource.manager.findOne(Role, {where: {id: patientData.role_id},});
       if (!role){
         throw new Error('Rol no encontrado');
       }
       user.role = role;
-      user.person = person;
       await queryRunner.manager.save(user);
 
       // 3. Crear Paciente
       const patient = new Patient();
       patient.person = person;
+      patient.insurance_number = '0';
       await queryRunner.manager.save(patient);
 
       await queryRunner.commitTransaction();

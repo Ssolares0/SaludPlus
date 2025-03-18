@@ -31,7 +31,7 @@ export class Person {
   @Column({type:'varchar', length: 200})
   address!: string | null;
 
-  @Column({type: 'datetime'})
+  @Column({type: 'date'})
   updated_at!: Date | null
 
   @OneToOne(() => User, (user) => user.person)

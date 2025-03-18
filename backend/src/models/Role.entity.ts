@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { User } from './User.entity';
 
-@Entity()
+@Entity({name:'roles'})
 export class Role {
   @PrimaryGeneratedColumn()
   id!: number;

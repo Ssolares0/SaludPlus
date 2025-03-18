@@ -2,10 +2,13 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn
 import { Role } from './Role.entity';
 import { Person } from './Person.entity';
 
-@Entity()
+@Entity({name:'users'})
 export class User {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Column({type: 'varchar', nullable: false})
+  name!: string;
 
   @Column({ unique: true })
   email!: string;

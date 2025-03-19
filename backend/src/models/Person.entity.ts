@@ -28,11 +28,11 @@ export class Person {
   @Column({type: 'varchar', length:20})
   phone!: string | null;
 
+  @Column({type:'text', nullable:true})
+  photo?: string | null;
+
   @Column({type:'varchar', length: 200})
   address!: string | null;
-
-  @Column({type: 'date'})
-  updated_at!: Date | null
 
   @OneToOne(() => User, (user) => user.person)
   user!: User;

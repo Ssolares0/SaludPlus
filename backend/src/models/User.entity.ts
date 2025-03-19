@@ -16,6 +16,12 @@ export class User {
   @Column({ type: 'bytea' }) //(contraseña encriptada)
   password!: Buffer;
 
+  @Column({type:'varchar', nullable:true})
+  remember_token?: string;
+
+  @Column({type:'date', nullable:true})
+  email_verified_at?: Date;
+
   // Relación Muchos a Uno (N Usuarios → 1 Rol)
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'role_id' }) // Nombre de la columna FK en la BD

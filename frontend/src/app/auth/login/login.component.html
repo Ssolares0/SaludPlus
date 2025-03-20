@@ -1,0 +1,37 @@
+<main class="login">
+    <div class="login-container">
+        <header class="login-header">
+            <img class="logo" src="assets/images/login/logo.png" alt="Logo de SaludPlus" />
+            <div class="brand-name">
+                <h1 class="brand-title">Centro Médico</h1>
+                <h2 class="brand-subtitle">SaludPlus</h2>
+            </div>
+        </header>
+        <section class="login-content">
+            <h3 class="login-title">Iniciar Sesión</h3>
+            <p class="login-description">Ingrese sus credenciales para iniciar sesión</p>
+            <form class="login-form" action="#" method="post">
+                <div class="form-group">
+                    <label for="email" class="form-label">Correo electrónico</label>
+                    <input type="email" id="email" name="email" class="form-input"
+                        placeholder="correoejemplo@saludplus.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="●●●●●●●●"
+                        required />
+                </div>
+                <button type="submit" class="login-button">Iniciar Sesión</button>
+            </form>
+            <p class="register-prompt">¿No tienes una cuenta? <a class="register-link"
+                    (click)="goToSelectTypeAccount()">Registrate aquí</a>
+            </p>
+        </section>
+        <footer class="login-footer">
+            <p class="copyright">© 2025 SaludPlus. Todos los derechos reservados.</p>
+            <p class="legal-links"><a href="#">Términos y Condiciones</a> • <a href="#">Política de Privacidad</a>
+            </p>
+        </footer>
+    </div>
+    <div class="login-image" role="img" aria-label="Imagen decorativa de SaludPlus"></div>
+</main>

@@ -248,7 +248,7 @@ export class AuthService {
       return { token, requiresAuth2: true };
     }
 
-    
+
     return { success: true, message: "Usuario logeado satisfactoriamente!", role: user.role };
 
   }
@@ -267,27 +267,44 @@ export class AuthService {
     return { message: "Usuario validado correctamente", success: true };
   }
 
-  async approvedAdmin(token:string,files:Express.Multer.File) {
+  async approvedAdmin(token: string, files: Express.Multer.File) {
     try {
-        const decoded: any = jwt.verify(token, JWT_SECRET);
-        if (decoded.rol !== 'administrador') {
-            throw new Error('No tienes permiso para aprobar usuarios');
-        }
-        if (!files) {
-            throw new Error('archivo requerido');
-        }
-        console.log(files)
-        const contenidoArchivo = files.buffer.toString('utf-8').trim(); // Leer contenido desde el buffer
-        const adminHash = '$2a$12$r8hBiUDHNfnTdKnwVpVsTuvf0sdQgCPFw6mcAaattnAui5xEfFlBC'; // Hash fijo
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      if (decoded.rol !== 'administrador') {
+        throw new Error('No tienes permiso para aprobar usuarios');
+      }
+      if (!files) {
+        throw new Error('archivo requerido');
+      }
+      const user = await AppDataSource.manager.findOne(User, {
+        where: { id: decoded.id },
+        relations: ['person', 'role']
+      });
 
-        const valid = await bcrypt.compare(contenidoArchivo, adminHash);
+      if (!user) {
+        throw new Error('Usuario no encontrado');
+      }
 
-        if (!valid) return { success: false, message: 'Archivo no válido' };
-        const finalToken = jwt.sign({ id: decoded.id, rol: 'administrador', auth2: true }, JWT_SECRET, { expiresIn: '1h' });
-        return { token: finalToken,success:true };
+      if (!user.remember_token) {
+        throw new Error('Token de autenticación no encontrado');
+      }
+
+      const contenidoArchivo = files.buffer.toString('utf-8').trim();
+
+      // Ensure both arguments are strings for bcrypt.compare
+      const valid = await bcrypt.compare(
+        contenidoArchivo,
+        user.remember_token.toString()
+      );
+
+      if (!valid) {
+        return { success: false, message: 'No es valida la contraseña del archivo' };
+      }
+      const finalToken = jwt.sign({ id: decoded.id, rol: 'administrador', auth2: true }, JWT_SECRET, { expiresIn: '1h' });
+      return { token: finalToken, success: true };
 
 
-    }catch(error){
+    } catch (error) {
       throw error;
     }
   }

@@ -1,1 +1,77 @@
 /* You can add global styles to this file, and also import other style files */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+* {
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+}
+
+/*Sin márgenes*/
+html,
+body {
+    margin: 0px;
+    height: 100%;
+}
+
+/*Borde azúl cuando los botónes reciben foco mediante el teclado*/
+button:focus-visible {
+    outline: 2px solid #4a90e2 !important;
+    outline: -webkit-focus-ring-color auto 5px !important;
+}
+
+/*Sin subrayado predeterminado en los enlaces*/
+a {
+    text-decoration: none;
+}
+
+/*Tipografía, espaciado de línea y negro suave para la misma*/
+body {
+    font-family: "Inter", sans-serif;
+    line-height: 1.5;
+    color: var(--negro-suave);
+}
+
+/*Inputs y botónes heredan propiedades fuente de sus elementos padres*/
+input,
+button {
+    font: inherit;
+}
+
+/*Imágenes responsivas*/
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/*Paleta de colores*/
+:root {
+    --terracota-suave: rgba(199, 154, 116, 1);
+    --gris-neutro-medio: rgba(179, 179, 179, 1);
+    --gris-neutro-claro: rgba(245, 245, 245, 1);
+    --negro-suave: rgba(30, 30, 30, 1);
+    --blanco: rgba(255, 255, 255, 1);
+    --gris: rgba(75, 85, 99, 1);
+    --strokes: rgba(229, 231, 235, 1);
+    --placeholder: rgba(156, 163, 175, 1);
+    --azl-serenidad-500: rgba(41, 95, 152, 1);
+    --azl-serenidad-400: rgba(75, 123, 170, 1);
+    --azl-serenidad-300: rgba(117, 152, 196, 1);
+    --azl-serenidad-200: rgba(163, 197, 226, 1);
+    --azl-serenidad-100: rgba(209, 226, 240, 1);
+    --arena-suave-500: rgba(205, 194, 165, 1);
+    --arena-suave-400: rgba(201, 187, 166, 1);
+    --arena-suave-300: rgba(211, 199, 171, 1);
+    --arena-suave-200: rgba(227, 219, 201, 1);
+    --arena-suave-100: rgba(243, 239, 232, 1);
+    --marfil-ligero-500: rgba(225, 215, 198, 1);
+    --marfil-ligero-400: rgba(219, 211, 198, 1);
+    --marfil-ligero-300: rgba(229, 222, 213, 1);
+    --marfil-ligero-200: rgba(239, 234, 227, 1);
+    --marfil-ligero-100: rgba(249, 246, 241, 1);
+    --perla-cremosa-500: rgba(234, 228, 221, 1);
+    --perla-cremosa-400: rgba(229, 223, 212, 1);
+    --perla-cremosa-300: rgba(237, 230, 222, 1);
+    --perla-cremosa-200: rgba(243, 238, 232, 1);
+    --perla-cremosa-100: rgba(249, 247, 244, 1);
+}

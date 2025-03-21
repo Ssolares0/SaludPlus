@@ -18,12 +18,12 @@
                         <input type="email" id="email" formControlName="email" class="form-input"
                             [ngClass]="{ 'form-input-error': shouldShowError('email') }"
                             placeholder="correoejemplo@saludplus.com" />
-                        <!-- Contenedor con altura fija -->
                         <div class="error-container">
-                            <!-- Eliminar animación para este mensaje específico -->
-                            <div *ngIf="shouldShowError('email')" class="error-message">
+                            @if (shouldShowError('email')) {
+                            <div class="error-message">
                                 {{ getErrorMessage('email') }}
                             </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -34,9 +34,11 @@
                         <input type="password" id="password" formControlName="password" class="form-input"
                             [ngClass]="{ 'form-input-error': shouldShowError('password') }" placeholder="●●●●●●●●" />
                         <div class="error-container">
-                            <div *ngIf="shouldShowError('password')" class="error-message">
+                            @if (shouldShowError('password')) {
+                            <div class="error-message">
                                 {{ getErrorMessage('password') }}
                             </div>
+                            }
                         </div>
                     </div>
                 </div>

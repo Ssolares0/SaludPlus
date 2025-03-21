@@ -10,19 +10,40 @@
         <section class="login-content">
             <h3 class="login-title">Iniciar Sesión</h3>
             <p class="login-description">Ingrese sus credenciales para iniciar sesión</p>
-            <form class="login-form" action="#" method="post">
+
+            <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                 <div class="form-group">
                     <label for="email" class="form-label">Correo electrónico</label>
-                    <input type="email" id="email" name="email" class="form-input"
-                        placeholder="correoejemplo@saludplus.com" required />
+                    <div class="input-container">
+                        <input type="email" id="email" formControlName="email" class="form-input"
+                            [ngClass]="{ 'form-input-error': shouldShowError('email') }"
+                            placeholder="correoejemplo@saludplus.com" />
+                        <!-- Contenedor con altura fija -->
+                        <div class="error-container">
+                            <!-- Eliminar animación para este mensaje específico -->
+                            <div *ngIf="shouldShowError('email')" class="error-message">
+                                {{ getErrorMessage('email') }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="form-group">
                     <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" id="password" name="password" class="form-input" placeholder="●●●●●●●●"
-                        required />
+                    <div class="input-container">
+                        <input type="password" id="password" formControlName="password" class="form-input"
+                            [ngClass]="{ 'form-input-error': shouldShowError('password') }" placeholder="●●●●●●●●" />
+                        <div class="error-container">
+                            <div *ngIf="shouldShowError('password')" class="error-message">
+                                {{ getErrorMessage('password') }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <button type="submit" class="login-button">Iniciar Sesión</button>
             </form>
+
             <p class="register-prompt">¿No tienes una cuenta? <a class="register-link"
                     (click)="goToSelectTypeAccount()">Registrate aquí</a>
             </p>

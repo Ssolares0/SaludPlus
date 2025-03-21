@@ -1,1 +1,124 @@
-<p>register-doctor works!</p>
+<div class="register-container">
+    <div class="header">
+        <img class="logo" src="assets/images/login/logo.png" alt="Logo SaludPlus">
+        <div class="brand-name">
+            <div class="brand-title">Centro Médico</div>
+            <div class="brand-subtitle">SaludPlus</div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h1 class="form-title">Crea tu cuenta tipo "Médico"</h1>
+        <p class="form-subtitle">Llena el formulario de registro</p>
+
+        <form autocomplete="off">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre<span class="required">*</span></label>
+                    <input type="text" id="nombre" placeholder="Luis Carlos" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="apellido">Apellido<span class="required">*</span></label>
+                    <input type="text" id="apellido" placeholder="Corleto Marroquín" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dpi">DPI<span class="required">*</span></label>
+                    <input type="text" id="dpi" placeholder="3082203580607" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="genero">Género<span class="required">*</span></label>
+                    <select id="genero" autocomplete="off">
+                        <option disabled selected>Selecciona tu género</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="direccion">Dirección<span class="required">*</span></label>
+                    <input type="text" id="direccion" placeholder="Calle Principal, Zona 4, Mixco, Guatemala."
+                        autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono<span class="required">*</span></label>
+                    <input type="tel" id="telefono" placeholder="31275090" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Correo electrónico<span class="required">*</span></label>
+                    <input type="email" id="email" placeholder="correomedico@saludplus.com" autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña<span class="required">*</span></label>
+                    <input type="password" id="password" placeholder="●●●●●●●●" autocomplete="new-password">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="colegiado">Número de colegiado<span class="required">*</span></label>
+                    <input type="text" id="colegiado" placeholder="748392" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="especialidad">Especialidad<span class="required">*</span></label>
+                    <select id="especialidad" autocomplete="off">
+                        <option disabled selected>Selecciona tu especialidad</option>
+                        <option value="medicina-general">Medicina General</option>
+                        <option value="cardiologia">Cardiología</option>
+                        <option value="dermatologia">Dermatología</option>
+                        <option value="pediatria">Pediatría</option>
+                        <option value="traumatologia">Traumatología</option>
+                        <option value="ginecologia">Ginecología</option>
+                        <option value="neurologia">Neurología</option>
+                        <option value="oftalmologia">Oftalmología</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="direccion-clinica">Dirección de la clínica<span class="required">*</span></label>
+                    <input type="text" id="direccion-clinica"
+                        placeholder="Avenida Las Rosas, Zona 10, Ciudad de Guatemala." autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="departamento">Departamento<span class="required">*</span></label>
+                    <select id="departamento" autocomplete="off">
+                        <option disabled selected>Selecciona el departamento en el que se encuentra tu clínica</option>
+                        <!-- opciones de departamentos... -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-register">Registrarme como médico</button>
+            </div>
+        </form>
+
+        <div class="login-link">
+            <span>¿Ya tienes una cuenta?</span>
+            <a href="#">Inicia sesión</a>
+        </div>
+    </div>
+
+    <button class="profile-image-container" type="button" aria-label="Cambiar foto de perfil">
+        <div class="profile-image">
+            <i-lucide [name]="UserCircle2" [size]="52"></i-lucide>
+        </div>
+        <span class="required-mark">*</span>
+    </button>
+</div>

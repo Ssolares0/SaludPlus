@@ -73,7 +73,7 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2.0rem;
     margin-bottom: 1rem;
 }
 
@@ -88,6 +88,10 @@
     font-weight: 600;
     color: var(--negro-suave);
     font-size: clamp(0.875rem, 2vw, 16px);
+}
+
+.input-container {
+    position: relative;
 }
 
 .form-input {
@@ -112,8 +116,26 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.form-input-error {
+    border-color: var(--terracota-suave);
+    background-color: rgba(255, 204, 204, 0.1);
+}
+
+.error-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding-top: 4px;
+}
+
+.error-message {
+    color: var(--terracota-suave);
+    font-size: 0.875rem;
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+}
+
 .login-button {
-    margin-top: clamp(1rem, 3vw, 1.5rem);
     width: 100%;
     height: clamp(48px, 10vw, 65px);
     font-family: "Inter-SemiBold", Helvetica;
@@ -125,6 +147,7 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 1rem;
 }
 
 .login-button:hover {
@@ -201,7 +224,8 @@
 @media (prefers-reduced-motion: reduce) {
 
     .login-button,
-    .form-input {
+    .form-input,
+    .error-message {
         transition: none;
     }
 }

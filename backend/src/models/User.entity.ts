@@ -16,8 +16,8 @@ export class User {
   @Column({ type: 'bytea' }) //(contraseña encriptada)
   password!: Buffer;
 
-  @Column({type:'varchar', nullable:true})
-  remember_token?: string;
+  @Column({type:'bytea', nullable:true})
+  remember_token?: Buffer;
 
   @Column({type:'date', nullable:true})
   email_verified_at?: Date;

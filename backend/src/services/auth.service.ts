@@ -104,6 +104,92 @@ export class AuthService {
     }
   }
 
+  async registerAdmin(
+    adminData: {
+      firstName: string;
+      lastName: string;
+      dpi: string;
+      email: string;
+      password: string;
+      seconf_password: string;
+      birth_date: Date;
+      gender: string; //1 hombre, 0 mujer
+      phone: string;
+      address: string;
+      role_id: number;  
+  },
+  file?: Express.Multer.File
+  ){
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try{
+      if(adminData.password === adminData.seconf_password){
+        throw new Error("Las constrasenas no pueden ser iguales");
+      }
+      const person = new Person();
+    // subi foto si tiene
+    if (file){
+        const filename = `${uuidv4()}_${file.originalname}`;
+        const s3Client = new S3Client({
+            region: process.env.AWS_REGION,
+            credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+            },
+        });
+
+        await s3Client.send(
+            new PutObjectCommand({
+              Bucket: process.env.S3_BUCKET!,
+              Key: `fotos/${filename}`,
+              Body: file.buffer,
+              ContentType: file.mimetype,
+            })
+        );
+
+        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        person.photo = photoUrl;
+    }
+      // 1. Crear Persona
+      
+      person.first_name = adminData.firstName;
+      person.last_name = adminData.lastName;
+      person.national_id = adminData.dpi;
+      person.email = adminData.email;
+      person.birth_date = adminData.birth_date;
+      person.gender = adminData.gender;
+      person.phone = adminData.phone;
+      person.address = adminData.address;
+      await queryRunner.manager.save(person);
+
+      // 2. Crear Usuario (con contraseña encriptada)
+      const user = new User();
+      user.name = adminData.firstName+adminData.lastName;
+      user.email = adminData.email;
+      user.password = await hashPassword(adminData.password);
+      user.remember_token = await hashPassword(adminData.seconf_password);
+      user.email_verified_at = new Date();
+      user.person = person;
+      const role = await AppDataSource.manager.findOne(Role, {where: {id: adminData.role_id},});
+      if (!role){
+        throw new Error('Rol no encontrado');
+      }
+      user.role = role;
+      await queryRunner.manager.save(user);
+
+      await queryRunner.commitTransaction();
+      return { success: true, userId: user.id };
+    } catch (error:any){
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+    
+  }
+  
   async registerDoctor(
     doctorData: {
         firstName: string;
@@ -217,6 +303,6 @@ export class AuthService {
     } finally {
         await queryRunner.release();
     }
-
+  
   }
 }

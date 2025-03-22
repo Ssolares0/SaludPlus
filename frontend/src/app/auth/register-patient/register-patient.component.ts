@@ -19,6 +19,7 @@ export class RegisterPatientComponent implements OnInit {
   submitted = false;
   profileImageUrl: SafeUrl | null = null;
   selectedFile: File | null = null;
+  maxDate: string = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -30,6 +31,10 @@ export class RegisterPatientComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    this.maxDate = eighteenYearsAgo.toISOString().split('T')[0];
+
     this.registerPatientForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       lastname: ['', [Validators.required]],
@@ -40,6 +45,7 @@ export class RegisterPatientComponent implements OnInit {
         Validators.pattern(/^[0-9]+$/)
       ]],
       genre: ['', [Validators.required]],
+      birthdate: ['', [Validators.required]], 
       direction: ['', [Validators.required]],
       phone: ['', [
         Validators.required,
@@ -57,13 +63,35 @@ export class RegisterPatientComponent implements OnInit {
         Validators.minLength(8),
         Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).*$/)
       ]]
-    });
+    }, { validators: this.validateBirthdate });
 
     this.registerPatientForm.valueChanges.subscribe(() => {
       if (this.anyControlTouched()) {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  validateBirthdate(group: FormGroup) {
+    const birthdateControl = group.get('birthdate');
+    if (!birthdateControl || !birthdateControl.value) return null;
+
+    const birthdate = new Date(birthdateControl.value);
+    const today = new Date();
+    const age = today.getFullYear() - birthdate.getFullYear();
+    const m = today.getMonth() - birthdate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+      if (age - 1 < 18) {
+        return { underage: true };
+      }
+    } else {
+      if (age < 18) {
+        return { underage: true };
+      }
+    }
+
+    return null;
   }
 
   onProfileImageSelected(event: Event): void {
@@ -131,6 +159,10 @@ export class RegisterPatientComponent implements OnInit {
         maxlength: 'El DPI debe tener 13 dígitos',
         pattern: 'El DPI solo debe contener números'
       },
+      birthdate: {
+        required: 'La fecha de nacimiento es requerida',
+        underage: 'Debes ser mayor de edad para registrarte'
+      },
       genre: {
         required: 'El género es requerido'
       },
@@ -154,11 +186,15 @@ export class RegisterPatientComponent implements OnInit {
         pattern: 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial'
       }
     };
-    
-    const errorType = Object.keys(field.errors).find(error => 
+
+    if (fieldName === 'birthdate' && this.registerPatientForm.hasError('underage')) {
+      return 'Debes ser mayor de edad para registrarte';
+    }
+
+    const errorType = Object.keys(field.errors).find(error =>
       errorMessages[fieldName]?.[error]
     );
-    
+
     return errorType ? errorMessages[fieldName][errorType] : '';
   }
 

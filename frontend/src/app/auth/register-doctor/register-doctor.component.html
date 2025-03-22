@@ -84,6 +84,21 @@
 
             <div class="form-row">
                 <div class="form-group">
+                    <label for="birthdate">Fecha de nacimiento<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="date" id="birthdate" formControlName="birthdate" [max]="maxDate"
+                            [ngClass]="{ 'form-input-error': shouldShowError('birthdate') }">
+                        <div class="error-container">
+                            @if (shouldShowError('birthdate') || registerDoctorForm.hasError('underage')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('birthdate') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="direction">Dirección<span class="required">*</span></label>
                     <div class="input-container">
                         <input type="text" id="direction" formControlName="direction"
@@ -98,7 +113,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="phone">Teléfono<span class="required">*</span></label>
                     <div class="input-container">
@@ -113,9 +130,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label for="email">Correo electrónico<span class="required">*</span></label>
                     <div class="input-container">
@@ -131,7 +146,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="password">Contraseña<span class="required">*</span></label>
                     <div class="input-container">
@@ -146,9 +163,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label for="collegiateNumber">Número de colegiado<span class="required">*</span></label>
                     <div class="input-container">
@@ -164,7 +179,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="specialty">Especialidad<span class="required">*</span></label>
                     <div class="input-container">
@@ -189,9 +206,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label for="clinicAddress">Dirección de la clínica<span class="required">*</span></label>
                     <div class="input-container">
@@ -207,7 +222,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="department">Departamento<span class="required">*</span></label>
                     <div class="input-container">
@@ -247,6 +264,11 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Campo vacío para balancear la fila -->
+                <div class="form-group">
+                    <!-- Espacio intencionalmente vacío -->
+                </div>
             </div>
 
             <div class="form-actions">
@@ -272,7 +294,7 @@
 
         <div class="login-link">
             <span>¿Ya tienes una cuenta?</span>
-            <a href="#">Inicia sesión</a>
+            <a href="#" (click)="goToLogin()">Inicia sesión</a>
         </div>
     </div>
 </div>

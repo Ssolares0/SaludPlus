@@ -14,11 +14,12 @@ import { Router } from '@angular/router';
   styleUrl: './register-doctor.component.css'
 })
 
-export class RegisterDoctorComponent implements OnInit {
+export class RegisterDoctorComponent implements OnInit, AfterViewInit {
   registerDoctorForm!: FormGroup;
   submitted = false;
   profileImageUrl: SafeUrl | null = null;
   selectedFile: File | null = null;
+  maxDate: string = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -30,6 +31,11 @@ export class RegisterDoctorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Calcular fecha máxima (18 años atrás desde hoy)
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    this.maxDate = eighteenYearsAgo.toISOString().split('T')[0];
+
     this.registerDoctorForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       lastname: ['', [Validators.required]],
@@ -39,6 +45,7 @@ export class RegisterDoctorComponent implements OnInit {
         Validators.maxLength(13),
         Validators.pattern(/^[0-9]+$/)
       ]],
+      birthdate: ['', [Validators.required]], // Nuevo campo
       genre: ['', [Validators.required]],
       direction: ['', [Validators.required]],
       phone: ['', [
@@ -66,13 +73,44 @@ export class RegisterDoctorComponent implements OnInit {
       specialty: ['', [Validators.required]],
       clinicAddress: ['', [Validators.required]],
       department: ['', [Validators.required]]
-    });
+    }, { validators: this.validateBirthdate });
 
     this.registerDoctorForm.valueChanges.subscribe(() => {
       if (this.anyControlTouched()) {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Forzar detección de cambios después de que la vista se ha inicializado
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
+  // Validador personalizado para verificar que la persona sea mayor de edad
+  validateBirthdate(group: FormGroup) {
+    const birthdateControl = group.get('birthdate');
+    if (!birthdateControl || !birthdateControl.value) return null;
+
+    const birthdate = new Date(birthdateControl.value);
+    const today = new Date();
+    const age = today.getFullYear() - birthdate.getFullYear();
+    const m = today.getMonth() - birthdate.getMonth();
+
+    // Si aún no ha cumplido años este año, restar un año
+    if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+      if (age - 1 < 18) {
+        return { underage: true };
+      }
+    } else {
+      if (age < 18) {
+        return { underage: true };
+      }
+    }
+
+    return null;
   }
 
   onProfileImageSelected(event: Event): void {
@@ -140,6 +178,10 @@ export class RegisterDoctorComponent implements OnInit {
         maxlength: 'El DPI debe tener 13 dígitos',
         pattern: 'El DPI solo debe contener números'
       },
+      birthdate: {
+        required: 'La fecha de nacimiento es requerida',
+        underage: 'Debes ser mayor de edad para registrarte'
+      },
       genre: {
         required: 'El género es requerido'
       },
@@ -178,6 +220,11 @@ export class RegisterDoctorComponent implements OnInit {
         required: 'El departamento es requerido'
       }
     };
+
+    // Validación especial para el error de underage que está a nivel de formulario
+    if (fieldName === 'birthdate' && this.registerDoctorForm.hasError('underage')) {
+      return 'Debes ser mayor de edad para registrarte';
+    }
 
     const errorType = Object.keys(field.errors).find(error =>
       errorMessages[fieldName]?.[error]

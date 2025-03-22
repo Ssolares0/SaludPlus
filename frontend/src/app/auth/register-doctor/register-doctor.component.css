@@ -272,6 +272,34 @@ select:focus {
     margin-right: 15px;
 }
 
+input[type="date"] {
+    color: var(--negro-suave);
+    font-family: 'Inter', sans-serif;
+    padding-right: 10px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    filter: invert(0.5);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+input[type="date"]:required:invalid::-webkit-datetime-edit {
+    color: var(--placeholder);
+}
+
+input[type="date"]:focus::-webkit-datetime-edit {
+    color: var(--negro-suave);
+}
+
 @media (max-width: 1440px) {
     .form-row {
         flex-direction: column;

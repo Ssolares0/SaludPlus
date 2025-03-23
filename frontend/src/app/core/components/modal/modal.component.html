@@ -1,0 +1,16 @@
+@if (isVisible) {
+<div class="modal-overlay" [@fadeIn]>
+    <div class="modal-container" [@slideIn] clickOutside (clickOutside)="closeModal()">
+        <div class="modal-title"
+            [ngClass]="{'success-title': type === 'success', 'warning-title': type === 'warning', 'error-title': type === 'error'}">
+            {{ title }}
+        </div>
+        <div class="modal-message">
+            {{ message }}
+        </div>
+        <button class="modal-button" (click)="closeModal()">
+            Aceptar
+        </button>
+    </div>
+</div>
+}

@@ -1,6 +1,9 @@
 // models/Person.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from 'typeorm';
 import { User } from './User.entity';
+import { EmergencyContact } from './EmergencieContac.entity';
+import { Patient } from './Patient.entity';
+import { Employee } from './Employe.entity';
 
 @Entity({name:"people"})
 export class Person {
@@ -36,4 +39,13 @@ export class Person {
 
   @OneToOne(() => User, (user) => user.person)
   user!: User;
+
+  @OneToOne(() => Patient, (patient) => patient.person)
+  patient!: Patient;
+
+  @OneToOne(() => Employee, (employe) => employe.person)
+  employee!: Employee;
+
+  @OneToMany(() => EmergencyContact, (contact) => contact.person)
+  emergencyContacts!: EmergencyContact[];
 }

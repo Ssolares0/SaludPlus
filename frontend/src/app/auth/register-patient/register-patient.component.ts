@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ModalComponent } from '../../core/components/modal/modal.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { PatientRegisterData } from '../models/auth.models';
 import { AuthService } from '../services/auth.service';
@@ -11,18 +12,25 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-register-patient',
   standalone: true,
-  imports: [LucideAngularModule, ReactiveFormsModule, CommonModule],
+  imports: [LucideAngularModule, ReactiveFormsModule, CommonModule, ModalComponent],
   templateUrl: './register-patient.component.html',
   styleUrl: './register-patient.component.css'
 })
 
 export class RegisterPatientComponent implements OnInit {
+  private shouldNavigateAfterClose = false;
+
   registerPatientForm!: FormGroup;
   submitted = false;
   profileImageUrl: SafeUrl | null = null;
   selectedFile: File | null = null;
   maxDate: string = '';
   isLoading = false;
+
+  showModal = false;
+  modalType: 'success' | 'warning' | 'error' = 'success';
+  modalTitle = '';
+  modalMessage = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -126,13 +134,13 @@ export class RegisterPatientComponent implements OnInit {
       this.selectedFile = input.files[0];
 
       if (!this.validateImageType(this.selectedFile)) {
-        alert('Por favor seleccione un archivo de imagen válido (JPG, PNG o GIF).');
+        this.showWarningModal('Por favor seleccione un archivo de imagen válido (JPG, PNG o GIF).');
         this.resetProfileImage();
         return;
       }
 
       if (this.selectedFile.size > 5 * 1024 * 1024) {
-        alert('La imagen no debe exceder los 5MB.');
+        this.showWarningModal('La imagen no debe exceder los 5MB.');
         this.resetProfileImage();
         return;
       }
@@ -250,7 +258,7 @@ export class RegisterPatientComponent implements OnInit {
       gender: this.getGenderValue(this.registerPatientForm.value.genre),
       phone: this.registerPatientForm.value.phone,
       address: this.registerPatientForm.value.direction,
-      role_id: 3 
+      role_id: 3
     };
 
     if (this.selectedFile) {
@@ -259,25 +267,53 @@ export class RegisterPatientComponent implements OnInit {
 
     this.authService.registerPatient(patientData).subscribe({
       next: (response) => {
-        console.log('Registro completado exitosamente', response);
-
         this.isLoading = false;
 
-        alert('¡Registro completado exitosamente!');
-        this.router.navigate(['/']);
+        this.showSuccessModal('Su formulario fue completado con éxito, debe esperar la verificación del administrador para terminar el proceso de registro.');
       },
       error: (error) => {
         console.error('Error al registrar', error);
 
         this.isLoading = false;
 
-        alert('Error al registrar: ' + error.message);
+        this.showErrorModal('Error al registrar: ' + error.message);
       }
     });
   }
 
   goToLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
+  }
+
+  private showSuccessModal(message: string): void {
+    this.modalType = 'success';
+    this.modalTitle = '¡Registro exitoso!';
+    this.modalMessage = message;
+    this.shouldNavigateAfterClose = true;
+    this.showModal = true;
+  }
+
+  private showErrorModal(message: string): void {
+    this.modalType = 'error';
+    this.modalTitle = '¡Error al registrar!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  private showWarningModal(message: string): void {
+    this.modalType = 'warning';
+    this.modalTitle = '¡Advertencia!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  onCloseModal(): void {
+    this.showModal = false;
+    
+    if (this.shouldNavigateAfterClose) {
+      this.shouldNavigateAfterClose = false; 
+      this.goToLogin();
+    }
   }
 
   protected readonly UserCircle2 = UserCircle2;

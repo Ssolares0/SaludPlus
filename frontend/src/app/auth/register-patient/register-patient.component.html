@@ -197,4 +197,12 @@
             <a href="#" (click)="goToLogin()">Inicia sesión</a>
         </div>
     </div>
+
+    <app-modal 
+        [isVisible]="showModal" 
+        [type]="modalType" 
+        [title]="modalTitle" 
+        [message]="modalMessage"
+        (close)="onCloseModal()">
+    </app-modal>
 </div>

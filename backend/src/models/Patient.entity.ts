@@ -3,7 +3,7 @@ import { Person } from './Person.entity';
 import { Appointment } from './Appointments.entity';
 import { PatientDepartment } from './PatientDepartment.entity';
 
-@Entity()
+@Entity({name:'patients'})
 export class Patient {
   @PrimaryGeneratedColumn()
   id!: number;

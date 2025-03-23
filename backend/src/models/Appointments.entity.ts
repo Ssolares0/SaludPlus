@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { Patient } from './Patient.entity';
 import { Employee } from './Employe.entity';
 
-@Entity()
+@Entity({name:'appointments'})
 export class Appointment {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -29,6 +29,6 @@ export class Appointment {
 
   // Relación N:1 con employe
   @ManyToOne(() => Employee, (doctor) => doctor.appointments)
-  @JoinColumn({ name: 'doctor_id' })
+  @JoinColumn({ name: 'employee_id' })
   doctor!: Employee;
 }

@@ -3,6 +3,7 @@ import { Person } from './Person.entity';
 import { EmployeeSpecialty } from './EmployeeSpecialties.entity';
 import { EmployeeDepartmetn } from './EmployeeDepartment.entity';
 import { Appointment } from './Appointments.entity';
+import { DoctorSchedule } from './DoctorSchedule.entity';
 
 @Entity({name:'employees'})
 export class Employee {
@@ -29,6 +30,10 @@ export class Employee {
   //Relacion con Citas 1:N
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
   appointments!: Appointment[];
+
+  //Relacion con Horarios 1:N
+  @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor)
+  schedules!: DoctorSchedule[];
 
   @OneToOne(() => Person)
   @JoinColumn({name:'person_id'})

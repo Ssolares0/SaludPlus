@@ -5,6 +5,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UserCircle2 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { DoctorRegisterData } from '../models/auth.models';
 
 @Component({
   selector: 'app-register-doctor',
@@ -14,12 +16,23 @@ import { Router } from '@angular/router';
   styleUrl: './register-doctor.component.css'
 })
 
-export class RegisterDoctorComponent implements OnInit, AfterViewInit {
+export class RegisterDoctorComponent implements OnInit {
   registerDoctorForm!: FormGroup;
   submitted = false;
   profileImageUrl: SafeUrl | null = null;
   selectedFile: File | null = null;
   maxDate: string = '';
+  isLoading = false;
+  specialties = [
+    { id: 1, name: 'Medicina General' },
+    { id: 2, name: 'Cardiología' },
+    { id: 3, name: 'Dermatología' },
+    { id: 4, name: 'Pediatría' },
+    { id: 5, name: 'Traumatología' },
+    { id: 6, name: 'Ginecología' },
+    { id: 7, name: 'Neurología' },
+    { id: 8, name: 'Oftalmología' }
+  ];
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -27,11 +40,11 @@ export class RegisterDoctorComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    // Calcular fecha máxima (18 años atrás desde hoy)
     const today = new Date();
     const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
     this.maxDate = eighteenYearsAgo.toISOString().split('T')[0];
@@ -45,7 +58,7 @@ export class RegisterDoctorComponent implements OnInit, AfterViewInit {
         Validators.maxLength(13),
         Validators.pattern(/^[0-9]+$/)
       ]],
-      birthdate: ['', [Validators.required]], // Nuevo campo
+      birthdate: ['', [Validators.required]],
       genre: ['', [Validators.required]],
       direction: ['', [Validators.required]],
       phone: ['', [
@@ -82,14 +95,28 @@ export class RegisterDoctorComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    // Forzar detección de cambios después de que la vista se ha inicializado
-    setTimeout(() => {
-      this.cdr.detectChanges();
-    }, 0);
+  private getGenderValue(genre: string): string {
+    switch (genre) {
+      case 'masculino':
+        return '1';
+      case 'femenino':
+        return '0';
+      case 'otro':
+        return '3';
+      default:
+        return '1';
+    }
   }
 
-  // Validador personalizado para verificar que la persona sea mayor de edad
+  private formatBirthdate(date: string): string {
+    const birthDate = new Date(date);
+    const day = String(birthDate.getDate()).padStart(2, '0');
+    const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+    const year = birthDate.getFullYear();
+
+    return `${month}-${day}-${year}`;
+  }
+
   validateBirthdate(group: FormGroup) {
     const birthdateControl = group.get('birthdate');
     if (!birthdateControl || !birthdateControl.value) return null;
@@ -99,7 +126,6 @@ export class RegisterDoctorComponent implements OnInit, AfterViewInit {
     const age = today.getFullYear() - birthdate.getFullYear();
     const m = today.getMonth() - birthdate.getMonth();
 
-    // Si aún no ha cumplido años este año, restar un año
     if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
       if (age - 1 < 18) {
         return { underage: true };
@@ -221,7 +247,6 @@ export class RegisterDoctorComponent implements OnInit, AfterViewInit {
       }
     };
 
-    // Validación especial para el error de underage que está a nivel de formulario
     if (fieldName === 'birthdate' && this.registerDoctorForm.hasError('underage')) {
       return 'Debes ser mayor de edad para registrarte';
     }
@@ -247,17 +272,58 @@ export class RegisterDoctorComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const formData = new FormData();
-
-    Object.keys(this.registerDoctorForm.value).forEach(key => {
-      formData.append(key, this.registerDoctorForm.value[key]);
-    });
-
-    if (this.selectedFile) {
-      formData.append('profileImage', this.selectedFile, this.selectedFile.name);
+    if (!this.selectedFile) {
+      alert('Por favor seleccione una foto de perfil (requerida para médicos).');
+      return;
     }
 
-    console.log('Registro completado');
+    this.isLoading = true;
+
+    const doctorData: DoctorRegisterData = {
+      firstName: this.registerDoctorForm.value.name,
+      lastName: this.registerDoctorForm.value.lastname,
+      dpi: this.registerDoctorForm.value.dpi,
+      email: this.registerDoctorForm.value.email,
+      password: this.registerDoctorForm.value.password,
+      birth_date: this.formatBirthdate(this.registerDoctorForm.value.birthdate),
+      gender: this.getGenderValue(this.registerDoctorForm.value.genre),
+      phone: this.registerDoctorForm.value.phone,
+      address: this.registerDoctorForm.value.direction,
+      role_id: 2, 
+      employee_number: this.registerDoctorForm.value.collegiateNumber,
+      id_specialty: this.getSpecialtyId(this.registerDoctorForm.value.specialty),
+      name_department: this.registerDoctorForm.value.department,
+      direccion_departamento: this.registerDoctorForm.value.clinicAddress,
+      photo: this.selectedFile
+    };
+
+    this.authService.registerDoctor(doctorData).subscribe({
+      next: (response) => {
+        console.log('Registro completado exitosamente', response);
+        this.isLoading = false;
+        alert('¡Registro completado exitosamente! Tu cuenta será revisada por un administrador antes de ser activada.');
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('Error al registrar', error);
+        this.isLoading = false;
+        alert('Error al registrar: ' + error.message);
+      }
+    });
+  }
+
+  private getSpecialtyId(specialtyValue: string): number {
+    switch (specialtyValue) {
+      case 'medicina-general': return 1;
+      case 'cardiologia': return 2;
+      case 'dermatologia': return 3;
+      case 'pediatria': return 4;
+      case 'traumatologia': return 5;
+      case 'ginecologia': return 6;
+      case 'neurologia': return 7;
+      case 'oftalmologia': return 8;
+      default: return 1; 
+    }
   }
 
   goToLogin(): void {

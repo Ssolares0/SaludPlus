@@ -104,6 +104,31 @@ select {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+input::placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-webkit-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-moz-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input:-ms-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-ms-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
 select option[disabled] {
     color: var(--placeholder);
 }

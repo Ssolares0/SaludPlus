@@ -178,6 +178,26 @@ select:focus {
     transition: background-color 0.3s ease;
 }
 
+.btn-register:disabled {
+    background: var(--gris);
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .btn-register:hover {
     background: var(--azl-serenidad-400);
 }

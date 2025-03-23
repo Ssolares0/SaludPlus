@@ -1,6 +1,8 @@
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { PatientRegisterData } from '../models/auth.models';
+import { AuthService } from '../services/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserCircle2 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
@@ -20,6 +22,7 @@ export class RegisterPatientComponent implements OnInit {
   profileImageUrl: SafeUrl | null = null;
   selectedFile: File | null = null;
   maxDate: string = '';
+  isLoading = false;
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -27,7 +30,8 @@ export class RegisterPatientComponent implements OnInit {
     private formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -45,7 +49,7 @@ export class RegisterPatientComponent implements OnInit {
         Validators.pattern(/^[0-9]+$/)
       ]],
       genre: ['', [Validators.required]],
-      birthdate: ['', [Validators.required]], 
+      birthdate: ['', [Validators.required]],
       direction: ['', [Validators.required]],
       phone: ['', [
         Validators.required,
@@ -92,6 +96,28 @@ export class RegisterPatientComponent implements OnInit {
     }
 
     return null;
+  }
+
+  private getGenderValue(genre: string): string {
+    switch (genre) {
+      case 'masculino':
+        return '1';
+      case 'femenino':
+        return '0';
+      case 'otro':
+        return '3';
+      default:
+        return '1';
+    }
+  }
+
+  private formatBirthdate(date: string): string {
+    const birthDate = new Date(date);
+    const day = String(birthDate.getDate()).padStart(2, '0');
+    const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+    const year = birthDate.getFullYear();
+
+    return `${month}-${day}-${year}`;
   }
 
   onProfileImageSelected(event: Event): void {
@@ -212,17 +238,42 @@ export class RegisterPatientComponent implements OnInit {
       return;
     }
 
-    const formData = new FormData();
+    this.isLoading = true;
 
-    Object.keys(this.registerPatientForm.value).forEach(key => {
-      formData.append(key, this.registerPatientForm.value[key]);
-    });
+    const patientData: PatientRegisterData = {
+      firstName: this.registerPatientForm.value.name,
+      lastName: this.registerPatientForm.value.lastname,
+      dpi: this.registerPatientForm.value.dpi,
+      email: this.registerPatientForm.value.email,
+      password: this.registerPatientForm.value.password,
+      birth_date: this.formatBirthdate(this.registerPatientForm.value.birthdate),
+      gender: this.getGenderValue(this.registerPatientForm.value.genre),
+      phone: this.registerPatientForm.value.phone,
+      address: this.registerPatientForm.value.direction,
+      role_id: 3 
+    };
 
     if (this.selectedFile) {
-      formData.append('profileImage', this.selectedFile, this.selectedFile.name);
+      patientData.photo = this.selectedFile;
     }
 
-    console.log('Registro completado');
+    this.authService.registerPatient(patientData).subscribe({
+      next: (response) => {
+        console.log('Registro completado exitosamente', response);
+
+        this.isLoading = false;
+
+        alert('¡Registro completado exitosamente!');
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('Error al registrar', error);
+
+        this.isLoading = false;
+
+        alert('Error al registrar: ' + error.message);
+      }
+    });
   }
 
   goToLogin(): void {

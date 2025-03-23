@@ -82,7 +82,6 @@
                 </div>
             </div>
 
-            <!-- NUEVA fila para fecha de nacimiento y dirección -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="birthdate">Fecha de nacimiento<span class="required">*</span></label>
@@ -165,14 +164,15 @@
                     </div>
                 </div>
 
-                <!-- Espacio en blanco para mantener el diseño equilibrado -->
                 <div class="form-group">
-                    <!-- Espacio intencionalmente vacío -->
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-register">Registrarme como paciente</button>
+                <button type="submit" class="btn-register" [disabled]="isLoading">
+                    <span *ngIf="!isLoading">Registrarme como paciente</span>
+                    <span *ngIf="isLoading">Registrando...</span>
+                </button>
             </div>
 
             <div class="profile-image-container">

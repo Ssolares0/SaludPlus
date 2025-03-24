@@ -170,8 +170,11 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn-register" [disabled]="isLoading">
-                    <span *ngIf="!isLoading">Registrarme como paciente</span>
-                    <span *ngIf="isLoading">Registrando...</span>
+                    @if (isLoading) {
+                    <span>Registrando...</span>
+                    } @else {
+                    <span>Registrarme como paciente</span>
+                    }
                 </button>
             </div>
 
@@ -198,11 +201,7 @@
         </div>
     </div>
 
-    <app-modal 
-        [isVisible]="showModal" 
-        [type]="modalType" 
-        [title]="modalTitle" 
-        [message]="modalMessage"
+    <app-modal [isVisible]="showModal" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
         (close)="onCloseModal()">
     </app-modal>
 </div>

@@ -2,6 +2,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { LoginBody } from '../models/auth.models';
 
 @Component({
   selector: 'app-login',
@@ -13,11 +15,19 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   submitted = false;
+  isLoading = false;
+  isAdmin = false;
+
+  showModal = false;
+  modalType: 'success' | 'warning' | 'error' = 'success';
+  modalTitle = '';
+  modalMessage = '';
 
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -80,7 +90,62 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    console.log('Formulario enviado', this.loginForm.value);
+    this.isLoading = true;
+
+    const loginBody: LoginBody = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    };
+
+    this.authService.Login(loginBody).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+
+        if (this.authService.isAdminResponse(response)) {
+          localStorage.setItem('token', response.token);
+
+          if (response.requiresAuth2) {
+            this.isAdmin = true;
+          }
+        }
+        else if (this.authService.isStandardResponse(response)) {
+          if (response.success) {
+            localStorage.setItem('userRole', response.role.id.toString());
+            localStorage.setItem('userRoleName', response.role.name);
+
+            switch (response.role.name) {
+              case 'doctor': 
+                this.router.navigate(['/doctor/dashboard']);
+                break;
+              case 'patient':
+                this.router.navigate(['/patient/dashboard']);
+            }
+          } else {
+            this.showErrorModal(response.message || 'Credenciales incorrectas');
+          }
+        }
+        else {
+          console.error('Formato de respuesta no reconocido:', response);
+          this.showErrorModal('Error inesperado en la respuesta del servidor');
+        }
+      },
+      error: (error) => {
+        console.error('Error al iniciar sesión:', error);
+        this.isLoading = false;
+        this.showErrorModal('Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.');
+      }
+    });
+  }
+
+  private showErrorModal(message: string) {
+    this.modalType = 'error';
+    this.modalTitle = '¡Error al iniciar sesión!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  onCloseModal(): void {
+    this.showModal = false;
   }
 
   goToSelectTypeAccount() {

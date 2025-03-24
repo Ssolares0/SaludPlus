@@ -1,14 +1,15 @@
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LoginBody } from '../models/auth.models';
+import { ModalComponent } from '../../core/components/modal/modal.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -17,6 +18,11 @@ export class LoginComponent implements OnInit {
   submitted = false;
   isLoading = false;
   isAdmin = false;
+
+  selectedFile: File | null = null;
+  selectedFileName: string = '';
+
+  @ViewChild('fileInput') fileInput!: ElementRef;
 
   showModal = false;
   modalType: 'success' | 'warning' | 'error' = 'success';
@@ -76,6 +82,23 @@ export class LoginComponent implements OnInit {
     return '';
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.selectedFileName = this.selectedFile.name;
+    }
+  }
+
+  submitAdminAuth(): void {
+    if (!this.selectedFile) {
+      this.showErrorModal('Por favor, selecciona un archivo');
+      return;
+    }
+
+    this.isLoading = true;
+  }
+
   onSubmit() {
     this.submitted = true;
 
@@ -132,7 +155,7 @@ export class LoginComponent implements OnInit {
       error: (error) => {
         console.error('Error al iniciar sesión:', error);
         this.isLoading = false;
-        this.showErrorModal('Ocurrió un error al iniciar sesión. Por favor, intenta de nuevo.');
+        this.showErrorModal('Ocurrió un error al iniciar sesión. Por favor verifica tus credenciales e intenta de nuevo.');
       }
     });
   }

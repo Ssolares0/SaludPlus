@@ -1,8 +1,8 @@
-import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData } from "../models/auth.models";
+import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion } from "../models/auth.models";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
-import { Observable, tap } from "rxjs";
+import { Observable } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -11,11 +11,19 @@ import { Observable, tap } from "rxjs";
 export class AuthService {
     constructor(private http: HttpClient) { }
 
-    public Login(LoginBody: LoginBody): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>('http://localhost:3001/auth/login', LoginBody)
+    public Login(LoginBody: LoginBody): Observable<LoginResponseUnion> {
+        return this.http.post<LoginResponseUnion>('http://localhost:3001/auth/login', LoginBody)
             .pipe(
                 catchError(this.handleError)
             );
+    }
+
+    public isStandardResponse(response: any): response is LoginResponse {
+        return 'success' in response && 'role' in response;
+    }
+
+    public isAdminResponse(response: any): response is LoginAdminResponse {
+        return 'token' in response && 'requiresAuth2' in response;
     }
 
     public registerPatient(patientData: PatientRegisterData): Observable<RegisterResponse> {

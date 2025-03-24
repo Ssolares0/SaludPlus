@@ -3,6 +3,11 @@ export interface LoginBody {
     password: string;
 }
 
+export interface LoginAdminResponse {
+    token: string;
+    requiresAuth2: boolean;
+}
+
 export interface LoginResponse {
     "success": boolean;
     "message": string;
@@ -48,3 +53,5 @@ export interface DoctorRegisterData {
     direccion_departamento: string;  
     photo: File;              
 }
+
+export type LoginResponseUnion = LoginResponse | LoginAdminResponse;

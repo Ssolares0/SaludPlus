@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LoginBody } from '../models/auth.models';
 import { ModalComponent } from '../../core/components/modal/modal.component';
+import { LucideAngularModule, ArrowLeft } from 'lucide-angular';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent, LucideAngularModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -22,7 +23,7 @@ export class LoginComponent implements OnInit {
   selectedFile: File | null = null;
   selectedFileName: string = '';
 
-  @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('keyFileInput') keyFileInput!: ElementRef;
 
   showModal = false;
   modalType: 'success' | 'warning' | 'error' = 'success';
@@ -37,6 +38,12 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const isAdminAuth = localStorage.getItem('isAdmin') === 'true';
+
+    if (isAdminAuth) {
+      this.isAdmin = true;
+    }
+
     this.loginForm = this.formBuilder.group({
       email: ['', [
         Validators.required,
@@ -90,13 +97,40 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  submitAdminAuth(): void {
+  submitAdminAuth(event: Event): void {
+    event.preventDefault();
+
     if (!this.selectedFile) {
       this.showErrorModal('Por favor, selecciona un archivo');
       return;
     }
 
     this.isLoading = true;
+
+    this.authService.loginAdmin(this.selectedFile).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        
+        if (response.success) {
+          localStorage.removeItem('isAdmin');
+          if (response.token) {
+            localStorage.setItem('token', response.token);
+          }
+          this.showSuccessModal('¡Autenticación completada exitosamente!');
+
+          setTimeout(() => {
+            this.router.navigate(['/admin/dashboard']);
+          }, 1500);
+        } else {
+          this.showErrorModal(response.message || 'Error al autenticar como administrador');
+        }
+      },
+      error: (error) => {
+        console.error('Error al autenticar como administrador:', error);
+        this.isLoading = false;
+        this.showErrorModal('El archivo de autenticación no es válido o hubo un error en el servidor. Por favor, intente de nuevo.');
+      }
+    })
   }
 
   onSubmit() {
@@ -126,6 +160,7 @@ export class LoginComponent implements OnInit {
 
         if (this.authService.isAdminResponse(response)) {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('isAdmin', 'true');
 
           if (response.requiresAuth2) {
             this.isAdmin = true;
@@ -160,11 +195,25 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  private showSuccessModal(message: string): void {
+    this.modalType = 'success';
+    this.modalTitle = '¡Autenticación exitosa!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
   private showErrorModal(message: string) {
     this.modalType = 'error';
     this.modalTitle = '¡Error al iniciar sesión!';
     this.modalMessage = message;
     this.showModal = true;
+  }
+
+  cancelAdminAuth(): void {
+    localStorage.removeItem('isAdmin');
+    this.isAdmin = false;
+    this.selectedFile = null;
+    this.selectedFileName = '';
   }
 
   onCloseModal(): void {
@@ -174,4 +223,6 @@ export class LoginComponent implements OnInit {
   goToSelectTypeAccount() {
     this.router.navigate(['/select-type-account']);
   }
+
+  protected readonly ArrowLeft = ArrowLeft;
 }

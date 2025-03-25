@@ -6,9 +6,14 @@
                 <h1 class="brand-title">Centro Médico</h1>
                 <h2 class="brand-subtitle">SaludPlus</h2>
             </div>
+            @if (isAdmin) {
+                <button type="button" class="cancel-button" (click)="cancelAdminAuth()" [disabled]="isLoading">
+                    <i-lucide class="cancel-icon" [name]="ArrowLeft"></i-lucide> 
+                    Volver
+                </button>
+                }
         </header>
         <section class="login-content">
-            <!-- Primera etapa de login (para todos los usuarios) -->
             @if (!isAdmin) {
             <h3 class="login-title">Iniciar Sesión</h3>
             <p class="login-description">Ingrese sus credenciales para iniciar sesión</p>
@@ -54,14 +59,11 @@
                     }
                 </button>
             </form>
-            }
-
-            <!-- Segunda etapa de login (solo para administradores) -->
-            @else {
+            } @else {
             <h3 class="login-title">Iniciar Sesión como Administrador</h3>
             <p class="login-description">Ingresa el archivo con tu contraseña encriptada</p>
 
-            <form class="login-form" (ngSubmit)="submitAdminAuth()">
+            <form class="login-form">
                 <div class="form-group">
                     <label for="keyFile" class="form-label">Archivo de autenticación</label>
                     <div class="input-container">
@@ -76,7 +78,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="login-button" [disabled]="isLoading || !selectedFile">
+                <button type="button" class="login-button" [disabled]="isLoading || !selectedFile" (click)="submitAdminAuth($event)">
                     @if (isLoading) {
                     <div class="spinner"></div>
                     <span>Autenticando...</span>
@@ -86,7 +88,6 @@
                 </button>
             </form>
             }
-
             <p class="register-prompt">¿No tienes una cuenta? <a class="register-link"
                     (click)="goToSelectTypeAccount()">Registrate aquí</a>
             </p>

@@ -1,6 +1,9 @@
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ModalComponent } from '../../core/components/modal/modal.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { PatientRegisterData } from '../models/auth.models';
+import { AuthService } from '../services/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserCircle2 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
@@ -9,16 +12,25 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-register-patient',
   standalone: true,
-  imports: [LucideAngularModule, ReactiveFormsModule, CommonModule],
+  imports: [LucideAngularModule, ReactiveFormsModule, CommonModule, ModalComponent],
   templateUrl: './register-patient.component.html',
   styleUrl: './register-patient.component.css'
 })
 
 export class RegisterPatientComponent implements OnInit {
+  private shouldNavigateAfterClose = false;
+
   registerPatientForm!: FormGroup;
   submitted = false;
   profileImageUrl: SafeUrl | null = null;
   selectedFile: File | null = null;
+  maxDate: string = '';
+  isLoading = false;
+
+  showModal = false;
+  modalType: 'success' | 'warning' | 'error' = 'success';
+  modalTitle = '';
+  modalMessage = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
 
@@ -26,10 +38,15 @@ export class RegisterPatientComponent implements OnInit {
     private formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    this.maxDate = eighteenYearsAgo.toISOString().split('T')[0];
+
     this.registerPatientForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       lastname: ['', [Validators.required]],
@@ -40,6 +57,7 @@ export class RegisterPatientComponent implements OnInit {
         Validators.pattern(/^[0-9]+$/)
       ]],
       genre: ['', [Validators.required]],
+      birthdate: ['', [Validators.required]],
       direction: ['', [Validators.required]],
       phone: ['', [
         Validators.required,
@@ -57,7 +75,7 @@ export class RegisterPatientComponent implements OnInit {
         Validators.minLength(8),
         Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).*$/)
       ]]
-    });
+    }, { validators: this.validateBirthdate });
 
     this.registerPatientForm.valueChanges.subscribe(() => {
       if (this.anyControlTouched()) {
@@ -66,19 +84,63 @@ export class RegisterPatientComponent implements OnInit {
     });
   }
 
+  validateBirthdate(group: FormGroup) {
+    const birthdateControl = group.get('birthdate');
+    if (!birthdateControl || !birthdateControl.value) return null;
+
+    const birthdate = new Date(birthdateControl.value);
+    const today = new Date();
+    const age = today.getFullYear() - birthdate.getFullYear();
+    const m = today.getMonth() - birthdate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+      if (age - 1 < 18) {
+        return { underage: true };
+      }
+    } else {
+      if (age < 18) {
+        return { underage: true };
+      }
+    }
+
+    return null;
+  }
+
+  private getGenderValue(genre: string): string {
+    switch (genre) {
+      case 'masculino':
+        return '1';
+      case 'femenino':
+        return '0';
+      case 'otro':
+        return '3';
+      default:
+        return '1';
+    }
+  }
+
+  private formatBirthdate(date: string): string {
+    const birthDate = new Date(date);
+    const day = String(birthDate.getDate()).padStart(2, '0');
+    const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+    const year = birthDate.getFullYear();
+
+    return `${month}-${day}-${year}`;
+  }
+
   onProfileImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
 
       if (!this.validateImageType(this.selectedFile)) {
-        alert('Por favor seleccione un archivo de imagen válido (JPG, PNG o GIF).');
+        this.showWarningModal('Por favor seleccione un archivo de imagen válido (JPG, PNG o GIF).');
         this.resetProfileImage();
         return;
       }
 
       if (this.selectedFile.size > 5 * 1024 * 1024) {
-        alert('La imagen no debe exceder los 5MB.');
+        this.showWarningModal('La imagen no debe exceder los 5MB.');
         this.resetProfileImage();
         return;
       }
@@ -131,6 +193,10 @@ export class RegisterPatientComponent implements OnInit {
         maxlength: 'El DPI debe tener 13 dígitos',
         pattern: 'El DPI solo debe contener números'
       },
+      birthdate: {
+        required: 'La fecha de nacimiento es requerida',
+        underage: 'Debes ser mayor de edad para registrarte'
+      },
       genre: {
         required: 'El género es requerido'
       },
@@ -154,11 +220,15 @@ export class RegisterPatientComponent implements OnInit {
         pattern: 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial'
       }
     };
-    
-    const errorType = Object.keys(field.errors).find(error => 
+
+    if (fieldName === 'birthdate' && this.registerPatientForm.hasError('underage')) {
+      return 'Debes ser mayor de edad para registrarte';
+    }
+
+    const errorType = Object.keys(field.errors).find(error =>
       errorMessages[fieldName]?.[error]
     );
-    
+
     return errorType ? errorMessages[fieldName][errorType] : '';
   }
 
@@ -176,21 +246,74 @@ export class RegisterPatientComponent implements OnInit {
       return;
     }
 
-    const formData = new FormData();
+    this.isLoading = true;
 
-    Object.keys(this.registerPatientForm.value).forEach(key => {
-      formData.append(key, this.registerPatientForm.value[key]);
-    });
+    const patientData: PatientRegisterData = {
+      firstName: this.registerPatientForm.value.name,
+      lastName: this.registerPatientForm.value.lastname,
+      dpi: this.registerPatientForm.value.dpi,
+      email: this.registerPatientForm.value.email,
+      password: this.registerPatientForm.value.password,
+      birth_date: this.formatBirthdate(this.registerPatientForm.value.birthdate),
+      gender: this.getGenderValue(this.registerPatientForm.value.genre),
+      phone: this.registerPatientForm.value.phone,
+      address: this.registerPatientForm.value.direction,
+      role_id: 3
+    };
 
     if (this.selectedFile) {
-      formData.append('profileImage', this.selectedFile, this.selectedFile.name);
+      patientData.photo = this.selectedFile;
     }
 
-    console.log('Registro completado');
+    this.authService.registerPatient(patientData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+
+        this.showSuccessModal('Su formulario fue completado con éxito, debe esperar la verificación del administrador para terminar el proceso de registro.');
+      },
+      error: (error) => {
+        console.error('Error al registrar', error);
+
+        this.isLoading = false;
+
+        this.showErrorModal('Error al registrar: ' + error.message);
+      }
+    });
   }
 
   goToLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
+  }
+
+  private showSuccessModal(message: string): void {
+    this.modalType = 'success';
+    this.modalTitle = '¡Registro exitoso!';
+    this.modalMessage = message;
+    this.shouldNavigateAfterClose = true;
+    this.showModal = true;
+  }
+
+  private showErrorModal(message: string): void {
+    this.modalType = 'error';
+    this.modalTitle = '¡Error al registrar!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  private showWarningModal(message: string): void {
+    this.modalType = 'warning';
+    this.modalTitle = '¡Advertencia!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  onCloseModal(): void {
+    this.showModal = false;
+    
+    if (this.shouldNavigateAfterClose) {
+      this.shouldNavigateAfterClose = false; 
+      this.goToLogin();
+    }
   }
 
   protected readonly UserCircle2 = UserCircle2;

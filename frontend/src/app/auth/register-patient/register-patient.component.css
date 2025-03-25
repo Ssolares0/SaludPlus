@@ -178,6 +178,26 @@ select:focus {
     transition: background-color 0.3s ease;
 }
 
+.btn-register:disabled {
+    background: var(--gris);
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .btn-register:hover {
     background: var(--azl-serenidad-400);
 }
@@ -272,6 +292,34 @@ select:focus {
     color: var(--terracota-suave);
     font-size: 32px;
     font-weight: 600;
+}
+
+input[type="date"] {
+    color: var(--negro-suave);
+    font-family: 'Inter', sans-serif;
+    padding-right: 10px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    filter: invert(0.5);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+input[type="date"]:required:invalid::-webkit-datetime-edit {
+    color: var(--placeholder);
+}
+
+input[type="date"]:focus::-webkit-datetime-edit {
+    color: var(--negro-suave);
 }
 
 @media (max-width: 1440px) {

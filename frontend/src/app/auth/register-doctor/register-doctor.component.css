@@ -71,7 +71,7 @@ input:-webkit-autofill:active {
 .form-row {
     display: flex;
     gap: 30px;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
 }
 
 .form-group {
@@ -104,6 +104,31 @@ select {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+input::placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-webkit-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-moz-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input:-ms-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-ms-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
 select option[disabled] {
     color: var(--placeholder);
 }
@@ -118,6 +143,35 @@ select {
 
 select:has(:first-child:checked) {
     color: var(--placeholder);
+}
+
+select:invalid,
+select option[disabled] {
+    color: var(--placeholder);
+}
+
+.input-container {
+    position: relative;
+}
+
+.error-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding-top: 4px;
+    height: 20px;
+}
+
+.error-message {
+    color: var(--terracota-suave);
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+}
+
+.form-input-error {
+    border-color: var(--terracota-suave) !important;
+    background-color: rgba(255, 204, 204, 0.1) !important;
 }
 
 input:focus,
@@ -175,15 +229,17 @@ select:focus {
     position: absolute;
     top: 95px;
     right: 197px;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .profile-image-container:hover {
     transform: scale(1.05);
+}
+
+.file-input {
+    display: none;
 }
 
 .profile-image {
@@ -193,14 +249,42 @@ select:focus {
     border-radius: 50%;
     border: 1px solid var(--strokes);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: var(--negro-suave);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-image-text {
+    font-size: 12px;
+    margin-top: 5px;
+    color: var(--gris);
+}
+
+.profile-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .profile-image:hover {
     border-color: var(--azl-serenidad-400);
     color: var(--azl-serenidad-400);
+}
+
+.profile-image-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: block;
+}
+
+.profile-image-button:hover {
+    transform: scale(1.05);
 }
 
 .required-mark {
@@ -211,6 +295,34 @@ select:focus {
     font-size: 32px;
     font-weight: 600;
     margin-right: 15px;
+}
+
+input[type="date"] {
+    color: var(--negro-suave);
+    font-family: 'Inter', sans-serif;
+    padding-right: 10px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    filter: invert(0.5);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+input[type="date"]:required:invalid::-webkit-datetime-edit {
+    color: var(--placeholder);
+}
+
+input[type="date"]:focus::-webkit-datetime-edit {
+    color: var(--negro-suave);
 }
 
 @media (max-width: 1440px) {

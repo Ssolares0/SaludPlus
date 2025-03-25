@@ -11,114 +11,291 @@
         <h1 class="form-title">Crea tu cuenta tipo "Médico"</h1>
         <p class="form-subtitle">Llena el formulario de registro</p>
 
-        <form autocomplete="off">
+        <form class="register-doctor-form" [formGroup]="registerDoctorForm" (ngSubmit)="onSubmit()">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="nombre">Nombre<span class="required">*</span></label>
-                    <input type="text" id="nombre" placeholder="Luis Carlos" autocomplete="off">
+                    <label for="name">Nombre<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="name" formControlName="name"
+                            [ngClass]="{ 'form-input-error': shouldShowError('name') }" placeholder="Luis Carlos">
+                        <div class="error-container">
+                            @if (shouldShowError('name')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('name') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="apellido">Apellido<span class="required">*</span></label>
-                    <input type="text" id="apellido" placeholder="Corleto Marroquín" autocomplete="off">
+                    <label for="lastname">Apellido<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="lastname" formControlName="lastname"
+                            [ngClass]="{ 'form-input-error': shouldShowError('lastname') }"
+                            placeholder="Corleto Marroquín">
+                        <div class="error-container">
+                            @if (shouldShowError('lastname')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('lastname') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="dpi">DPI<span class="required">*</span></label>
-                    <input type="text" id="dpi" placeholder="3082203580607" autocomplete="off">
+                    <div class="input-container">
+                        <input type="text" id="dpi" formControlName="dpi"
+                            [ngClass]="{ 'form-input-error': shouldShowError('dpi') }" placeholder="3082203580607">
+                        <div class="error-container">
+                            @if (shouldShowError('dpi')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('dpi') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="genero">Género<span class="required">*</span></label>
-                    <select id="genero" autocomplete="off">
-                        <option disabled selected>Selecciona tu género</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
-                        <option value="otro">Otro</option>
-                    </select>
+                    <label for="genre">Género<span class="required">*</span></label>
+                    <div class="input-container">
+                        <select id="genre" formControlName="genre"
+                            [ngClass]="{ 'form-input-error': shouldShowError('genre') }">
+                            <option disabled selected value="">Selecciona tu género</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="femenino">Femenino</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                        <div class="error-container">
+                            @if (shouldShowError('genre')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('genre') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="direccion">Dirección<span class="required">*</span></label>
-                    <input type="text" id="direccion" placeholder="Calle Principal, Zona 4, Mixco, Guatemala."
-                        autocomplete="off">
+                    <label for="birthdate">Fecha de nacimiento<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="date" id="birthdate" formControlName="birthdate" [max]="maxDate"
+                            [ngClass]="{ 'form-input-error': shouldShowError('birthdate') }">
+                        <div class="error-container">
+                            @if (shouldShowError('birthdate') || registerDoctorForm.hasError('underage')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('birthdate') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="telefono">Teléfono<span class="required">*</span></label>
-                    <input type="tel" id="telefono" placeholder="31275090" autocomplete="off">
+                    <label for="direction">Dirección<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="direction" formControlName="direction"
+                            [ngClass]="{ 'form-input-error': shouldShowError('direction') }"
+                            placeholder="Calle Principal, Zona 4, Mixco, Guatemala.">
+                        <div class="error-container">
+                            @if (shouldShowError('direction')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('direction') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Teléfono<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="tel" id="phone" formControlName="phone"
+                            [ngClass]="{ 'form-input-error': shouldShowError('phone') }" placeholder="31275090">
+                        <div class="error-container">
+                            @if (shouldShowError('phone')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('phone') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="email">Correo electrónico<span class="required">*</span></label>
-                    <input type="email" id="email" placeholder="correomedico@saludplus.com" autocomplete="new-password">
+                    <div class="input-container">
+                        <input type="email" id="email" formControlName="email"
+                            [ngClass]="{ 'form-input-error': shouldShowError('email') }"
+                            placeholder="correomedico@saludplus.com">
+                        <div class="error-container">
+                            @if (shouldShowError('email')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('email') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
                     <label for="password">Contraseña<span class="required">*</span></label>
-                    <input type="password" id="password" placeholder="●●●●●●●●" autocomplete="new-password">
+                    <div class="input-container">
+                        <input type="password" id="password" formControlName="password"
+                            [ngClass]="{ 'form-input-error': shouldShowError('password') }" placeholder="●●●●●●●●">
+                        <div class="error-container">
+                            @if (shouldShowError('password')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('password') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="collegiateNumber">Número de colegiado<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="collegiateNumber" formControlName="collegiateNumber"
+                            [ngClass]="{ 'form-input-error': shouldShowError('collegiateNumber') }"
+                            placeholder="748392">
+                        <div class="error-container">
+                            @if (shouldShowError('collegiateNumber')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('collegiateNumber') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="colegiado">Número de colegiado<span class="required">*</span></label>
-                    <input type="text" id="colegiado" placeholder="748392" autocomplete="off">
+                    <label for="specialty">Especialidad<span class="required">*</span></label>
+                    <div class="input-container">
+                        <select id="specialty" formControlName="specialty"
+                            [ngClass]="{ 'form-input-error': shouldShowError('specialty') }">
+                            <option disabled selected value="">Selecciona tu especialidad</option>
+                            <option value="1">Medicina General</option>
+                            <option value="2">Cardiología</option>
+                            <option value="3">Dermatología</option>
+                            <option value="4">Pediatría</option>
+                            <option value="5">Traumatología</option>
+                            <option value="6">Ginecología</option>
+                            <option value="7">Neurología</option>
+                            <option value="8">Oftalmología</option>
+                        </select>
+                        <div class="error-container">
+                            @if (shouldShowError('specialty')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('specialty') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="especialidad">Especialidad<span class="required">*</span></label>
-                    <select id="especialidad" autocomplete="off">
-                        <option disabled selected>Selecciona tu especialidad</option>
-                        <option value="medicina-general">Medicina General</option>
-                        <option value="cardiologia">Cardiología</option>
-                        <option value="dermatologia">Dermatología</option>
-                        <option value="pediatria">Pediatría</option>
-                        <option value="traumatologia">Traumatología</option>
-                        <option value="ginecologia">Ginecología</option>
-                        <option value="neurologia">Neurología</option>
-                        <option value="oftalmologia">Oftalmología</option>
-                    </select>
+                    <label for="clinicAddress">Dirección de la clínica<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="clinicAddress" formControlName="clinicAddress"
+                            [ngClass]="{ 'form-input-error': shouldShowError('clinicAddress') }"
+                            placeholder="Avenida Las Rosas, Zona 10, Ciudad de Guatemala.">
+                        <div class="error-container">
+                            @if (shouldShowError('clinicAddress')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('clinicAddress') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="direccion-clinica">Dirección de la clínica<span class="required">*</span></label>
-                    <input type="text" id="direccion-clinica"
-                        placeholder="Avenida Las Rosas, Zona 10, Ciudad de Guatemala." autocomplete="off">
+                    <label for="department">Departamento<span class="required">*</span></label>
+                    <div class="input-container">
+                        <select id="department" formControlName="department"
+                            [ngClass]="{ 'form-input-error': shouldShowError('department') }">
+                            <option disabled selected value="">Selecciona el departamento en el que se encuentra tu
+                                clínica</option>
+                            <option value="guatemala">Guatemala</option>
+                            <option value="alta-verapaz">Alta Verapaz</option>
+                            <option value="baja-verapaz">Baja Verapaz</option>
+                            <option value="chimaltenango">Chimaltenango</option>
+                            <option value="chiquimula">Chiquimula</option>
+                            <option value="el-progreso">El Progreso</option>
+                            <option value="escuintla">Escuintla</option>
+                            <option value="huehuetenango">Huehuetenango</option>
+                            <option value="izabal">Izabal</option>
+                            <option value="jalapa">Jalapa</option>
+                            <option value="jutiapa">Jutiapa</option>
+                            <option value="peten">Petén</option>
+                            <option value="quetzaltenango">Quetzaltenango</option>
+                            <option value="quiche">Quiché</option>
+                            <option value="retalhuleu">Retalhuleu</option>
+                            <option value="sacatepequez">Sacatepéquez</option>
+                            <option value="san-marcos">San Marcos</option>
+                            <option value="santa-rosa">Santa Rosa</option>
+                            <option value="solola">Sololá</option>
+                            <option value="suchitepequez">Suchitepéquez</option>
+                            <option value="totonicapan">Totonicapán</option>
+                            <option value="zacapa">Zacapa</option>
+                        </select>
+                        <div class="error-container">
+                            @if (shouldShowError('department')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('department') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="departamento">Departamento<span class="required">*</span></label>
-                    <select id="departamento" autocomplete="off">
-                        <option disabled selected>Selecciona el departamento en el que se encuentra tu clínica</option>
-                        <!-- opciones de departamentos... -->
-                    </select>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-register">Registrarme como médico</button>
+                <button type="submit" class="btn-register" [disabled]="isLoading">
+                    <span *ngIf="!isLoading">Registrarme como médico</span>
+                    <span *ngIf="isLoading">Registrando...</span>
+                </button>
+            </div>
+
+            <div class="profile-image-container">
+                <input type="file" id="profileImageInput" accept="image/*" (change)="onProfileImageSelected($event)"
+                    class="file-input" #fileInput>
+                <button type="button" class="profile-image-button" (click)="fileInput.click()"
+                    aria-label="Cambiar foto de perfil">
+                    <div class="profile-image">
+                        @if (profileImageUrl) {
+                        <img [src]="profileImageUrl" class="profile-image-preview" alt="Foto de perfil">
+                        } @else {
+                        <i-lucide [name]="UserCircle2" [size]="52"></i-lucide>
+                        <span class="profile-image-text">Seleccionar foto</span>
+                        }
+                    </div>
+                </button>
             </div>
         </form>
 
         <div class="login-link">
             <span>¿Ya tienes una cuenta?</span>
-            <a href="#">Inicia sesión</a>
+            <a href="#" (click)="goToLogin()">Inicia sesión</a>
         </div>
     </div>
-
-    <button class="profile-image-container" type="button" aria-label="Cambiar foto de perfil">
-        <div class="profile-image">
-            <i-lucide [name]="UserCircle2" [size]="52"></i-lucide>
-        </div>
-        <span class="required-mark">*</span>
-    </button>
 </div>

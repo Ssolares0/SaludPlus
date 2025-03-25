@@ -67,7 +67,7 @@
                 <div class="form-group">
                     <label for="keyFile" class="form-label">Archivo de autenticación</label>
                     <div class="input-container">
-                        <input type="file" id="keyFile" class="file-input" #keyFileInput accept=".key,.pem,.crt"
+                        <input type="file" id="keyFile" class="file-input" #keyFileInput accept=".ayd1"
                             (change)="onFileSelected($event)" hidden />
                         <button type="button" class="file-select-button" (click)="keyFileInput.click()">
                             <span [ngClass]="{'placeholder-text': !selectedFileName, 'file-name': selectedFileName}">

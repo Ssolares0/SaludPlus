@@ -1,5 +1,5 @@
-import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion } from "../models/auth.models";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion, AdminAuth2Response } from "../models/auth.models";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -16,6 +16,27 @@ export class AuthService {
             .pipe(
                 catchError(this.handleError)
             );
+    }
+
+    public loginAdmin(file: File): Observable<AdminAuth2Response> {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            return throwError(() => new Error('No se encontró el token de autenticación'));
+        }
+
+        const headers = new HttpHeaders({
+            'Authorization': token
+        });
+
+        const formData = new FormData();
+        formData.append('archivo', file, file.name);
+
+        return this.http.post<AdminAuth2Response>('http://localhost:3001/auth/admin/auth2', formData, {
+            headers: headers
+        }).pipe(
+            catchError(this.handleError)
+        );
     }
 
     public isStandardResponse(response: any): response is LoginResponse {

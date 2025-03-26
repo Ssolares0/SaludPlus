@@ -5,7 +5,9 @@ import {
   LucideAngularModule,
   Users,
   ClipboardList,
-  FileText
+  FileText,
+  ChevronDown,
+  LogOut
 } from 'lucide-angular';
 
 @Component({
@@ -15,7 +17,10 @@ import {
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css']
 })
+
 export class AdminLayoutComponent implements OnInit {
+  isDropdownOpen = false;
+
   navItems = [
     {
       label: 'Aceptar pacientes',
@@ -66,4 +71,16 @@ export class AdminLayoutComponent implements OnInit {
       item.active = url.includes(item.route);
     });
   }
+
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  closeDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen = false;
+  }
+
+  protected readonly LogOut = LogOut;
+  protected readonly ChevronDown = ChevronDown;
 }

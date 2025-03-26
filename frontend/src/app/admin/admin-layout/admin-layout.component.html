@@ -4,9 +4,21 @@
             <img class="logo-image" src="assets/images/admin/logo.png" alt="Logo SaludPlus" />
             <h1 class="logo-text">SaludPlus</h1>
         </div>
-        <div class="user-container">
-            <span class="user-role">Administrador</span>
-            <div class="user-avatar">A</div>
+        <div class="user-container" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
+            <div class="user-info">
+                <span class="user-role">Administrador</span>
+                <div class="user-avatar">A</div>
+                <i-lucide [name]="ChevronDown" class="dropdown-icon"></i-lucide>
+            </div>
+
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item">
+                    <i-lucide [name]="LogOut" class="dropdown-icon-item"></i-lucide>
+                    Cerrar Sesión
+                </a>
+            </div>
+
+            <div class="dropdown-overlay" (click)="closeDropdown($event)"></div>
         </div>
     </header>
 

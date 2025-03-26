@@ -1,0 +1,30 @@
+<div class="admin-layout">
+    <header class="admin-header">
+        <div class="logo-container">
+            <img class="logo-image" src="assets/images/admin/logo.png" alt="Logo SaludPlus" />
+            <h1 class="logo-text">SaludPlus</h1>
+        </div>
+        <div class="user-container">
+            <span class="user-role">Administrador</span>
+            <div class="user-avatar">A</div>
+        </div>
+    </header>
+
+    <div class="admin-content">
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li *ngFor="let item of navItems">
+                    <a [routerLink]="item.route" routerLinkActive="active-link" class="nav-item"
+                        [class.active]="item.active">
+                        <i-lucide [name]="item.icon" class="nav-icon"></i-lucide>
+                        <span class="nav-label">{{ item.label }}</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

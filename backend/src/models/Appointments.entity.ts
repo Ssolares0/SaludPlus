@@ -20,7 +20,7 @@ export class Appointment {
   treatment?: string; //(si la cita se completó)
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  cancellationReason?: string;
+  cancellation_reason?: string;
 
   // Relación N:1 con Pacient
   @ManyToOne(() => Patient, (patient) => patient.appointments)

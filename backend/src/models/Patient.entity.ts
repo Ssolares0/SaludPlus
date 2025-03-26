@@ -9,7 +9,7 @@ export class Patient {
   id!: number;
 
   @Column({ type: 'varchar', nullable: true })
-  insuranceNumber?: string; // Número de seguro médico (opcional)
+  insurance_number?: string; // Número de seguro médico (opcional)
 
   // Relación 1:1 con Persona (Un paciente es una persona)
   @OneToOne(() => Person)

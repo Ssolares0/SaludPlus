@@ -20,7 +20,7 @@ export class Person {
   national_id!: string | null;
 
   @Column({ type: 'varchar', unique: true })
-  email!: string | null;
+  email!: string;
 
   @Column({type: 'date'})
   birth_date!: Date | null;

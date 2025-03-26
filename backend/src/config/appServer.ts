@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors'
 import { connectPg } from './database/Postgres';
 import { authRouter } from '../routers/auth.routes';
+import { employeeRouter } from '../routers/employee.routes';
 
 const PORT = 3001;
 const app = express();
@@ -28,6 +29,7 @@ res.status(200).json({ version: '1.0.0' });
 
 //Rutas
 app.use('/auth', authRouter);
+app.use('/employee', employeeRouter);
   
 
 app.listen(PORT, () => {

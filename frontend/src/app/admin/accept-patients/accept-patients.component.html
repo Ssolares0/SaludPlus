@@ -1,0 +1,60 @@
+<div class="accept-patients-container">
+    <div class="page-header">
+        <h2>Solicitudes de Pacientes Pendientes</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" placeholder="Buscar por nombre o DPI..." class="search-input">
+            </div>
+            <div class="filter-box">
+                <select class="filter-select">
+                    <option value="all">Todos</option>
+                    <option value="recent">Más recientes</option>
+                    <option value="oldest">Más antiguos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="patients-grid">
+        <div class="patient-card" *ngFor="let i of [1,2,3,4,5]">
+            <div class="patient-header">
+                <div class="patient-avatar">
+                    <img src="assets/default-avatar.png" alt="Foto del paciente">
+                </div>
+                <div class="patient-info">
+                    <h3>María González Pérez</h3>
+                    <span class="patient-dpi">DPI: 2365478910123</span>
+                </div>
+            </div>
+
+            <div class="patient-details">
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <i-lucide [name]="User" class="detail-icon"></i-lucide>
+                        <span>Femenino</span>
+                    </div>
+                    <div class="detail-item">
+                        <i-lucide [name]="Calendar" class="detail-icon"></i-lucide>
+                        <span>15/03/1995</span>
+                    </div>
+                </div>
+                <div class="detail-item email-item">
+                    <i-lucide [name]="Mail" class="detail-icon"></i-lucide>
+                    <span>{{ 'mariagonzalez@gmail.com' }}</span>
+                </div>
+            </div>
+
+            <div class="patient-actions">
+                <button class="btn-accept" title="Aceptar solicitud">
+                    <i-lucide [name]="Check" class="btn-icon"></i-lucide>
+                    <span>Aceptar</span>
+                </button>
+                <button class="btn-reject" title="Rechazar solicitud">
+                    <i-lucide [name]="X" class="btn-icon"></i-lucide>
+                    <span>Rechazar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

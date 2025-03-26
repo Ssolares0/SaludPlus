@@ -1,0 +1,82 @@
+<div class="accept-doctors-container">
+    <div class="page-header">
+        <h2>Solicitudes de Médicos Pendientes</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" placeholder="Buscar por nombre o DPI..." class="search-input">
+            </div>
+            <div class="filter-box">
+                <select class="filter-select">
+                    <option value="all">Todas las especialidades</option>
+                    <option value="cardiology">Cardiología</option>
+                    <option value="dermatology">Dermatología</option>
+                    <option value="pediatrics">Pediatría</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="doctors-grid">
+        <div class="doctor-card" *ngFor="let i of [1,2,3,4,5]">
+            <div class="doctor-header">
+                <div class="doctor-avatar">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop"
+                        alt="Doctor avatar">
+                </div>
+                <div class="doctor-info">
+                    <h3>Dr. Carlos Ramírez</h3>
+                    <p class="doctor-specialty">Cardiología</p>
+                    <p class="doctor-email">{{ 'carlos.ramirez&#64;email.com' }}</p>
+                </div>
+                <span class="status-badge pending">Pendiente</span>
+            </div>
+
+            <div class="doctor-details">
+                <div class="detail-item">
+                    <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
+                    <span>DPI: 2345678901234</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="User" class="detail-icon"></i-lucide>
+                    <span>Masculino</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Award" class="detail-icon"></i-lucide>
+                    <span>Colegiado: MED-12345</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Building" class="detail-icon"></i-lucide>
+                    <span>Hospital Central - Departamento de Cardiología</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Phone" class="detail-icon"></i-lucide>
+                    <span>+502 5555-7890</span>
+                </div>
+
+                <div class="license-info">
+                    <div class="license-header">
+                        <i-lucide [name]="FileText" class="license-icon"></i-lucide>
+                        <span>Información de licencia médica</span>
+                    </div>
+                    <p class="license-number">LIC-2024-789456 • Válida hasta: 31/12/2025</p>
+                </div>
+            </div>
+
+            <div class="doctor-actions">
+                <button class="btn-accept">
+                    <i-lucide [name]="Check" class="btn-icon"></i-lucide>
+                    Aceptar
+                </button>
+                <button class="btn-reject">
+                    <i-lucide [name]="X" class="btn-icon"></i-lucide>
+                    Rechazar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

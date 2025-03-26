@@ -119,7 +119,7 @@ export class LoginComponent implements OnInit {
           this.showSuccessModal('¡Autenticación completada exitosamente!');
 
           setTimeout(() => {
-            this.router.navigate(['/admin/dashboard']);
+            this.router.navigate(['/admin/reports']);
           }, 1500);
         } else {
           this.showErrorModal(response.message || 'Error al autenticar como administrador');

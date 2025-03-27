@@ -189,14 +189,14 @@
                         <select id="specialty" formControlName="specialty"
                             [ngClass]="{ 'form-input-error': shouldShowError('specialty') }">
                             <option disabled selected value="">Selecciona tu especialidad</option>
-                            <option value="1">Medicina General</option>
-                            <option value="2">Cardiología</option>
-                            <option value="3">Dermatología</option>
-                            <option value="4">Pediatría</option>
-                            <option value="5">Traumatología</option>
-                            <option value="6">Ginecología</option>
-                            <option value="7">Neurología</option>
-                            <option value="8">Oftalmología</option>
+                            <option value="medicina-general">Medicina General</option>
+                            <option value="cardiologia">Cardiología</option>
+                            <option value="dermatologia">Dermatología</option>
+                            <option value="pediatria">Pediatría</option>
+                            <option value="traumatologia">Traumatología</option>
+                            <option value="ginecologia">Ginecología</option>
+                            <option value="neurologia">Neurología</option>
+                            <option value="oftalmologia">Oftalmología</option>
                         </select>
                         <div class="error-container">
                             @if (shouldShowError('specialty')) {

@@ -9,15 +9,37 @@ import { AcceptDoctorsComponent } from './admin/accept-doctors/accept-doctors.co
 import { ViewPatientsComponent } from './admin/view-patients/view-patients.component';
 import { ViewDoctorsComponent } from './admin/view-doctors/view-doctors.component';
 import { ReportsComponent } from './admin/reports/reports.component';
+import { authGuard, adminGuard, noAuthGuard } from './core/guards/guards';
 
 export const routes: Routes = [
-    { path: '', title: "SaludPlus", component: LoginComponent },
-    { path: 'select-type-account', title: "Seleccionar tipo de cuenta", component: SelectTypeAccountComponent },
-    { path: 'register-doctor', title: "Registro de médico", component: RegisterDoctorComponent },
-    { path: 'register-patient', title: "Registro de paciente", component: RegisterPatientComponent },
+    {
+        path: '',
+        title: "SaludPlus", 
+        component: LoginComponent,
+        canActivate: [noAuthGuard]
+    },
+    { 
+        path: 'select-type-account', 
+        title: "Seleccionar tipo de cuenta", 
+        component: SelectTypeAccountComponent,
+        canActivate: [noAuthGuard]
+    },
+    { 
+        path: 'register-doctor', 
+        title: "Registro de médico", 
+        component: RegisterDoctorComponent,
+        canActivate: [noAuthGuard]
+    },
+    { 
+        path: 'register-patient', 
+        title: "Registro de paciente", 
+        component: RegisterPatientComponent,
+        canActivate: [noAuthGuard]
+    },
     {
         path: 'admin',
         component: AdminLayoutComponent,
+        canActivate: [authGuard, adminGuard],
         children: [
             {
                 path: 'accept-patients',
@@ -50,5 +72,10 @@ export const routes: Routes = [
                 pathMatch: 'full'
             }
         ]
+    },
+    {
+        path: '**',
+        redirectTo: '',
+        pathMatch: 'full'
     }
 ];

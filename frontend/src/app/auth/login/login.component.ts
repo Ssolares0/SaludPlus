@@ -112,7 +112,6 @@ export class LoginComponent implements OnInit {
         this.isLoading = false;
         
         if (response.success) {
-          localStorage.removeItem('isAdmin');
           if (response.token) {
             localStorage.setItem('token', response.token);
           }

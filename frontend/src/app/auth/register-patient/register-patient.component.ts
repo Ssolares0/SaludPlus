@@ -134,7 +134,7 @@ export class RegisterPatientComponent implements OnInit {
       case 'femenino':
         return '0';
       case 'otro':
-        return '3';
+        return '2';
       default:
         return '1';
     }

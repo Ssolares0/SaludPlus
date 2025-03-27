@@ -72,6 +72,11 @@ export class AdminLayoutComponent implements OnInit {
     });
   }
 
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/']);
+  }
+
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }

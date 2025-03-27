@@ -9,7 +9,7 @@ export const getPendientAppointment = async (req: Request, res: Response) => {
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({
-      error: error.message || 'Error al registrar el paciente'
+      error: error.message || 'Error al traer citas pendientes'
     });
   }
 };
@@ -23,7 +23,7 @@ export const putCompleteAppointment = async(req: Request, res: Response) => {
         res.status(201).json(result);
     } catch (error: any){
         res.status(400).json({
-            error: error.message || 'Error al registrar el paciente'
+            error: error.message || 'Error al completar cita'
           });
     }
 }
@@ -37,7 +37,31 @@ export const cancelAppointment = async(req:Request, res: Response) => {
         res.status(201).json(result);
     }catch(error: any){
         res.status(400).json({
-            error: error.message || 'Error al registrar el paciente'
+            error: error.message || 'Error al cancelar cita'
           });
     }
+}
+
+export const updateScheduled = async(req: Request, res: Response) => {
+  try{
+    const employeeService = new EmployeService();
+    const result = await employeeService.doctorScheduled(req.body, Number(req.params.id));
+    res.status(201).json(result);
+  }catch(error: any){
+    res.status(400).json({
+      error: error.message || 'Error al registrar horarios'
+    })
+  }
+}
+
+export const appointmentHistory = async(req: Request, res: Response) => {
+  try{
+    const employeService = new EmployeService();
+    const result = await employeService.getDoctorAppointmentHistory(Number(req.params.id), req.body.status, req.body.startDate, req.body.endDate)
+    res.status(201).json(result);
+  }catch(error: any){
+    res.status(400).json({
+      error: error.message || 'Error al registrar horarios'
+    })
+  }
 }

@@ -1,5 +1,8 @@
+import { Between, Not } from "typeorm";
 import { AppDataSource } from "../config/database/Postgres";
 import { Appointment } from "../models/Appointments.entity";
+import { DoctorSchedule } from "../models/DoctorSchedule.entity";
+import { Employee } from "../models/Employe.entity";
 import { sendCancellationEmail } from "../utils/email";
 
 export class EmployeService{
@@ -87,8 +90,6 @@ export class EmployeService{
                 relations: ["patient","patient.person","doctor","doctor.person"],
             })
 
-            
-
             if(!appointement) throw new Error('Cita no encontrada');
             if(appointement.status !== "scheduled") throw new Error('La cita no esta programada');
 
@@ -124,5 +125,90 @@ export class EmployeService{
         } finally {
             await queryRunner.release();
         }
+    }
+
+    async doctorScheduled(
+        schedule: {
+            days:number[];
+            startTime: string;
+            endTime:string;
+        },
+        doctor_id: number
+    ){
+        const queryRunner = AppDataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try{
+            if(!schedule.days?.length || !schedule.startTime || !schedule.endTime)throw new Error ('Datos incompletos');
+            if (schedule.days.some(day => day < 1 || day > 7)) throw new Error('Dias invalidos (1-7)');
+            console.log(schedule.startTime)
+            if(schedule.startTime >= schedule.endTime) throw new Error('La hora de iniciao debe ser anterior a la hora de fin');
+
+            const doctor = await queryRunner.manager.findOne(Employee, {
+                where: {
+                    id:doctor_id
+                }
+            })
+            if (!doctor) throw new Error('No se encontro el doctor');
+
+            await queryRunner.manager.delete(DoctorSchedule, {
+                doctor:{
+                    id:doctor_id
+                }
+            })
+
+            for (const day of schedule.days){
+                const scheduleDoctor = new DoctorSchedule();
+                scheduleDoctor.day_of_week = day;
+                scheduleDoctor.start_time = schedule.startTime;
+                scheduleDoctor.end_time = schedule.endTime;
+                scheduleDoctor.doctor = doctor;
+                await queryRunner.manager.save(scheduleDoctor);
+            }
+
+            await queryRunner.commitTransaction()
+            return {
+                message:"Horaios actualizados"
+            }
+            
+        }catch (error: any){
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+    async getDoctorAppointmentHistory(
+        doctor_id: number,
+        status: string,
+        startDate: Date,
+        endDate: Date
+    ){
+        console.log(endDate);
+        const where: any = {
+            doctor: {id: doctor_id},
+            status: Not('scheduled')
+        }
+
+        if(status) where.status = status;
+        if(startDate && endDate){
+            where.appointment_date = Between(startDate, endDate );
+        }        
+
+        console.log(where.appointment_date)
+        try{
+            const appointmentRepository = AppDataSource.getRepository(Appointment);
+            const apoint = await appointmentRepository.find({
+                where,
+                relations: ['patient.person'],
+                order: {appointment_date: "DESC"},
+            });
+    
+            return apoint;
+        } catch(error: any){
+            console.log(error)
+        }
+       
     }
 }

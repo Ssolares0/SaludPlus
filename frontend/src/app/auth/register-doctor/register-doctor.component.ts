@@ -18,6 +18,8 @@ import { ModalComponent } from '../../core/components/modal/modal.component';
 })
 
 export class RegisterDoctorComponent implements OnInit {
+  private shouldNavigateAfterClose = false;
+
   registerDoctorForm!: FormGroup;
   submitted = false;
   profileImageUrl: SafeUrl | null = null;
@@ -328,7 +330,6 @@ export class RegisterDoctorComponent implements OnInit {
       next: (response) => {
         this.isLoading = false;
         this.showSuccessModal('¡Registro completado exitosamente! Tu cuenta será revisada por un administrador antes de ser activada.');
-        this.router.navigate(['/']);
       },
       error: (error) => {
         console.error('Error al registrar', error);
@@ -356,6 +357,7 @@ export class RegisterDoctorComponent implements OnInit {
     this.modalType = 'success';
     this.modalTitle = '¡Registro exitoso!';
     this.modalMessage = message;
+    this.shouldNavigateAfterClose = true;
     this.showModal = true;
   }
 
@@ -375,6 +377,11 @@ export class RegisterDoctorComponent implements OnInit {
 
   onCloseModal(): void {
     this.showModal = false;
+
+    if (this.shouldNavigateAfterClose) {
+      this.shouldNavigateAfterClose = false;
+      this.goToLogin();
+    }
   }
 
   goToLogin(): void {

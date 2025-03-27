@@ -1,4 +1,4 @@
-import { inject, Inject } from "@angular/core";
+import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 
 export const authGuard: CanActivateFn = (route, state) => {
@@ -45,7 +45,6 @@ export const doctorGuard: CanActivateFn = (route, state) => {
 export const patientGuard: CanActivateFn = (route, state) => {
     const router = inject(Router);
 
-    // Verificar token y rol de paciente
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRoleName');
 

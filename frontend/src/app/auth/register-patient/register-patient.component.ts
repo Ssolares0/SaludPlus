@@ -33,6 +33,7 @@ export class RegisterPatientComponent implements OnInit {
   modalMessage = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('birthdateInput') birthdateInput!: ElementRef;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -84,6 +85,26 @@ export class RegisterPatientComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit() {
+    const birthdateEl = this.birthdateInput.nativeElement;
+
+    birthdateEl.addEventListener('focus', () => {
+      if (!birthdateEl.value) {
+        birthdateEl.type = 'date';
+      }
+    });
+
+    birthdateEl.addEventListener('blur', () => {
+      if (!birthdateEl.value) {
+        birthdateEl.type = 'text';
+      }
+    });
+
+    if (!birthdateEl.value) {
+      birthdateEl.type = 'text';
+    }
+  }
+
   validateBirthdate(group: FormGroup) {
     const birthdateControl = group.get('birthdate');
     if (!birthdateControl || !birthdateControl.value) return null;
@@ -113,7 +134,7 @@ export class RegisterPatientComponent implements OnInit {
       case 'femenino':
         return '0';
       case 'otro':
-        return '3';
+        return '2';
       default:
         return '1';
     }
@@ -309,9 +330,9 @@ export class RegisterPatientComponent implements OnInit {
 
   onCloseModal(): void {
     this.showModal = false;
-    
+
     if (this.shouldNavigateAfterClose) {
-      this.shouldNavigateAfterClose = false; 
+      this.shouldNavigateAfterClose = false;
       this.goToLogin();
     }
   }

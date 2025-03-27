@@ -112,14 +112,13 @@ export class LoginComponent implements OnInit {
         this.isLoading = false;
         
         if (response.success) {
-          localStorage.removeItem('isAdmin');
           if (response.token) {
             localStorage.setItem('token', response.token);
           }
           this.showSuccessModal('¡Autenticación completada exitosamente!');
 
           setTimeout(() => {
-            this.router.navigate(['/admin/dashboard']);
+            this.router.navigate(['/admin/reports']);
           }, 1500);
         } else {
           this.showErrorModal(response.message || 'Error al autenticar como administrador');

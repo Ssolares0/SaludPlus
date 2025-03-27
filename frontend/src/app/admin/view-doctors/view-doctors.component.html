@@ -1,0 +1,109 @@
+<div class="view-doctors-container">
+    <div class="page-header">
+        <h2>Lista de Médicos</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" placeholder="Buscar por nombre o especialidad..." class="search-input">
+            </div>
+            <div class="filter-box">
+                <select class="filter-select">
+                    <option value="all">Todas las especialidades</option>
+                    <option value="cardiology">Cardiología</option>
+                    <option value="dermatology">Dermatología</option>
+                    <option value="pediatrics">Pediatría</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="doctors-grid">
+        <div class="doctor-card" *ngFor="let i of [1,2,3,4,5,6]">
+            <div class="doctor-header">
+                <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop"
+                    alt="Foto del médico" class="doctor-avatar">
+                <div class="doctor-badges">
+                    <span class="specialty-badge">Cardiología</span>
+                    <span class="status-badge active">
+                        <i-lucide [name]="Circle" class="icon" [size]="10"></i-lucide>
+                        Activo
+                    </span>
+                </div>
+            </div>
+
+            <div class="doctor-info">
+                <h3>Dr. Carlos Ramírez</h3>
+                <p class="doctor-email">{{ 'carlos.ramirez&#64;email.com' }}</p>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <i-lucide [name]="Users" class="stat-icon"></i-lucide>
+                        <div class="stat-text">
+                            <span class="stat-value">1,234</span>
+                            <span class="stat-label">Pacientes</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i-lucide [name]="Calendar" class="stat-icon"></i-lucide>
+                        <div class="stat-text">
+                            <span class="stat-value">156</span>
+                            <span class="stat-label">Citas</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i-lucide [name]="Star" class="stat-icon"></i-lucide>
+                        <div class="stat-text">
+                            <span class="stat-value">4.8</span>
+                            <span class="stat-label">Rating</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doctor-contact">
+                <div class="contact-item">
+                    <i-lucide [name]="Phone" class="contact-icon"></i-lucide>
+                    <span>+502 5555 7890</span>
+                </div>
+                <div class="contact-item">
+                    <i-lucide [name]="Building" class="contact-icon"></i-lucide>
+                    <span>Hospital Central - Departamento de Cardiología</span>
+                </div>
+                <div class="contact-item">
+                    <i-lucide [name]="FileText" class="contact-icon"></i-lucide>
+                    <span>Colegiado: MED-12345</span>
+                </div>
+            </div>
+
+            <div class="doctor-actions">
+                <button class="btn-action">
+                    <i-lucide [name]="User" class="btn-icon"></i-lucide>
+                    Ver perfil
+                </button>
+                <button class="btn-action secondary">
+                    <i-lucide [name]="Edit" class="btn-icon"></i-lucide>
+                    Editar
+                </button>
+                <button class="btn-action delete">
+                    <i-lucide [name]="UserX" class="btn-icon"></i-lucide>
+                    Dar de baja
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination">
+        <button class="pagination-btn">
+            <i-lucide [name]="ChevronLeft" class="btn-icon"></i-lucide>
+        </button>
+        <div class="pagination-numbers">
+            <button class="page-number active">1</button>
+            <button class="page-number">2</button>
+            <button class="page-number">3</button>
+            <span>...</span>
+            <button class="page-number">8</button>
+        </div>
+        <button class="pagination-btn">
+            <i-lucide [name]="ChevronRight" class="btn-icon"></i-lucide>
+        </button>
+    </div>
+</div>

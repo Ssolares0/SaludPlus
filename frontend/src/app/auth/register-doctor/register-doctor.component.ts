@@ -7,11 +7,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { DoctorRegisterData } from '../models/auth.models';
+import { ModalComponent } from '../../core/components/modal/modal.component';
 
 @Component({
   selector: 'app-register-doctor',
   standalone: true,
-  imports: [LucideAngularModule, ReactiveFormsModule, CommonModule],
+  imports: [LucideAngularModule, ReactiveFormsModule, CommonModule, ModalComponent],
   templateUrl: './register-doctor.component.html',
   styleUrl: './register-doctor.component.css'
 })
@@ -34,7 +35,13 @@ export class RegisterDoctorComponent implements OnInit {
     { id: 8, name: 'Oftalmología' }
   ];
 
+  showModal = false;
+  modalType: 'success' | 'warning' | 'error' = 'success';
+  modalTitle = '';
+  modalMessage = '';
+
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('birthdateInput') birthdateInput!: ElementRef;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -95,6 +102,26 @@ export class RegisterDoctorComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit() {
+    const birthdateEl = this.birthdateInput.nativeElement;
+
+    birthdateEl.addEventListener('focus', () => {
+      if (!birthdateEl.value) {
+        birthdateEl.type = 'date';
+      }
+    });
+
+    birthdateEl.addEventListener('blur', () => {
+      if (!birthdateEl.value) {
+        birthdateEl.type = 'text';
+      }
+    });
+
+    if (!birthdateEl.value) {
+      birthdateEl.type = 'text';
+    }
+  }
+
   private getGenderValue(genre: string): string {
     switch (genre) {
       case 'masculino':
@@ -145,13 +172,13 @@ export class RegisterDoctorComponent implements OnInit {
       this.selectedFile = input.files[0];
 
       if (!this.validateImageType(this.selectedFile)) {
-        alert('Por favor seleccione un archivo de imagen válido (JPG, PNG o GIF).');
+        this.showWarningModal('Por favor seleccione un archivo de imagen válido (JPG, PNG o GIF).');
         this.resetProfileImage();
         return;
       }
 
       if (this.selectedFile.size > 5 * 1024 * 1024) {
-        alert('La imagen no debe exceder los 5MB.');
+        this.showWarningModal('La imagen no debe exceder los 5MB.');
         this.resetProfileImage();
         return;
       }
@@ -273,7 +300,7 @@ export class RegisterDoctorComponent implements OnInit {
     }
 
     if (!this.selectedFile) {
-      alert('Por favor seleccione una foto de perfil (requerida para médicos).');
+      this.showWarningModal('Por favor seleccione una foto de perfil (requerida para médicos).');
       return;
     }
 
@@ -299,15 +326,14 @@ export class RegisterDoctorComponent implements OnInit {
 
     this.authService.registerDoctor(doctorData).subscribe({
       next: (response) => {
-        console.log('Registro completado exitosamente', response);
         this.isLoading = false;
-        alert('¡Registro completado exitosamente! Tu cuenta será revisada por un administrador antes de ser activada.');
+        this.showSuccessModal('¡Registro completado exitosamente! Tu cuenta será revisada por un administrador antes de ser activada.');
         this.router.navigate(['/']);
       },
       error: (error) => {
         console.error('Error al registrar', error);
         this.isLoading = false;
-        alert('Error al registrar: ' + error.message);
+        this.showErrorModal('Error al registrar: ' + error.message);
       }
     });
   }
@@ -324,6 +350,31 @@ export class RegisterDoctorComponent implements OnInit {
       case 'oftalmologia': return 8;
       default: return 1; 
     }
+  }
+
+  private showSuccessModal(message: string): void {
+    this.modalType = 'success';
+    this.modalTitle = '¡Registro exitoso!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  private showErrorModal(message: string): void {
+    this.modalType = 'error';
+    this.modalTitle = '¡Error al registrar!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  private showWarningModal(message: string): void {
+    this.modalType = 'warning';
+    this.modalTitle = '¡Advertencia!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
+  onCloseModal(): void {
+    this.showModal = false;
   }
 
   goToLogin(): void {

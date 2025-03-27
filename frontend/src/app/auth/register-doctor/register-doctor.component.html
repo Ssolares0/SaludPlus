@@ -86,8 +86,9 @@
                 <div class="form-group">
                     <label for="birthdate">Fecha de nacimiento<span class="required">*</span></label>
                     <div class="input-container">
-                        <input type="date" id="birthdate" formControlName="birthdate" [max]="maxDate"
-                            [ngClass]="{ 'form-input-error': shouldShowError('birthdate') }">
+                        <input #birthdateInput type="text" id="birthdate" formControlName="birthdate" [max]="maxDate"
+                            [ngClass]="{ 'form-input-error': shouldShowError('birthdate') }"
+                            placeholder="Fecha de nacimiento">
                         <div class="error-container">
                             @if (shouldShowError('birthdate') || registerDoctorForm.hasError('underage')) {
                             <div class="error-message">
@@ -298,4 +299,8 @@
             <a href="#" (click)="goToLogin()">Inicia sesión</a>
         </div>
     </div>
+
+    <app-modal [isVisible]="showModal" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        (close)="onCloseModal()">
+    </app-modal>
 </div>

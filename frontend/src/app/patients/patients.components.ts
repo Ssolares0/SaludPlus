@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from './patients.service';
-import { Doctor } from './patients.models';
+import { Doctor, TimeSlot, ScheduleResponse, DoctorSchedule } from './patients.models';
 
 @Component({
     selector: 'app-patients',
@@ -22,8 +22,9 @@ export class PatientsComponent implements OnInit {
     appointmentDate: string = '';
     appointmentTime: string = '';
     appointmentReason: string = '';
-    availableHours: any[] = [];
+    availableHours: TimeSlot[] = [];
     selectedDoctor: Doctor | null = null;
+    doctorSchedule: DoctorSchedule | null = null;
 
     constructor(private authService: AuthService) { }
 
@@ -37,12 +38,10 @@ export class PatientsComponent implements OnInit {
         
         this.authService.getAvailableDoctors(2).subscribe({
             next: (doctors) => {
-                console.log('Doctores recibidos:', doctors);
                 this.doctors = doctors;
                 this.loading = false;
             },
             error: (error) => {
-                console.error('Error:', error);
                 this.error = error.message;
                 this.loading = false;
             }
@@ -50,84 +49,127 @@ export class PatientsComponent implements OnInit {
     }
 
     filterByEspecialidad(especialidad: string) {
-        if (!especialidad) {
+        this.loading = true;
+        this.error = '';
+        
+        if (!especialidad || especialidad === '') {
             this.loadDoctors();
             return;
         }
-        
-        this.doctors = this.doctors.filter(doctor => 
-            doctor.especialidad.includes(especialidad)
-        );
+    
+        this.authService.getDoctorsBySpeciality(especialidad).subscribe({
+            next: (doctors) => {
+                this.doctors = doctors;
+                this.loading = false;
+            },
+            error: (error) => {
+                this.error = error.message;
+                this.loading = false;
+            }
+        });
     }
 
     viewSchedule(doctor: Doctor) {
         this.selectedDoctor = doctor;
         this.showSchedule = true;
+        this.error = '';
+        
+        const today = new Date();
+        this.selectedDate = today.toISOString().split('T')[0];
+        
         this.generateAvailableHours();
     }
 
     generateAvailableHours() {
-        // Generamos horas disponibles de 8 AM a 5 PM
-        const hours = [];
-        for (let hour = 8; hour <= 17; hour++) {
-            hours.push({
-                time: `${hour.toString().padStart(2, '0')}:00`,
-                available: Math.random() > 0.3 // Simulamos disponibilidad aleatoria
-            });
+        if (!this.selectedDoctor || !this.selectedDate) return;
+
+        this.loading = true;
+        this.error = '';
+        this.availableHours = [];
+        this.doctorSchedule = null;
+
+        const formattedDate = `${this.selectedDate} 17:05:33.000000`;
+
+        this.authService.getDoctorSchedule(
+            this.selectedDoctor.id.toString(),
+            formattedDate
+        ).subscribe({
+            next: (response) => {
+                if (response && response.data) {
+                    this.doctorSchedule = response.data.doctorSchedule;
+                    this.availableHours = response.data.availability;
+                } else {
+                    this.error = 'No se pudieron cargar los horarios';
+                }
+                this.loading = false;
+            },
+            error: (error) => {
+                this.error = 'Error al cargar los horarios';
+                this.loading = false;
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    selectTimeSlot(slot: TimeSlot) {
+        if (slot.isAvailable) {
+            this.appointmentTime = slot.time;
+            this.appointmentDate = this.selectedDate;
+            this.showAppointmentForm = true;
         }
-        this.availableHours = hours;
     }
 
     scheduleAppointment() {
-        if (!this.validateAppointmentForm()) {
-            return;
-        }
+        if (!this.validateAppointmentForm()) return;
 
         console.log('Cita agendada:', {
-            doctor: this.selectedDoctor?.nombre,
+            doctorId: this.selectedDoctor?.id,
             date: this.appointmentDate,
             time: this.appointmentTime,
             reason: this.appointmentReason
         });
 
-        // Aquí irá la lógica para guardar la cita en el backend
-        alert('Cita agendada con éxito');
         this.resetAppointmentForm();
     }
 
     validateAppointmentForm(): boolean {
         if (!this.appointmentDate) {
-            alert('Por favor seleccione una fecha');
+            this.error = 'Por favor seleccione una fecha';
             return false;
         }
         if (!this.appointmentTime) {
-            alert('Por favor seleccione una hora');
+            this.error = 'Por favor seleccione una hora';
             return false;
         }
         if (!this.appointmentReason) {
-            alert('Por favor ingrese el motivo de la consulta');
+            this.error = 'Por favor ingrese el motivo de la consulta';
             return false;
         }
         return true;
     }
-
     resetAppointmentForm() {
+        // Reiniciar el formulario de cita
         this.showAppointmentForm = false;
         this.appointmentDate = '';
         this.appointmentTime = '';
         this.appointmentReason = '';
-        this.selectedDoctor = null;
-    }
-
-    selectTimeSlot(slot: any) {
-        if (slot.available) {
-            this.appointmentTime = slot.time;
-        }
+        
+        // Volver a mostrar el modal de horarios
+        this.showSchedule = true;
+        
+        // Limpiar selección del horario
+        this.availableHours = this.availableHours.map(slot => ({
+            ...slot,
+            isAvailable: true
+        }));
     }
 
     closeScheduleView() {
         this.showSchedule = false;
         this.selectedDoctor = null;
+        this.doctorSchedule = null;
+        this.availableHours = [];
+        this.error = '';
     }
 
     getUniqueSpecialties(): string[] {

@@ -54,7 +54,7 @@ export class AdminService{
                     },
                     approved:IsNull(),
                 },
-                relations:['person'],
+                relations:['person','person.employee','person.employee.specialty.specialty', 'person.employee.department.department'],
             })
 
             if(doctors){
@@ -64,11 +64,16 @@ export class AdminService{
                         id: per.id,
                         firstame: per.person.first_name,
                         lastName: per.person.last_name,
+                        dpi: per.person.national_id,
                         birht_date: per.person.birth_date,
                         gender: per.person.gender,
                         phone: per.person.phone,
                         photo: per.person.photo,
-                        addres: per.person.address
+                        addres: per.person.address,
+                        number_col: per.person.employee.employee_number,
+                        specialty: per.person.employee.specialty,
+                        department: per.person.employee.department
+
                     })
                 } 
                 return respu
@@ -128,7 +133,7 @@ export class AdminService{
                     },
                     approved:true,
                 },
-                relations:['person'],
+                relations:['person','person.employee','person.employee.specialty.specialty', 'person.employee.department.department'],
             })
 
             if(doctors){
@@ -138,11 +143,15 @@ export class AdminService{
                         id: per.id,
                         firstame: per.person.first_name,
                         lastName: per.person.last_name,
+                        dpi: per.person.national_id,
                         birht_date: per.person.birth_date,
                         gender: per.person.gender,
                         phone: per.person.phone,
                         photo: per.person.photo,
-                        addres: per.person.address
+                        addres: per.person.address,
+                        number_col: per.person.employee.employee_number,
+                        specialty: per.person.employee.specialty,
+                        department: per.person.employee.department
                     })
                 } 
                 return respu
@@ -162,7 +171,7 @@ export class AdminService{
         if (!user) {
           throw new Error('Usuario no encontrado');
         }
-        user.approved = null;
+        user.approved = false;
         await AppDataSource.manager.save(user);
     
         return { message: "Usuario dado de baja correctamente", success: true };

@@ -1,3 +1,4 @@
+/* Base Styles */
 .patient-dashboard {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--azl-serenidad-100) 0%, var(--azl-serenidad-300) 100%);
@@ -108,7 +109,174 @@
   outline: none;
 }
 
+textarea.form-input {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Doctors Grid */
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 2rem auto;
+  max-width: 1100px;
+}
+
+.doctor-card {
+  background: var(--blanco);
+  border: 1px solid var(--strokes);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.doctor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--negro-suave);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--azl-serenidad-300);
+}
+
+.info-group {
+  margin-bottom: 1rem;
+}
+
+.info-label {
+  font-weight: 500;
+  color: var(--gris);
+  margin-bottom: 0.5rem;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-list li {
+  color: var(--negro-suave);
+  padding: 0.25rem 0;
+}
+
+/* Schedule Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--blanco);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--negro-suave);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.schedule-info {
+  background: var(--azl-serenidad-100);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.schedule-day {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--azl-serenidad-500);
+  margin-bottom: 0.5rem;
+}
+
+.schedule-hours {
+  color: var(--gris);
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.time-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--perla-cremosa-100);
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+}
+
+.time-slot.available {
+  background: var(--azl-serenidad-100);
+  border: 1px solid var(--azl-serenidad-300);
+  cursor: pointer;
+}
+
+.time-slot.available:hover {
+  background: var(--azl-serenidad-200);
+}
+
+.time-slot.selected {
+  background: var(--azl-serenidad-400);
+  color: var(--blanco);
+}
+
+.time {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.availability-status {
+  font-size: 0.875rem;
+  color: var(--gris);
+}
+
+.time-slot.selected .availability-status {
+  color: var(--blanco);
+}
+
 /* Button Styles */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
 .primary-button {
   padding: 0.75rem 1.5rem;
   background: var(--azl-serenidad-500);
@@ -137,113 +305,6 @@
 
 .secondary-button:hover {
   background: var(--arena-suave-300);
-}
-
-/* Doctors Grid - Modificado para 3 columnas */
-.doctors-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin: 2rem auto;
-  max-width: 1100px;
-}
-
-.doctor-card {
-  background: var(--blanco);
-  border: 1px solid var(--strokes);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.doctor-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.card-content {
-  padding: 1.5rem;
-}
-
-.card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--negro-suave);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--azl-serenidad-300);
-}
-
-.info-group {
-  margin: 1rem 0;
-}
-
-.info-label {
-  font-weight: 500;
-  color: var(--gris);
-  margin-bottom: 0.5rem;
-}
-
-.info-list {
-  list-style: none;
-  padding: 0;
-}
-
-.info-list li {
-  color: var(--placeholder);
-  padding: 0.25rem 0;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: var(--blanco);
-  padding: 2rem;
-  border-radius: 0.5rem;
-  width: 90%;
-  max-width: 500px;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--negro-suave);
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-/* Footer Styles */
-.dashboard-footer {
-  padding: 2rem;
-  text-align: center;
-  border-top: 1px solid var(--strokes);
-  background: var(--blanco);
-}
-
-.copyright {
-  color: var(--gris);
-  margin-bottom: 0.5rem;
-}
-
-.legal-links a {
-  color: var(--azl-serenidad-400);
-  text-decoration: none;
-}
-
-.legal-links a:hover {
-  text-decoration: underline;
 }
 
 /* Loading and Error States */
@@ -277,6 +338,37 @@
   text-align: center;
 }
 
+.no-hours-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--gris);
+  background: var(--perla-cremosa-100);
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* Footer Styles */
+.dashboard-footer {
+  padding: 2rem;
+  text-align: center;
+  border-top: 1px solid var(--strokes);
+  background: var(--blanco);
+}
+
+.copyright {
+  color: var(--gris);
+  margin-bottom: 0.5rem;
+}
+
+.legal-links a {
+  color: var(--azl-serenidad-400);
+  text-decoration: none;
+}
+
+.legal-links a:hover {
+  text-decoration: underline;
+}
+
 /* Responsive Design */
 @media (max-width: 1100px) {
   .doctors-grid {
@@ -289,12 +381,26 @@
       grid-template-columns: 1fr;
   }
 
-  .dashboard-container {
-      margin: 1rem;
-  }
-
   .patient-dashboard {
       padding: 1rem;
+  }
+
+  .dashboard-container {
+      margin: 0;
+      border-radius: 0;
+  }
+
+  .time-slots-grid {
+      grid-template-columns: repeat(2, 1fr);
+  }
+
+  .button-group {
+      flex-direction: column;
+  }
+
+  .modal-content {
+      padding: 1.5rem;
+      width: 95%;
   }
 }
 

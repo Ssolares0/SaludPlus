@@ -12,3 +12,27 @@ export const getPatientPending = async(req: Request, res: Response) => {
         });
     }
 }
+
+export const getDoctorPending = async(req: Request, res: Response) => {
+    try{
+        const adminService = new AdminService();
+        const result = await  adminService.pendientDoctor();
+        res.status(201).json(result);
+    }catch(error:any){
+        res.status(400).json({
+            error: error.message || 'Error al obtener los doctores'
+        });
+    }
+}
+
+export const getActivePatient = async(_:Request, res:Response) => {
+    try{
+        const adminService = new AdminService();
+        const result = await  adminService.activePatients();
+        res.status(201).json(result);
+    }catch(error:any){
+        res.status(400).json({
+            error: error.message || 'Error al obtener los pacientes'
+        });
+    }
+}

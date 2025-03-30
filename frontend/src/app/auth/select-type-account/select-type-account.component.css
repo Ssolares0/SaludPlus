@@ -1,0 +1,295 @@
+.seleccionar-tipo {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    flex-direction: row;
+}
+
+.contenedor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(1rem, 5vw, 2rem);
+    background-color: var(--blanco);
+    order: 2;
+}
+
+.header-wrapper {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 3vw, 1rem);
+    margin-bottom: clamp(1.5rem, 4vw, 2rem);
+    position: relative;
+}
+
+.boton-volver {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--azl-serenidad-500);
+    font-family: "Inter-SemiBold", Helvetica;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.boton-volver:hover {
+    color: var(--azl-serenidad-400);
+}
+
+.boton-volver .icono-volver {
+    width: 20px;
+    height: 20px;
+}
+
+.logo {
+    width: clamp(64px, 15vw, 117px);
+    height: clamp(64px, 15vw, 117px);
+    object-fit: cover;
+}
+
+.header-texto {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-titulo {
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: var(--azl-serenidad-400);
+    font-size: clamp(1.5rem, 4vw, 32px);
+}
+
+.header-subtitulo {
+    font-family: "Inter-Bold", Helvetica;
+    font-weight: 700;
+    color: var(--azl-serenidad-500);
+    font-size: clamp(1.75rem, 4.5vw, 36px);
+    margin-top: -20px;
+}
+
+.contenido-principal {
+    max-width: 528px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.titulo-principal {
+    font-family: "Inter-SemiBold", Helvetica;
+    font-weight: 600;
+    color: var(--azl-serenidad-400);
+    font-size: clamp(2rem, 5vw, 40px);
+    text-align: center;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+}
+
+.texto-selecciona {
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: var(--gris);
+    font-size: clamp(1rem, 2.5vw, 18px);
+    text-align: center;
+    margin-bottom: clamp(1.5rem, 4vw, 2rem);
+}
+
+.opciones-cuenta {
+    display: flex;
+    gap: clamp(1rem, 3vw, 1.5rem);
+    margin-bottom: clamp(1.5rem, 4vw, 2rem);
+}
+
+.opcion-paciente,
+.opcion-medico {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--strokes);
+    border-radius: 8px;
+    background-color: var(--blanco);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 200px;
+}
+
+.opcion-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.opcion-icono {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--azl-serenidad-500);
+    width: 24px;
+    height: 24px;
+    transition: color 0.3s ease;
+}
+
+.opcion-titulo {
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: var(--negro-suave);
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.opcion-descripcion {
+    font-family: "Inter-Regular", Helvetica;
+    font-weight: 400;
+    color: var(--gris);
+    font-size: 14px;
+    text-align: left;
+    line-height: 1.5;
+    transition: color 0.3s ease;
+}
+
+.opcion-paciente:hover,
+.opcion-medico:hover {
+    border-color: var(--azl-serenidad-400);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(41, 95, 152, 0.1);
+    background-color: var(--azl-serenidad-400);
+}
+
+.opcion-paciente:hover .opcion-icono,
+.opcion-medico:hover .opcion-icono,
+.opcion-paciente:hover .opcion-titulo,
+.opcion-medico:hover .opcion-titulo,
+.opcion-paciente:hover .opcion-descripcion,
+.opcion-medico:hover .opcion-descripcion {
+    color: var(--blanco);
+}
+
+.opcion-paciente.selected,
+.opcion-medico.selected {
+    border-color: var(--azl-serenidad-400);
+    background-color: var(--azl-serenidad-400);
+}
+
+.opcion-paciente.selected .opcion-icono,
+.opcion-medico.selected .opcion-icono,
+.opcion-paciente.selected .opcion-titulo,
+.opcion-medico.selected .opcion-titulo,
+.opcion-paciente.selected .opcion-descripcion,
+.opcion-medico.selected .opcion-descripcion {
+    color: var(--blanco);
+}
+
+.boton-siguiente {
+    width: 100%;
+    height: clamp(48px, 10vw, 65px);
+    font-family: "Inter-SemiBold", Helvetica;
+    font-weight: 500;
+    font-size: clamp(1rem, 3vw, 22px);
+    color: var(--blanco);
+    background-color: var(--azl-serenidad-500);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.boton-siguiente:hover {
+    background-color: var(--azl-serenidad-400);
+}
+
+.boton-siguiente:disabled {
+    background-color: var(--gris-neutro-medio);
+    cursor: not-allowed;
+}
+
+.footer {
+    text-align: center;
+    margin-top: auto;
+    padding-top: clamp(1rem, 3vw, 2rem);
+}
+
+.footer-copyright,
+.footer-enlaces {
+    font-family: "Inter-Regular", Helvetica;
+    font-size: clamp(0.75rem, 1.5vw, 14px);
+    color: var(--gris);
+    margin: 0.5rem 0;
+}
+
+.footer-enlaces a {
+    color: var(--gris);
+    text-decoration: none;
+}
+
+.banner-imagen {
+    flex: 1;
+    background-image: url('/assets/images/account/baner.png');
+    background-size: cover;
+    background-position: center;
+    order: 1;
+}
+
+@media (max-width: 1024px) {
+    .banner-imagen {
+        display: none;
+    }
+
+    .contenedor {
+        order: 1;
+    }
+
+    .opciones-cuenta {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 640px) {
+    .contenedor {
+        padding: 1rem;
+    }
+
+    .contenido-principal {
+        padding: 0.5rem 0;
+    }
+
+    .header-subtitulo {
+        margin-top: -10px;
+    }
+
+    .boton-volver {
+        padding: 4px 8px;
+        font-size: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .boton-siguiente,
+    .opcion-paciente,
+    .opcion-medico,
+    .boton-volver {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    .boton-siguiente {
+        border: 2px solid ButtonText;
+    }
+
+    .opcion-paciente,
+    .opcion-medico {
+        border: 1px solid ButtonText;
+    }
+}

@@ -1,0 +1,57 @@
+<main class="seleccionar-tipo">
+    <div class="contenedor">
+        <header class="header-wrapper">
+            <button class="boton-volver" (click)="goBack()">
+                <i-lucide class="icono-volver" [name]="ArrowLeft"></i-lucide>
+                Volver
+            </button>
+            <img class="logo" src="assets/images/login/logo.png" alt="Logo de SaludPlus" />
+            <div class="header-texto">
+                <h1 class="header-titulo">Centro Médico</h1>
+                <h2 class="header-subtitulo">SaludPlus</h2>
+            </div>
+        </header>
+        <section class="contenido-principal">
+            <h3 class="titulo-principal">¿Qué tipo de cuenta<br />deseas crear?</h3>
+            <p class="texto-selecciona">Selecciona el tipo de cuenta que deseas crear</p>
+            <div class="opciones-cuenta">
+                <div class="opcion-paciente" tabindex="0" [class.selected]="selectedAccount === 'paciente'"
+                    (click)="selectAccount('paciente')" (keydown.enter)="selectAccount('paciente')">
+                    <div class="opcion-header">
+                        <div class="opcion-icono">
+                            <i-lucide [name]="UserRound"></i-lucide>
+                        </div>
+                        <div class="opcion-titulo">Paciente</div>
+                    </div>
+                    <div class="opcion-descripcion">
+                        Gestiona tu atención médica con facilidad. Agenda citas con médicos de especialidad, revisa tus
+                        recetas y consulta tu historial médico en cualquier momento.
+                    </div>
+                </div>
+
+                <div class="opcion-medico" tabindex="0" [class.selected]="selectedAccount === 'medico'"
+                    (click)="selectAccount('medico')" (keydown.enter)="selectAccount('medico')">
+                    <div class="opcion-header">
+                        <div class="opcion-icono">
+                            <i-lucide [name]="Stethoscope"></i-lucide>
+                        </div>
+                        <div class="opcion-titulo">Médico</div>
+                    </div>
+                    <div class="opcion-descripcion">
+                        Administra tu clínica de manera eficiente. Organiza tus horarios de atención, gestiona las citas
+                        de tus pacientes y centraliza toda tu información profesional.
+                    </div>
+                </div>
+            </div>
+            <button class="boton-siguiente" [disabled]="!selectedAccount" (click)="continueRegistration()">
+                Siguiente
+            </button>
+        </section>
+        <footer class="footer">
+            <p class="footer-copyright">© 2025 SaludPlus. Todos los derechos reservados.</p>
+            <p class="footer-enlaces"><a href="#">Términos y Condiciones</a> • <a href="#">Política de Privacidad</a>
+            </p>
+        </footer>
+    </div>
+    <div class="banner-imagen" role="img" aria-label="Imagen decorativa de SaludPlus"></div>
+</main>

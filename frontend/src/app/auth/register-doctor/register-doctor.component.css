@@ -1,0 +1,375 @@
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: var(--negro-suave);
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+.register-container {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    background: white;
+    overflow: hidden;
+    padding: 24px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.logo {
+    width: 51px;
+    height: 51px;
+}
+
+.brand-name {
+    margin-left: 7px;
+    line-height: 1.0;
+}
+
+.brand-title {
+    color: var(--azl-serenidad-400);
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.brand-subtitle {
+    color: var(--azl-serenidad-500);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.form-container {
+    max-width: 1286px;
+    margin: 0 auto;
+}
+
+.form-title {
+    color: var(--negro-suave);
+    font-size: 48px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.form-subtitle {
+    color: var(--gris);
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 50px;
+}
+
+.form-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+label {
+    color: var(--negro-suave);
+    font-size: 16px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.required {
+    color: var(--terracota-suave);
+}
+
+input,
+select {
+    width: 100%;
+    height: 58px;
+    background: var(--blanco);
+    border-radius: 8px;
+    border: 1px solid var(--strokes);
+    padding: 0 16px;
+    color: var(--negro-suave);
+    font-size: 16px;
+    font-weight: 400;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input::placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-webkit-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-moz-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input:-ms-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+input::-ms-input-placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+}
+
+select option[disabled] {
+    color: var(--placeholder);
+}
+
+select option:not([disabled]) {
+    color: var(--negro-suave);
+}
+
+select {
+    color: var(--negro-suave);
+}
+
+select:has(:first-child:checked) {
+    color: var(--placeholder);
+}
+
+select:invalid,
+select option[disabled] {
+    color: var(--placeholder);
+}
+
+.input-container {
+    position: relative;
+}
+
+.error-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding-top: 4px;
+    height: 20px;
+}
+
+.error-message {
+    color: var(--terracota-suave);
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+}
+
+.form-input-error {
+    border-color: var(--terracota-suave) !important;
+    background-color: rgba(255, 204, 204, 0.1) !important;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--azl-serenidad-400);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+
+.btn-register {
+    width: 628px;
+    height: 70px;
+    background: var(--azl-serenidad-500);
+    color: var(--blanco);
+    font-size: 24px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-register:hover {
+    background: var(--azl-serenidad-400);
+}
+
+.login-link {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.login-link span {
+    color: var(--gris);
+    font-size: 16px;
+    font-weight: 400;
+    margin-right: 10px;
+}
+
+.login-link a {
+    color: var(--azl-serenidad-500);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.profile-image-container {
+    position: absolute;
+    top: 95px;
+    right: 197px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-image-container:hover {
+    transform: scale(1.05);
+}
+
+.file-input {
+    display: none;
+}
+
+.profile-image {
+    width: 132px;
+    height: 132px;
+    background: var(--blanco);
+    border-radius: 50%;
+    border: 1px solid var(--strokes);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--negro-suave);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-image-text {
+    font-size: 12px;
+    margin-top: 5px;
+    color: var(--gris);
+}
+
+.profile-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-image:hover {
+    border-color: var(--azl-serenidad-400);
+    color: var(--azl-serenidad-400);
+}
+
+.profile-image-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: block;
+}
+
+.profile-image-button:hover {
+    transform: scale(1.05);
+}
+
+.required-mark {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    color: var(--terracota-suave);
+    font-size: 32px;
+    font-weight: 600;
+    margin-right: 15px;
+}
+
+input[type="date"] {
+    color: var(--negro-suave);
+    font-family: 'Inter', sans-serif;
+    padding-right: 10px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    filter: invert(0.5);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+input[type="date"]:required:invalid::-webkit-datetime-edit {
+    color: var(--placeholder);
+}
+
+input[type="date"]:focus::-webkit-datetime-edit {
+    color: var(--negro-suave);
+}
+
+@media (max-width: 1440px) {
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .btn-register {
+        width: 100%;
+    }
+
+    .profile-image-container {
+        right: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-title {
+        font-size: 36px;
+    }
+
+    .profile-image-container {
+        position: relative;
+        top: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .required-mark {
+        top: 0;
+        right: 15px;
+    }
+
+    .login-link {
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .profile-image-container,
+    .btn-register,
+    input,
+    select {
+        transition: none;
+    }
+}

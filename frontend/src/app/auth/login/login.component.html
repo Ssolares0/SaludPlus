@@ -1,0 +1,105 @@
+<main class="login">
+    <div class="login-container">
+        <header class="login-header">
+            <img class="logo" src="assets/images/login/logo.png" alt="Logo de SaludPlus" />
+            <div class="brand-name">
+                <h1 class="brand-title">Centro Médico</h1>
+                <h2 class="brand-subtitle">SaludPlus</h2>
+            </div>
+            @if (isAdmin) {
+                <button type="button" class="cancel-button" (click)="cancelAdminAuth()" [disabled]="isLoading">
+                    <i-lucide class="cancel-icon" [name]="ArrowLeft"></i-lucide> 
+                    Volver
+                </button>
+                }
+        </header>
+        <section class="login-content">
+            @if (!isAdmin) {
+            <h3 class="login-title">Iniciar Sesión</h3>
+            <p class="login-description">Ingrese sus credenciales para iniciar sesión</p>
+
+            <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label for="email" class="form-label">Correo electrónico</label>
+                    <div class="input-container">
+                        <input type="email" id="email" formControlName="email" class="form-input"
+                            [ngClass]="{ 'form-input-error': shouldShowError('email') }"
+                            placeholder="correoejemplo@saludplus.com" />
+                        <div class="error-container">
+                            @if (shouldShowError('email')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('email') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <div class="input-container">
+                        <input type="password" id="password" formControlName="password" class="form-input"
+                            [ngClass]="{ 'form-input-error': shouldShowError('password') }" placeholder="●●●●●●●●" />
+                        <div class="error-container">
+                            @if (shouldShowError('password')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('password') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button" [disabled]="isLoading">
+                    @if (isLoading) {
+                    <div class="spinner"></div>
+                    <span>Cargando...</span>
+                    } @else {
+                    <span>Iniciar sesión</span>
+                    }
+                </button>
+            </form>
+            } @else {
+            <h3 class="login-title">Iniciar Sesión como Administrador</h3>
+            <p class="login-description">Ingresa el archivo con tu contraseña encriptada</p>
+
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="keyFile" class="form-label">Archivo de autenticación</label>
+                    <div class="input-container">
+                        <input type="file" id="keyFile" class="file-input" #keyFileInput accept=".ayd1"
+                            (change)="onFileSelected($event)" hidden />
+                        <button type="button" class="file-select-button" (click)="keyFileInput.click()">
+                            <span [ngClass]="{'placeholder-text': !selectedFileName, 'file-name': selectedFileName}">
+                                {{ selectedFileName || 'Seleccione el archivo con su contraseña' }}
+                            </span>
+                            <i class="file-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" class="login-button" [disabled]="isLoading || !selectedFile" (click)="submitAdminAuth($event)">
+                    @if (isLoading) {
+                    <div class="spinner"></div>
+                    <span>Autenticando...</span>
+                    } @else {
+                    <span>Completar autenticación</span>
+                    }
+                </button>
+            </form>
+            }
+            <p class="register-prompt">¿No tienes una cuenta? <a class="register-link"
+                    (click)="goToSelectTypeAccount()">Registrate aquí</a>
+            </p>
+        </section>
+        <footer class="login-footer">
+            <p class="copyright">© 2025 SaludPlus. Todos los derechos reservados.</p>
+            <p class="legal-links"><a href="#">Términos y Condiciones</a> • <a href="#">Política de Privacidad</a>
+            </p>
+        </footer>
+    </div>
+    <div class="login-image" role="img" aria-label="Imagen decorativa de SaludPlus"></div>
+    <app-modal [isVisible]="showModal" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        (close)="onCloseModal()">
+    </app-modal>
+</main>

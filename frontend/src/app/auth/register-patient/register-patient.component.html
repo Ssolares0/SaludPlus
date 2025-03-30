@@ -1,0 +1,208 @@
+<div class="register-container">
+    <div class="header">
+        <img class="logo" src="assets/images/login/logo.png" alt="Logo SaludPlus">
+        <div class="brand-name">
+            <div class="brand-title">Centro Médico</div>
+            <div class="brand-subtitle">SaludPlus</div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h1 class="form-title">Crea tu cuenta tipo "Paciente"</h1>
+        <p class="form-subtitle">Llena el formulario de registro</p>
+
+        <form class="register-patient-form" [formGroup]="registerPatientForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Nombre<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="name" formControlName="name"
+                            [ngClass]="{ 'form-input-error': shouldShowError('name') }" placeholder="Luis Carlos">
+                        <div class="error-container">
+                            @if (shouldShowError('name')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('name') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastname">Apellido<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="lastname" formControlName="lastname"
+                            [ngClass]="{ 'form-input-error': shouldShowError('lastname') }"
+                            placeholder="Corleto Marroquín">
+                        <div class="error-container">
+                            @if (shouldShowError('lastname')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('lastname') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dpi">DPI<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="dpi" formControlName="dpi"
+                            [ngClass]="{ 'form-input-error': shouldShowError('dpi') }" placeholder="3082203580607">
+                        <div class="error-container">
+                            @if (shouldShowError('dpi')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('dpi') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="genre">Género<span class="required">*</span></label>
+                    <div class="input-container">
+                        <select id="genre" formControlName="genre"
+                            [ngClass]="{ 'form-input-error': shouldShowError('genre') }">
+                            <option disabled selected value="">Selecciona tu género</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="femenino">Femenino</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                        <div class="error-container">
+                            @if (shouldShowError('genre')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('genre') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="birthdate">Fecha de nacimiento<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input #birthdateInput type="text" id="birthdate" formControlName="birthdate" [max]="maxDate"
+                            [ngClass]="{ 'form-input-error': shouldShowError('birthdate') }"
+                            placeholder="Fecha de nacimiento">
+                        <div class="error-container">
+                            @if (shouldShowError('birthdate') || registerPatientForm.hasError('underage')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('birthdate') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="direction">Dirección<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="text" id="direction" formControlName="direction"
+                            [ngClass]="{ 'form-input-error': shouldShowError('direction') }"
+                            placeholder="Calle Principal, Zona 4, Mixco, Guatemala.">
+                        <div class="error-container">
+                            @if (shouldShowError('direction')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('direction') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Teléfono<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="tel" id="phone" formControlName="phone"
+                            [ngClass]="{ 'form-input-error': shouldShowError('phone') }" placeholder="31275090">
+                        <div class="error-container">
+                            @if (shouldShowError('phone')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('phone') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo electrónico<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="email" id="email" formControlName="email"
+                            [ngClass]="{ 'form-input-error': shouldShowError('email') }"
+                            placeholder="correopaciente@saludplus.com">
+                        <div class="error-container">
+                            @if (shouldShowError('email')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('email') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Contraseña<span class="required">*</span></label>
+                    <div class="input-container">
+                        <input type="password" id="password" formControlName="password"
+                            [ngClass]="{ 'form-input-error': shouldShowError('password') }" placeholder="●●●●●●●●">
+                        <div class="error-container">
+                            @if (shouldShowError('password')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('password') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-register" [disabled]="isLoading">
+                    @if (isLoading) {
+                    <span>Registrando...</span>
+                    } @else {
+                    <span>Registrarme como paciente</span>
+                    }
+                </button>
+            </div>
+
+            <div class="profile-image-container">
+                <input type="file" id="profileImageInput" accept="image/*" (change)="onProfileImageSelected($event)"
+                    class="file-input" #fileInput>
+                <button type="button" class="profile-image-button" (click)="fileInput.click()"
+                    aria-label="Cambiar foto de perfil">
+                    <div class="profile-image">
+                        @if (profileImageUrl) {
+                        <img [src]="profileImageUrl" class="profile-image-preview" alt="Foto de perfil">
+                        } @else {
+                        <i-lucide [name]="UserCircle2" [size]="52"></i-lucide>
+                        <span class="profile-image-text">Seleccionar foto</span>
+                        }
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        <div class="login-link">
+            <span>¿Ya tienes una cuenta?</span>
+            <a href="#" (click)="goToLogin()">Inicia sesión</a>
+        </div>
+    </div>
+
+    <app-modal [isVisible]="showModal" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        (close)="onCloseModal()">
+    </app-modal>
+</div>

@@ -36,3 +36,15 @@ export const getActivePatient = async(_:Request, res:Response) => {
         });
     }
 }
+
+export const getActiveDoctor = async(req: Request, res: Response) => {
+    try{
+        const adminService = new AdminService();
+        const result = await  adminService.activeDoctors();
+        res.status(201).json(result);
+    }catch(error:any){
+        res.status(400).json({
+            error: error.message || 'Error al obtener los doctores'
+        });
+    }
+}

@@ -72,7 +72,7 @@ export class AdminService{
                 return respu
             }
 
-            return {message: "No hay pacientes pendientes"};
+            return {message: "No hay doctores pendientes"};
         }catch(error: any){
             throw error
         }
@@ -110,6 +110,43 @@ export class AdminService{
             }
 
             return {message: "No hay pacientes activos"};
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async activeDoctors(){
+        try{
+            const doctorPatient = AppDataSource.getRepository(User);
+
+            const doctors = await doctorPatient.find({
+                where:{
+                    role:{
+                        id:2,
+                    },
+                    approved:true,
+                },
+                relations:['person'],
+            })
+
+            if(doctors){
+                let respu:any[] = [];
+                for(const per of doctors){
+                    respu.push({
+                        id: per.id,
+                        firstame: per.person.first_name,
+                        lastName: per.person.last_name,
+                        birht_date: per.person.birth_date,
+                        gender: per.person.gender,
+                        phone: per.person.phone,
+                        photo: per.person.photo,
+                        addres: per.person.address
+                    })
+                } 
+                return respu
+            }
+
+            return {message: "No hay doctores activos"};
         }catch(error: any){
             throw error
         }

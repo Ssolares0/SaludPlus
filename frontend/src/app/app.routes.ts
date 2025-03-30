@@ -9,8 +9,13 @@ import { AcceptDoctorsComponent } from './admin/accept-doctors/accept-doctors.co
 import { ViewPatientsComponent } from './admin/view-patients/view-patients.component';
 import { ViewDoctorsComponent } from './admin/view-doctors/view-doctors.component';
 import { ReportsComponent } from './admin/reports/reports.component';
-import { authGuard, adminGuard, noAuthGuard, patientGuard } from './core/guards/guards';
+import { authGuard, adminGuard, noAuthGuard, patientGuard, doctorGuard } from './core/guards/guards';
 import { PatientsComponent } from './patients/patients.components';
+import { DoctorLayoutComponent } from './doctor/doctor-layout/doctor-layout.component';
+import { AppointmentsComponent } from './doctor/appointments/appointments.component';
+import { SchedulesComponent } from './doctor/schedules/schedules.component';
+import { HistoryComponent } from './doctor/history/history.component';
+import { ProfileComponent } from './doctor/profile/profile.component';
 
 export const routes: Routes = [
     {
@@ -77,6 +82,33 @@ export const routes: Routes = [
                 path: '',
                 redirectTo: 'reports',
                 pathMatch: 'full'
+            }
+        ]
+    },
+    {
+        path: 'doctor',
+        component: DoctorLayoutComponent,
+        canActivate: [doctorGuard],
+        children: [
+            {
+                path: 'appointments',
+                title: "Gestión de citas",
+                component: AppointmentsComponent
+            },
+            {
+                path: 'schedules',
+                title: "Gestión de horarios",
+                component: SchedulesComponent
+            },
+            {
+                path: 'history',
+                title: "Historial médico",
+                component: HistoryComponent
+            },
+            {
+                path: 'profile',
+                title: "Perfil médico",
+                component: ProfileComponent
             }
         ]
     },

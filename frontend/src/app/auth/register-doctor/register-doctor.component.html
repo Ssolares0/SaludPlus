@@ -272,8 +272,11 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn-register" [disabled]="isLoading">
-                    <span *ngIf="!isLoading">Registrarme como médico</span>
-                    <span *ngIf="isLoading">Registrando...</span>
+                    @if (!isLoading) {
+                        <span>Registrarme como médico</span>
+                    } @else {
+                        <span>Registrando...</span>
+                    }
                 </button>
             </div>
 

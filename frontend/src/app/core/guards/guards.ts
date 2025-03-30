@@ -48,7 +48,7 @@ export const patientGuard: CanActivateFn = (route, state) => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRoleName');
 
-    if (token && userRole === 'patient') {
+    if (userRole === 'paciente') {
         return true;
     } else {
         router.navigate(['']);
@@ -69,7 +69,7 @@ export const noAuthGuard: CanActivateFn = (route, state) => {
             router.navigate(['/admin/reports']);
         } else if (userRole === 'doctor') {
             router.navigate(['/doctor/dashboard']);
-        } else if (userRole === 'patient') {
+        } else if (userRole === 'paciente') {
             router.navigate(['/patient/dashboard']);
         } else {
             localStorage.clear();

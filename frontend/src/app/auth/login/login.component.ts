@@ -174,8 +174,11 @@ export class LoginComponent implements OnInit {
               case 'doctor': 
                 this.router.navigate(['/doctor/dashboard']);
                 break;
-              case 'patient':
-                this.router.navigate(['/patient/dashboard']);
+              case 'paciente':
+                this.showSuccessModal("¡Autenticación completada exitosamente!")
+                setTimeout(() => {
+                  this.router.navigate(['/patients']);
+                }, 1500);
             }
           } else {
             this.showErrorModal(response.message || 'Credenciales incorrectas');

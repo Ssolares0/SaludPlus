@@ -64,7 +64,7 @@ export class AuthService {
           })
         );
 
-        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
         person.photo = photoUrl;
       }
       // 1. Crear Persona
@@ -153,7 +153,7 @@ export class AuthService {
             })
         );
 
-        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
         person.photo = photoUrl;
     }
       // 1. Crear Persona
@@ -238,7 +238,7 @@ export class AuthService {
         })
       );
 
-      const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
 
       //Crear Persona
       const person = new Person();

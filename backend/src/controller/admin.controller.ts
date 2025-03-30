@@ -60,3 +60,16 @@ export const deleteUser = async(req: Request, res: Response) => {
         });
     }
 }
+
+export const getTopDoctors = async(req: Request, res: Response) => {
+    try{
+        const adminService = new AdminService();
+
+        const result = await  adminService.topDoctors(req.body.specialty);
+        res.status(201).json(result);
+    }catch(error:any){
+        res.status(400).json({
+            error: error.message || 'Error al generar reporte top doctores'
+        });
+    }
+}

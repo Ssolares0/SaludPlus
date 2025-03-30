@@ -1,6 +1,8 @@
 import { IsNull } from "typeorm";
 import { AppDataSource } from "../config/database/Postgres"
 import { User } from "../models/User.entity";
+import { Appointment } from "../models/Appointments.entity";
+import { Employee } from "../models/Employe.entity";
 
 
 export class AdminService{
@@ -164,5 +166,47 @@ export class AdminService{
         await AppDataSource.manager.save(user);
     
         return { message: "Usuario dado de baja correctamente", success: true };
+    }
+
+    async topDoctors(specialty: string){
+        try{
+            const query = AppDataSource.createQueryBuilder(Employee, "doctor")
+            .select([
+                "doctor.id AS id",
+                "person.first_name AS firstName",
+                "person.last_name AS lastName",
+                "specialty.name AS specialty",
+                "COUNT(DISTINCT appointment.patient_id) AS patientsCount", // Pacientes únicos
+            ])
+            .innerJoin("doctor.appointments", "appointment", "appointment.status = :status", {
+                status: "completed",
+            })
+            .innerJoin("doctor.person", "person")
+            .leftJoin("doctor.specialty", "employee_specialty")
+            .leftJoin("employee_specialty.specialty", "specialty")
+            .groupBy("doctor.id, person.first_name, person.last_name, specialty.name")
+            .orderBy("patientsCount", "DESC")
+            .limit(Number(10));
+
+            // Filtrar por especialidad si se proporciona
+            if (specialty) {
+            query.andWhere("specialty.name ILIKE :specialty", { specialty: `%${specialty}%` });
+            }
+
+            const result = await query.getRawMany();
+
+            // Formatear respuesta
+            const topDoctors = result.map((doctor) => ({
+            id: doctor.id,
+            name: `${doctor.firstname} ${doctor.lastname}`,
+            specialty: doctor.specialty || "Sin especialidad registrada",
+            patientsCount: doctor.patientscount,
+            }));
+
+            return topDoctors;
+
+        }catch(error: any){
+            throw error
+        }
     }
 }

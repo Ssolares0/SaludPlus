@@ -1,94 +1,177 @@
-<div class="patient-dashboard">
-    <!-- Buscador -->
-    <section class="search-section">
-      <h2>Buscar Médico por Especialidad</h2>
-      <div class="search-container">
-        <select [(ngModel)]="selectedSpecialty" class="specialty-select">
-          <option value="">Todas las especialidades</option>
-          <option *ngFor="let specialty of specialties" [value]="specialty">
-            {{specialty}}
-          </option>
-        </select>
-        <button class="search-btn" (click)="searchDoctors()">
-          Buscar
-        </button>
-      </div>
-    </section>
-  
-    <!-- Lista de médicos -->
-    <section class="doctors-section" *ngIf="!showSchedule && !showAppointmentForm">
-      <div class="doctors-grid">
-        <div *ngFor="let doctor of doctors" class="doctor-card">
-          <img [src]="doctor.photo" alt="Foto del médico" class="doctor-photo">
-          <div class="doctor-info">
-            <h3>{{doctor.fullName}}</h3>
-            <p class="specialty">{{doctor.specialty}}</p>
-            <p class="address">{{doctor.address}}</p>
-            <div class="actions">
-              <button class="view-schedule-btn" (click)="viewSchedule(doctor)">
-                Ver horarios
-              </button>
-              <button class="schedule-btn" (click)="showAppointmentForm = true">
-                Agendar cita
-              </button>
-            </div>
+<main class="patient-dashboard">
+  <div class="dashboard-container">
+      <!-- Logo Header -->
+      <header class="dashboard-header">
+          <div class="header-content">
+              <img class="logo" src="assets/images/login/logo.png" alt="Logo de SaludPlus" />
+              <div class="brand-name">
+                  <h1 class="brand-title">Centro Médico</h1>
+                  <h2 class="brand-subtitle">SaludPlus</h2>
+              </div>
           </div>
-        </div>
-      </div>
-    </section>
-  
-    <!-- Vista de horarios -->
-    <section class="schedule-view" *ngIf="showSchedule">
-      <h3>Horarios disponibles</h3>
-      <div class="schedule-container">
-        <div class="date-picker">
-          <label>Seleccione una fecha:</label>
-          <input type="date" [(ngModel)]="selectedDate" (change)="generateAvailableHours()">
-        </div>
-        <div class="hours-grid">
-          <div *ngFor="let slot of availableHours" 
-               [class.available]="slot.available"
-               class="time-slot">
-            {{slot.time}}
+      </header>
+
+      <!-- Main Content -->
+      <section class="dashboard-content">
+          <div class="content-wrapper">
+              <h3 class="section-title">BUSQUEDA DE MEDICO</h3>
+              <p class="section-description">Seleccione la especialidad que necesita consultar</p>
+
+              <!-- Search Form -->
+              <form class="search-form">
+                  <div class="form-group">
+
+                      <div class="input-container">
+                          <select [(ngModel)]="selectedEspecialidad" 
+                                  name="specialty" 
+                                  id="specialty" 
+                                  class="form-input">
+                              <option value="">Todas las especialidades</option>
+                              <option *ngFor="let doctor of doctors">
+                                  {{doctor.especialidad[0]}}
+                              </option>
+                          </select>
+                      </div>
+                  </div>
+                  <button type="button" class="primary-button" (click)="filterByEspecialidad(selectedEspecialidad)">
+                      Buscar
+                  </button>
+              </form>
+
+              <!-- Loading State -->
+              <div *ngIf="loading" class="loading-container">
+                  <div class="spinner"></div>
+                  <span>Cargando doctores...</span>
+              </div>
+
+              <!-- Error Message -->
+              <div *ngIf="error" class="error-container">
+                  <div class="error-message">{{ error }}</div>
+              </div>
+
+              <!-- Doctors Grid -->
+              <div class="doctors-grid" *ngIf="!loading && !error && !showAppointmentForm">
+                  <div *ngFor="let doctor of doctors" class="doctor-card">
+                      <div class="card-content">
+                          <h3 class="card-title">{{ doctor.nombre }} {{ doctor.apellido }}</h3>
+                          <div class="info-group">
+                              <h4 class="info-label">Especialidades:</h4>
+                              <ul class="info-list">
+                                  <li *ngFor="let esp of doctor.especialidad">{{ esp }}</li>
+                              </ul>
+                          </div>
+                          <div class="info-group" *ngIf="doctor.locacion.length > 0">
+                              <h4 class="info-label">Ubicaciones:</h4>
+                              <ul class="info-list">
+                                  <li *ngFor="let loc of doctor.locacion">{{ loc }}</li>
+                              </ul>
+                          </div>
+                          <div class="button-group">
+                              <button class="secondary-button" (click)="viewSchedule(doctor)">
+                                  Ver horarios
+                              </button>
+                              <button class="primary-button" (click)="showAppointmentForm = true">
+                                  Agendar cita
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
           </div>
-        </div>
-        <button class="back-btn" (click)="showSchedule = false">Volver</button>
-      </div>
-    </section>
-  
-    <!-- Formulario de cita -->
-    <section class="appointment-form" *ngIf="showAppointmentForm">
-      <form (ngSubmit)="scheduleAppointment()">
-        <h3>Agendar Nueva Cita</h3>
-        <div class="form-group">
-          <label>Fecha de la cita:</label>
-          <input type="date" [(ngModel)]="appointmentDate" name="date" required>
-        </div>
-        <div class="form-group">
-          <label>Hora de la cita:</label>
-          <select [(ngModel)]="appointmentTime" name="time" required>
-            <option *ngFor="let slot of availableHours" 
-                    [value]="slot.time"
-                    [disabled]="!slot.available">
-              {{slot.time}}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Motivo de la consulta:</label>
-          <textarea [(ngModel)]="appointmentReason" 
-                    name="reason" 
-                    required
-                    rows="4"></textarea>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="submit-btn">Confirmar cita</button>
-          <button type="button" 
-                  class="cancel-btn" 
-                  (click)="showAppointmentForm = false">
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </section>
+      </section>
+
+      <!-- Footer -->
+      <footer class="dashboard-footer">
+          <p class="copyright">© 2025 SaludPlus. Todos los derechos reservados.</p>
+          <p class="legal-links">
+              <a href="#">Términos y Condiciones</a> • 
+              <a href="#">Política de Privacidad</a>
+          </p>
+      </footer>
   </div>
+
+  <!-- Modals -->
+  <!-- Schedule Modal -->
+  <div class="modal-overlay" *ngIf="showSchedule">
+      <div class="modal-content">
+          <h3 class="modal-title">Horarios Disponibles</h3>
+          <form class="schedule-form">
+              <div class="form-group">
+                  <label class="form-label">Fecha de la cita</label>
+                  <div class="input-container">
+                      <input type="date" 
+                             [(ngModel)]="selectedDate" 
+                             name="date"
+                             class="form-input"
+                             (change)="generateAvailableHours()">
+                  </div>
+              </div>
+              <div class="time-slots">
+                  <div *ngFor="let slot of availableHours" 
+                       [class.available]="slot.available"
+                       class="time-slot">
+                      {{slot.time}}
+                  </div>
+              </div>
+              <div class="button-group">
+                  <button type="button" class="secondary-button" (click)="showSchedule = false">
+                      Cerrar
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <!-- Appointment Modal -->
+  <div class="modal-overlay" *ngIf="showAppointmentForm">
+      <div class="modal-content">
+          <h3 class="modal-title">Agendar Nueva Cita</h3>
+          <form (ngSubmit)="scheduleAppointment()" class="appointment-form">
+              <div class="form-group">
+                  <label class="form-label">Fecha</label>
+                  <div class="input-container">
+                      <input type="date" 
+                             [(ngModel)]="appointmentDate" 
+                             name="date" 
+                             required 
+                             class="form-input">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="form-label">Hora</label>
+                  <div class="input-container">
+                      <select [(ngModel)]="appointmentTime" 
+                              name="time" 
+                              required 
+                              class="form-input">
+                          <option value="">Seleccione una hora</option>
+                          <option value="09:00">09:00</option>
+                          <option value="10:00">10:00</option>
+                          <option value="11:00">11:00</option>
+                          <option value="12:00">12:00</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="form-label">Motivo de la consulta</label>
+                  <div class="input-container">
+                      <textarea [(ngModel)]="appointmentReason" 
+                              name="reason" 
+                              required
+                              rows="4"
+                              class="form-input"
+                              placeholder="Describa el motivo de su consulta"></textarea>
+                  </div>
+              </div>
+              <div class="button-group">
+                  <button type="submit" class="primary-button">Confirmar</button>
+                  <button type="button" 
+                          class="secondary-button" 
+                          (click)="showAppointmentForm = false">
+                      Cancelar
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
+</main>

@@ -1,162 +1,140 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// import { PatientsComponent } from './patients/patients.components';
-//     {path: 'patients', title: "Portal del Paciente", component: PatientsComponent}
-
-interface Doctor {
-  id: number;
-  fullName: string;
-  specialty: string;
-  address: string;
-  photo: string;
-  schedule: {
-    days: string[];
-    hours: { start: string; end: string; }
-  };
-}
-
-interface TimeSlot {
-  time: string;
-  available: boolean;
-}
+import { AuthService } from './patients.service';
+import { Doctor } from './patients.models';
 
 @Component({
-  selector: 'app-patients',
-  templateUrl: './patients.component.html',
-  styleUrls: ['./patients.component.css'],
-  standalone: true,
-  imports: [CommonModule, FormsModule]
+    selector: 'app-patients',
+    templateUrl: './patients.component.html',
+    styleUrls: ['./patients.component.css'],
+    standalone: true,
+    imports: [CommonModule, FormsModule]
 })
 export class PatientsComponent implements OnInit {
-  doctors: Doctor[] = [];
-  specialties: string[] = ['Cardiología', 'Pediatría', 'Dermatología', 'Medicina General'];
-  selectedSpecialty: string = '';
-  selectedDoctor: Doctor | null = null;
-  showSchedule: boolean = false;
-  showAppointmentForm: boolean = false;
-  showCancelModal: boolean = false;
-  selectedDate: string = '';
-  appointmentDate: string = '';
-  appointmentTime: string = '';
-  appointmentReason: string = '';
-  availableHours: TimeSlot[] = [];
-  availableSlots: string[] = [];
+    doctors: Doctor[] = [];
+    loading: boolean = false;
+    error: string = '';
+    selectedEspecialidad: string = '';
+    showSchedule: boolean = false;
+    showAppointmentForm: boolean = false;
+    selectedDate: string = '';
+    appointmentDate: string = '';
+    appointmentTime: string = '';
+    appointmentReason: string = '';
+    availableHours: any[] = [];
+    selectedDoctor: Doctor | null = null;
 
-  constructor() { }
+    constructor(private authService: AuthService) { }
 
-  ngOnInit() {
-    this.loadDoctors();
-    this.loadSpecialties();
-  }
+    ngOnInit() {
+        this.loadDoctors();
+    }
 
-  loadDoctors() {
-    // Simular carga de datos de la API
-    this.doctors = [
-      {
-        id: 1,
-        fullName: 'Dr. Juan Pérez',
-        specialty: 'Cardiología',
-        address: 'Calle Principal #123',
-        photo: 'assets/doctor1.jpg',
-        schedule: {
-          days: ['Lunes', 'Martes', 'Miércoles'],
-          hours: { start: '08:00', end: '16:00' }
+    loadDoctors() {
+        this.loading = true;
+        this.error = '';
+        
+        this.authService.getAvailableDoctors(2).subscribe({
+            next: (doctors) => {
+                console.log('Doctores recibidos:', doctors);
+                this.doctors = doctors;
+                this.loading = false;
+            },
+            error: (error) => {
+                console.error('Error:', error);
+                this.error = error.message;
+                this.loading = false;
+            }
+        });
+    }
+
+    filterByEspecialidad(especialidad: string) {
+        if (!especialidad) {
+            this.loadDoctors();
+            return;
         }
-      },
-      {
-        id: 2,
-        fullName: 'Dra. María García',
-        specialty: 'Pediatría',
-        address: 'Avenida Central #456',
-        photo: 'assets/doctor2.jpg',
-        schedule: {
-          days: ['Martes', 'Jueves', 'Viernes'],
-          hours: { start: '09:00', end: '17:00' }
+        
+        this.doctors = this.doctors.filter(doctor => 
+            doctor.especialidad.includes(especialidad)
+        );
+    }
+
+    viewSchedule(doctor: Doctor) {
+        this.selectedDoctor = doctor;
+        this.showSchedule = true;
+        this.generateAvailableHours();
+    }
+
+    generateAvailableHours() {
+        // Generamos horas disponibles de 8 AM a 5 PM
+        const hours = [];
+        for (let hour = 8; hour <= 17; hour++) {
+            hours.push({
+                time: `${hour.toString().padStart(2, '0')}:00`,
+                available: Math.random() > 0.3 // Simulamos disponibilidad aleatoria
+            });
         }
-      }
-    ];
-  }
-
-  loadSpecialties() {
-    // En un caso real, esto vendría de la API
-    this.specialties = [...new Set(this.doctors.map(doctor => doctor.specialty))];
-  }
-
-  searchDoctors() {
-    if (this.selectedSpecialty) {
-      this.doctors = this.doctors.filter(doctor => 
-        doctor.specialty === this.selectedSpecialty
-      );
-    } else {
-      this.loadDoctors(); // Recargar todos los doctores
+        this.availableHours = hours;
     }
-  }
 
-  viewSchedule(doctor: Doctor) {
-    this.selectedDoctor = doctor;
-    this.showSchedule = true;
-    this.generateAvailableHours();
-  }
+    scheduleAppointment() {
+        if (!this.validateAppointmentForm()) {
+            return;
+        }
 
-  generateAvailableHours() {
-    if (!this.selectedDoctor) return;
-    
-    const start = parseInt(this.selectedDoctor.schedule.hours.start.split(':')[0]);
-    const end = parseInt(this.selectedDoctor.schedule.hours.end.split(':')[0]);
-    
-    this.availableHours = [];
-    for (let hour = start; hour < end; hour++) {
-      this.availableHours.push({
-        time: `${hour.toString().padStart(2, '0')}:00`,
-        available: Math.random() > 0.3 // Simulación de disponibilidad
-      });
+        console.log('Cita agendada:', {
+            doctor: this.selectedDoctor?.nombre,
+            date: this.appointmentDate,
+            time: this.appointmentTime,
+            reason: this.appointmentReason
+        });
+
+        // Aquí irá la lógica para guardar la cita en el backend
+        alert('Cita agendada con éxito');
+        this.resetAppointmentForm();
     }
-  }
 
-  scheduleAppointment() {
-    if (!this.validateAppointment()) return;
-
-    // Simular guardado de cita
-    alert('Cita agendada correctamente');
-    this.showAppointmentForm = false;
-    this.resetForm();
-  }
-
-  validateAppointment(): boolean {
-    if (!this.selectedDoctor) return false;
-    
-    const appointmentDay = new Date(this.appointmentDate).getDay();
-    const daysMap: { [key: string]: number } = {
-      'Lunes': 1,
-      'Martes': 2,
-      'Miércoles': 3,
-      'Jueves': 4,
-      'Viernes': 5
-    };
-    
-    const availableDays = this.selectedDoctor.schedule.days.map(day => daysMap[day]);
-  
-    if (!availableDays.includes(appointmentDay)) {
-      alert('El doctor no atiende este día');
-      return false;
+    validateAppointmentForm(): boolean {
+        if (!this.appointmentDate) {
+            alert('Por favor seleccione una fecha');
+            return false;
+        }
+        if (!this.appointmentTime) {
+            alert('Por favor seleccione una hora');
+            return false;
+        }
+        if (!this.appointmentReason) {
+            alert('Por favor ingrese el motivo de la consulta');
+            return false;
+        }
+        return true;
     }
-  
-    return true;
-  }
 
-  confirmCancelAppointment() {
-    if (confirm('¿Está seguro que desea cancelar la cita?')) {
-      // Simular cancelación de cita
-      alert('Cita cancelada correctamente');
-      this.showCancelModal = false;
+    resetAppointmentForm() {
+        this.showAppointmentForm = false;
+        this.appointmentDate = '';
+        this.appointmentTime = '';
+        this.appointmentReason = '';
+        this.selectedDoctor = null;
     }
-  }
 
-  private resetForm() {
-    this.appointmentDate = '';
-    this.appointmentTime = '';
-    this.appointmentReason = '';
-  }
+    selectTimeSlot(slot: any) {
+        if (slot.available) {
+            this.appointmentTime = slot.time;
+        }
+    }
+
+    closeScheduleView() {
+        this.showSchedule = false;
+        this.selectedDoctor = null;
+    }
+
+    getUniqueSpecialties(): string[] {
+        const specialties = new Set<string>();
+        this.doctors.forEach(doctor => {
+            doctor.especialidad.forEach(esp => specialties.add(esp));
+        });
+        return Array.from(specialties);
+    }
 }

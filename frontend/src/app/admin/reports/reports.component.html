@@ -75,7 +75,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let i of [1,2,3,4,5]">
+                        @for (i of [1,2,3,4,5]; track $index) {
+                        <tr>
                             <td>{{ i === 1 ? '15 Mar 2024' : i === 2 ? '14 Mar 2024' : i === 3 ? '13 Mar 2024' : i === 4
                                 ? '12 Mar 2024' : '11 Mar 2024' }}</td>
                             <td>{{ 45 - (i * 2) }}</td>
@@ -86,6 +87,7 @@
                                 <span class="status-pill danger">{{ 7 }}</span>
                             </td>
                         </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -101,7 +103,8 @@
                 </div>
             </div>
             <div class="report-content">
-                <div class="doctor-ranking" *ngFor="let i of [1,2,3,4,5]">
+                @for (i of [1,2,3,4,5]; track $index) {
+                <div class="doctor-ranking">
                     <div class="ranking-info">
                         <span class="ranking-number">#{{i}}</span>
                         <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=50&h=50&fit=crop"
@@ -123,6 +126,7 @@
                         </div>
                     </div>
                 </div>
+                }
             </div>
         </div>
     </div>

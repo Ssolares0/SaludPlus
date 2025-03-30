@@ -4,6 +4,8 @@ import { Appointment } from "../models/Appointments.entity";
 import { DoctorSchedule } from "../models/DoctorSchedule.entity";
 import { Employee } from "../models/Employe.entity";
 import { sendCancellationEmail } from "../utils/email";
+import { error } from "console";
+import { User } from "../models/User.entity";
 
 export class EmployeService{
     async pendientAppointment(userId: number){
@@ -208,7 +210,44 @@ export class EmployeService{
             return apoint;
         } catch(error: any){
             console.log(error)
+            throw error
         }
        
+    }
+
+    async GetDoctor(docto_id: number){
+        try{
+
+        
+            const doctorRepository = AppDataSource.getRepository(User);
+            const dataDoctor = await doctorRepository.findOne({
+                where:{
+                    id: docto_id
+                },
+                relations: ['person'],
+            }) 
+
+            if(dataDoctor){
+                const response ={
+                    id: dataDoctor.id,
+                    firstName: dataDoctor.person.first_name,
+                    lastName: dataDoctor.person.last_name,
+                    birht_date: dataDoctor.person.birth_date,
+                    gender: dataDoctor.person.gender,
+                    phone: dataDoctor.person.phone,
+                    photo: dataDoctor.person.photo,
+                    addres: dataDoctor.person.address
+                }
+                return response
+            }
+
+            return {
+                message:"No se encontro al doctor"
+            }
+            
+        } catch {
+            console.log(error);
+            throw error;
+        }
     }
 }

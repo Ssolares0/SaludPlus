@@ -25,13 +25,15 @@
     <div class="admin-content">
         <nav class="sidebar">
             <ul class="nav-list">
-                <li *ngFor="let item of navItems">
+                @for (item of navItems; track item.route) {
+                <li>
                     <a [routerLink]="item.route" routerLinkActive="active-link" class="nav-item"
                         [class.active]="item.active">
                         <i-lucide [name]="item.icon" class="nav-icon"></i-lucide>
                         <span class="nav-label">{{ item.label }}</span>
                     </a>
                 </li>
+                }
             </ul>
         </nav>
 

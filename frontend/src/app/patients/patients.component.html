@@ -1,0 +1,94 @@
+<div class="patient-dashboard">
+    <!-- Buscador -->
+    <section class="search-section">
+      <h2>Buscar Médico por Especialidad</h2>
+      <div class="search-container">
+        <select [(ngModel)]="selectedSpecialty" class="specialty-select">
+          <option value="">Todas las especialidades</option>
+          <option *ngFor="let specialty of specialties" [value]="specialty">
+            {{specialty}}
+          </option>
+        </select>
+        <button class="search-btn" (click)="searchDoctors()">
+          Buscar
+        </button>
+      </div>
+    </section>
+  
+    <!-- Lista de médicos -->
+    <section class="doctors-section" *ngIf="!showSchedule && !showAppointmentForm">
+      <div class="doctors-grid">
+        <div *ngFor="let doctor of doctors" class="doctor-card">
+          <img [src]="doctor.photo" alt="Foto del médico" class="doctor-photo">
+          <div class="doctor-info">
+            <h3>{{doctor.fullName}}</h3>
+            <p class="specialty">{{doctor.specialty}}</p>
+            <p class="address">{{doctor.address}}</p>
+            <div class="actions">
+              <button class="view-schedule-btn" (click)="viewSchedule(doctor)">
+                Ver horarios
+              </button>
+              <button class="schedule-btn" (click)="showAppointmentForm = true">
+                Agendar cita
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Vista de horarios -->
+    <section class="schedule-view" *ngIf="showSchedule">
+      <h3>Horarios disponibles</h3>
+      <div class="schedule-container">
+        <div class="date-picker">
+          <label>Seleccione una fecha:</label>
+          <input type="date" [(ngModel)]="selectedDate" (change)="generateAvailableHours()">
+        </div>
+        <div class="hours-grid">
+          <div *ngFor="let slot of availableHours" 
+               [class.available]="slot.available"
+               class="time-slot">
+            {{slot.time}}
+          </div>
+        </div>
+        <button class="back-btn" (click)="showSchedule = false">Volver</button>
+      </div>
+    </section>
+  
+    <!-- Formulario de cita -->
+    <section class="appointment-form" *ngIf="showAppointmentForm">
+      <form (ngSubmit)="scheduleAppointment()">
+        <h3>Agendar Nueva Cita</h3>
+        <div class="form-group">
+          <label>Fecha de la cita:</label>
+          <input type="date" [(ngModel)]="appointmentDate" name="date" required>
+        </div>
+        <div class="form-group">
+          <label>Hora de la cita:</label>
+          <select [(ngModel)]="appointmentTime" name="time" required>
+            <option *ngFor="let slot of availableHours" 
+                    [value]="slot.time"
+                    [disabled]="!slot.available">
+              {{slot.time}}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Motivo de la consulta:</label>
+          <textarea [(ngModel)]="appointmentReason" 
+                    name="reason" 
+                    required
+                    rows="4"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">Confirmar cita</button>
+          <button type="button" 
+                  class="cancel-btn" 
+                  (click)="showAppointmentForm = false">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>

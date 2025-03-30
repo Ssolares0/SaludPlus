@@ -151,4 +151,18 @@ export class AdminService{
             throw error
         }
     }
+
+    async deleteUser(userId: number) {
+        const user = await AppDataSource.manager.findOne(User, {
+          where: { id: userId },
+        });
+    
+        if (!user) {
+          throw new Error('Usuario no encontrado');
+        }
+        user.approved = null;
+        await AppDataSource.manager.save(user);
+    
+        return { message: "Usuario dado de baja correctamente", success: true };
+    }
 }

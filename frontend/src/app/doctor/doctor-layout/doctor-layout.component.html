@@ -1,0 +1,44 @@
+<div class="doctor-layout">
+    <header class="doctor-header">
+        <div class="logo-container">
+            <img class="logo-image" src="assets/images/admin/logo.png" alt="Logo SaludPlus" />
+            <h1 class="logo-text">SaludPlus</h1>
+        </div>
+        <div class="user-container" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
+            <div class="user-info">
+                <span class="user-role">Médico</span>
+                <div class="user-avatar">M</div>
+                <i-lucide [name]="ChevronDown" class="dropdown-icon"></i-lucide>
+            </div>
+
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" (click)="logout()">
+                    <i-lucide [name]="LogOut" class="dropdown-icon-item"></i-lucide>
+                    Cerrar Sesión
+                </a>
+            </div>
+
+            <div class="dropdown-overlay" (click)="closeDropdown($event)"></div>
+        </div>
+    </header>
+
+    <div class="doctor-content">
+        <nav class="sidebar">
+            <ul class="nav-list">
+                @for (item of navItems; track item.route) {
+                <li>
+                    <a [routerLink]="item.route" routerLinkActive="active-link" class="nav-item"
+                        [class.active]="item.active">
+                        <i-lucide [name]="item.icon" class="nav-icon"></i-lucide>
+                        <span class="nav-label">{{ item.label }}</span>
+                    </a>
+                </li>
+                }
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

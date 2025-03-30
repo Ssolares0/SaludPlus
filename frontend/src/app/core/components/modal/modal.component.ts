@@ -36,12 +36,18 @@ export class ModalComponent {
   @Input() type: 'success' | 'warning' | 'error' = 'success';
   @Input() title: string = '';
   @Input() message: string = '';
+  @Input() showConfirmButton: boolean = false;
+  @Input() confirmButtonText: string = 'Aceptar';
+  @Input() cancelButtonText: string = 'Cancelar';
 
   @Output() close = new EventEmitter<void>();
-
-  constructor() { }
+  @Output() confirm = new EventEmitter<void>();
 
   closeModal(): void {
     this.close.emit();
+  }
+
+  confirmAction(): void {
+    this.confirm.emit();
   }
 }

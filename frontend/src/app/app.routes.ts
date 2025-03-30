@@ -9,7 +9,8 @@ import { AcceptDoctorsComponent } from './admin/accept-doctors/accept-doctors.co
 import { ViewPatientsComponent } from './admin/view-patients/view-patients.component';
 import { ViewDoctorsComponent } from './admin/view-doctors/view-doctors.component';
 import { ReportsComponent } from './admin/reports/reports.component';
-import { authGuard, adminGuard, noAuthGuard } from './core/guards/guards';
+import { authGuard, adminGuard, noAuthGuard, patientGuard } from './core/guards/guards';
+import { PatientsComponent } from './patients/patients.components';
 
 export const routes: Routes = [
     {
@@ -35,6 +36,12 @@ export const routes: Routes = [
         title: "Registro de paciente", 
         component: RegisterPatientComponent,
         canActivate: [noAuthGuard]
+    },
+    { 
+        path: 'patients', 
+        title: "Patients", 
+        component: PatientsComponent,
+        canActivate: [authGuard, patientGuard]
     },
     {
         path: 'admin',

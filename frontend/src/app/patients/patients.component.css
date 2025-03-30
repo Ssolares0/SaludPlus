@@ -1,0 +1,161 @@
+.patient-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .search-section {
+    background-color: var(--marfil-ligero-100);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+  }
+  
+  .search-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+  
+  .specialty-select {
+    padding: 10px;
+    border: 1px solid var(--strokes);
+    border-radius: 4px;
+    min-width: 200px;
+  }
+  
+  .search-btn {
+    padding: 10px 20px;
+    background-color: var(--azl-serenidad-400);
+    color: var(--blanco);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .doctor-card {
+    background-color: var(--blanco);
+    border: 1px solid var(--strokes);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  
+  .doctor-photo {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .doctor-info {
+    padding: 20px;
+  }
+  
+  .doctor-info h3 {
+    margin-bottom: 10px;
+    color: var(--negro-suave);
+    font-weight: 600;
+  }
+  
+  .specialty, .address {
+    color: var(--gris);
+    margin-bottom: 5px;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .view-schedule-btn, .schedule-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .view-schedule-btn {
+    background-color: var(--azl-serenidad-300);
+    color: var(--blanco);
+  }
+  
+  .schedule-btn {
+    background-color: var(--terracota-suave);
+    color: var(--blanco);
+  }
+  
+  .schedule-view {
+    background-color: var(--marfil-ligero-100);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .hours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+  }
+  
+  .time-slot {
+    padding: 10px;
+    text-align: center;
+    border-radius: 4px;
+    background-color: var(--gris-neutro-medio);
+    color: var(--blanco);
+  }
+  
+  .time-slot.available {
+    background-color: var(--azl-serenidad-300);
+    cursor: pointer;
+  }
+  
+  .appointment-form {
+    background-color: var(--blanco);
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--negro-suave);
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--strokes);
+    border-radius: 4px;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  
+  .submit-btn {
+    background-color: var(--azl-serenidad-400);
+    color: var(--blanco);
+  }
+  
+  .cancel-btn {
+    background-color: var(--gris);
+    color: var(--blanco);
+  }

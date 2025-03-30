@@ -6,6 +6,10 @@ import { Employee } from "../models/Employe.entity";
 import { sendCancellationEmail } from "../utils/email";
 import { error } from "console";
 import { User } from "../models/User.entity";
+import { v4 as uuidv4 } from 'uuid';
+import { configDotenv } from 'dotenv';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Person } from "../models/Person.entity";
 
 export class EmployeService{
     async pendientAppointment(userId: number){
@@ -217,8 +221,6 @@ export class EmployeService{
 
     async GetDoctor(docto_id: number){
         try{
-
-        
             const doctorRepository = AppDataSource.getRepository(User);
             const dataDoctor = await doctorRepository.findOne({
                 where:{
@@ -248,6 +250,75 @@ export class EmployeService{
         } catch {
             console.log(error);
             throw error;
+        }
+    }
+
+    async updateDoctor(
+        doctor_id: number,
+        dataDoctor:{
+            first_name:string;
+            last_name:string;
+            birth_date:Date;
+            gender:string;
+            phone:string;
+            address:string
+        },
+        file?: Express.Multer.File
+    ){
+        const queryRunner = await AppDataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try{
+            const doctorRes = await queryRunner.manager.findOne(User, {
+                where:{id:doctor_id},
+                relations:['person'],
+            });
+
+            if (!doctorRes) throw new Error("Medico no encontrado");
+
+            //actualizar data
+            doctorRes.person.first_name = dataDoctor.first_name;
+            doctorRes.person.last_name = dataDoctor.last_name;
+            doctorRes.person.birth_date = dataDoctor.birth_date;
+            doctorRes.person.gender = dataDoctor.gender;
+            doctorRes.person.phone = dataDoctor.phone;
+            doctorRes.person.address = dataDoctor.address;
+
+            if(file){
+                const filename = `${uuidv4()}_${file.originalname}`;
+                const s3Client = new S3Client({
+                    region: process.env.AWS_REGION,
+                    credentials: {
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+                    },
+                });
+
+                await s3Client.send(
+                    new PutObjectCommand({
+                    Bucket: process.env.S3_BUCKET!,
+                    Key: `fotos/${filename}`,
+                    Body: file.buffer,
+                    ContentType: file.mimetype,
+                    })
+                );
+
+                const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+                doctorRes.person.photo = photoUrl;
+            }
+            doctorRes.name = `${dataDoctor.first_name} ${dataDoctor.last_name}`
+            await queryRunner.manager.save(Person, doctorRes.person);
+            await queryRunner.manager.save(User, doctorRes);
+
+            await queryRunner.commitTransaction();
+
+            return {message:"Actualizacion Completa"}
+        }catch(error:any){
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
         }
     }
 }

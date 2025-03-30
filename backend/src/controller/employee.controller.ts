@@ -77,3 +77,15 @@ export const getDataDoctor = async(req: Request, res: Response) => {
     })
   }
 }
+
+export const updateDoctor = async(req: Request, res: Response) => {
+  try{
+    const employeService = new EmployeService();
+    const result = await employeService.updateDoctor(Number(req.params.id), req.body, req.file);
+    res.status(201).json(result);
+  }catch(error: any){
+    res.status(400).json({
+      error: error.message || 'Error al actualizar la informacion de doctor'
+    })
+  }
+}

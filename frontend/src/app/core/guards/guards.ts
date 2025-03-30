@@ -34,7 +34,7 @@ export const doctorGuard: CanActivateFn = (route, state) => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRoleName');
 
-    if (token && userRole === 'doctor') {
+    if (userRole === 'doctor') {
         return true;
     } else {
         router.navigate(['']);

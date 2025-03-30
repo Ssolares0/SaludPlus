@@ -17,8 +17,15 @@
         </div>
     </div>
 
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando solicitudes...</p>
+    </div>
+    } @else {
     <div class="doctors-grid">
-        <div class="doctor-card" *ngFor="let i of [1,2,3,4,5]">
+        @for (i of pendingDoctors; track $index) {
+        <div class="doctor-card">
             <div class="doctor-header">
                 <div class="doctor-avatar">
                     <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop"
@@ -78,5 +85,17 @@
                 </button>
             </div>
         </div>
+        }
+
+        @empty {
+        <div class="no-results">
+            <div class="empty-state">
+                <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+                <h3>No hay solicitudes pendientes</h3>
+                <p>No se encontraron solicitudes de médicos para revisar</p>
+            </div>
+        </div>
+        }
     </div>
+    }
 </div>

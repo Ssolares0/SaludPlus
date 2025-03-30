@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Search, Calendar, User, Mail, Check, X } from 'lucide-angular';
+import { LucideAngularModule, Search, Calendar, User, Mail, Check, X, UserX } from 'lucide-angular';
 
 @Component({
   selector: 'app-accept-patients',
@@ -10,11 +10,21 @@ import { LucideAngularModule, Search, Calendar, User, Mail, Check, X } from 'luc
   styleUrls: ['./accept-patients.component.css']
 })
 
-export class AcceptPatientsComponent {
+export class AcceptPatientsComponent implements OnInit {
+  isLoading: boolean = true;
+  pendingPatients = [1, 2, 3, 4, 5]; 
+  
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 1000);
+  }
+
   protected readonly Search = Search;
   protected readonly Calendar = Calendar;
   protected readonly User = User;
   protected readonly Mail = Mail;
   protected readonly Check = Check;
   protected readonly X = X;
+  protected readonly UserX = UserX;
 }

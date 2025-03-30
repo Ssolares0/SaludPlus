@@ -1,0 +1,151 @@
+<div class="history-container">
+    <div class="page-header">
+        <div class="header-title">
+            <h1>Historial de Citas</h1>
+            <p>Registro de todas las citas atendidas y canceladas</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" placeholder="Buscar por nombre de paciente o motivo..." class="search-input"
+                    [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)">
+            </div>
+            <div class="filter-box">
+                <select class="filter-select" [ngModel]="selectedFilter" (ngModelChange)="onFilterChange($event)">
+                    <option value="all">Todos los estados</option>
+                    <option value="attended">Atendidos</option>
+                    <option value="cancelled_doctor">Cancelados por médico</option>
+                    <option value="cancelled_patient">Cancelados por paciente</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="history-stats">
+        <div class="stat-card">
+            <div class="stat-icon attended">
+                <i-lucide [name]="CheckCircle2"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{getAttendedCount()}}</span>
+                <span class="stat-label">Atendidos</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon cancelled-doctor">
+                <i-lucide [name]="XCircle"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{getCancelledByDoctorCount()}}</span>
+                <span class="stat-label">Cancelados por médico</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon cancelled-patient">
+                <i-lucide [name]="UserX"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{getCancelledByPatientCount()}}</span>
+                <span class="stat-label">Cancelados por paciente</span>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando historial de citas...</p>
+    </div>
+    }
+
+    @if (!isLoading && filteredAppointments.length === 0) {
+    <div class="no-results">
+        <div class="empty-state">
+            <i-lucide [name]="ClipboardList" class="empty-icon"></i-lucide>
+            <h3>No se encontraron citas</h3>
+            <p>No hay citas que coincidan con tu búsqueda</p>
+        </div>
+    </div>
+    }
+
+    @if (!isLoading && filteredAppointments.length > 0) {
+    <div class="history-grid">
+        @for (appointment of filteredAppointments; track trackByAppointmentId(0, appointment)) {
+        <div class="history-card">
+            <div class="appointment-header">
+                <div class="patient-info">
+                    <div class="patient-avatar">
+                        {{appointment.patientName[0]}}
+                    </div>
+                    <div class="patient-details">
+                        <h3>{{appointment.patientName}}</h3>
+                        <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
+                            {{getStatusText(appointment.status)}}
+                        </span>
+                    </div>
+                </div>
+                <div class="appointment-date">
+                    <div class="date-item">
+                        <i-lucide [name]="Calendar" class="date-icon"></i-lucide>
+                        <span>{{formatDate(appointment.date)}}</span>
+                    </div>
+                    <div class="date-item">
+                        <i-lucide [name]="Clock" class="date-icon"></i-lucide>
+                        <span>{{appointment.time}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="appointment-details">
+                <div class="detail-item">
+                    <span class="detail-label">Motivo de la consulta:</span>
+                    <span class="detail-value">{{appointment.reason}}</span>
+                </div>
+
+                @if (appointment.symptoms) {
+                <div class="detail-item">
+                    <span class="detail-label">Síntomas:</span>
+                    <span class="detail-value">{{appointment.symptoms}}</span>
+                </div>
+                }
+
+                @if (appointment.treatment) {
+                <div class="detail-item">
+                    <span class="detail-label">Tratamiento:</span>
+                    <span class="detail-value">{{appointment.treatment}}</span>
+                </div>
+                }
+
+                @if (appointment.cancellationReason) {
+                <div class="detail-item">
+                    <span class="detail-label">Motivo de cancelación:</span>
+                    <span class="detail-value">{{appointment.cancellationReason}}</span>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    @if (!isLoading && totalPages > 1) {
+    <div class="pagination-controls">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+            Anterior
+        </button>
+
+        <div class="pagination-numbers">
+            @for (pageNum of getVisiblePages(); track pageNum) {
+            <button class="pagination-num-btn" [class.pagination-active]="pageNum === currentPage"
+                (click)="changePage(pageNum)">
+                {{pageNum}}
+            </button>
+            }
+        </div>
+
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+            Siguiente
+        </button>
+    </div>
+    }
+</div>

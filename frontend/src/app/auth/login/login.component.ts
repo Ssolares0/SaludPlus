@@ -172,13 +172,17 @@ export class LoginComponent implements OnInit {
 
             switch (response.role.name) {
               case 'doctor': 
-                this.router.navigate(['/doctor/dashboard']);
+                this.showSuccessModal("¡Autenticación completada exitosamente!")
+                setTimeout(() => {
+                  this.router.navigate(['/doctor/appointments']);
+                }, 1500);
                 break;
               case 'paciente':
                 this.showSuccessModal("¡Autenticación completada exitosamente!")
                 setTimeout(() => {
                   this.router.navigate(['/patients']);
                 }, 1500);
+                break;
             }
           } else {
             this.showErrorModal(response.message || 'Credenciales incorrectas');

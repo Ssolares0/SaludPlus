@@ -13,3 +13,8 @@ export interface AcceptUserResponse {
     message: string;
     success: boolean;
 }
+
+export interface RejectUserResponse {
+    message: string;
+    success: boolean;
+}

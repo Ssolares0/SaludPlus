@@ -449,7 +449,6 @@
     border-top: 2px solid var(--azl-serenidad-500);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 0 auto;
 }
 
 .action-result {

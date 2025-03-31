@@ -127,10 +127,17 @@ tr:hover {
     background-color: var(--marfil-ligero-50);
 }
 
+.cell-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
 .patient-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    height: 100%;
 }
 
 .patient-avatar {
@@ -171,6 +178,8 @@ tr:hover {
 
 .patient-name-container {
     min-width: 0;
+    display: flex;
+    align-items: center;
 }
 
 .patient-name {
@@ -187,35 +196,41 @@ tr:hover {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
 }
 
-.status-badge {
+.gender-badge {
     padding: 0.25rem 0.75rem;
     border-radius: 2rem;
     font-size: 0.75rem;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
     white-space: nowrap;
-}
-
-.status-badge.active {
-    background-color: var(--azl-serenidad-100);
-    color: var(--azl-serenidad-500);
-}
-
-.status-badge .icon {
-    display: flex;
-    align-items: center;
+    min-width: 5rem;
     justify-content: center;
+}
+
+.gender-badge.male {
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-600);
+}
+
+.gender-badge.female {
+    background-color: var(--rosa-claro-100);
+    color: var(--rosa-oscuro);
+}
+
+.gender-badge.other {
+    background-color: var(--arena-suave-100);
+    color: var(--terracota-suave);
 }
 
 .action-buttons {
     display: flex;
     gap: 0.5rem;
     justify-content: center;
+    height: 100%;
+    align-items: center;
 }
 
 .processing-action {
@@ -224,6 +239,7 @@ tr:hover {
     gap: 0.5rem;
     color: var(--gris-600);
     font-size: 0.875rem;
+    justify-content: center;
 }
 
 .loading-spinner-small {
@@ -466,7 +482,7 @@ td[colspan="6"] {
     }
 
     td:nth-of-type(5):before {
-        content: "Estado";
+        content: "Género";
     }
 
     td:nth-of-type(6):before {
@@ -485,5 +501,9 @@ td[colspan="6"] {
         padding: 1rem;
         text-align: center;
         justify-content: center;
+    }
+
+    .cell-content {
+        justify-content: flex-end;
     }
 }

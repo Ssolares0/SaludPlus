@@ -18,7 +18,7 @@
                     <th>Edad</th>
                     <th>Teléfono</th>
                     <th>Dirección</th>
-                    <th>Estado</th>
+                    <th>Género</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -69,14 +69,21 @@
                             </div>
                         </div>
                     </td>
-                    <td>{{ calculateAge(patient.birht_date) }} años</td>
-                    <td>{{ patient.phone }}</td>
-                    <td class="address-cell">{{ patient.addres }}</td>
                     <td>
-                        <span class="status-badge active">
-                            <i-lucide [name]="Circle" class="icon" [size]="12"></i-lucide>
-                            Activo
-                        </span>
+                        <div class="cell-content">{{ calculateAge(patient.birht_date) }} años</div>
+                    </td>
+                    <td>
+                        <div class="cell-content">{{ patient.phone }}</div>
+                    </td>
+                    <td>
+                        <div class="cell-content address-cell" title="{{ patient.addres }}">{{ patient.addres }}</div>
+                    </td>
+                    <td>
+                        <div class="cell-content">
+                            <span class="gender-badge" [ngClass]="getGenderClass(patient.gender)">
+                                {{ getGenderText(patient.gender) }}
+                            </span>
+                        </div>
                     </td>
                     <td>
                         <div class="action-buttons">

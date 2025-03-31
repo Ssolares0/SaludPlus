@@ -34,12 +34,10 @@ export class ViewPatientsComponent implements OnInit {
   error: string | null = null;
   searchTerm: string = '';
   
-  // Paginación
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 1;
 
-  // Modal
   modalVisible: boolean = false;
   modalType: 'success' | 'warning' | 'error' = 'warning';
   modalTitle: string = '';
@@ -216,5 +214,27 @@ export class ViewPatientsComponent implements OnInit {
 
   isProcessingPatient(patientId: number): boolean {
     return this.processingPatient?.id === patientId;
+  }
+
+  getGenderText(gender: string): string {
+    switch (gender) {
+      case '1':
+        return 'Masculino';
+      case '2':
+        return 'Femenino';
+      default:
+        return 'Otro';
+    }
+  }
+  
+  getGenderClass(gender: string): string {
+    switch (gender) {
+      case '1':
+        return 'male';
+      case '2':
+        return 'female';
+      default:
+        return 'other';
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { PendingPatientsResponse, AcceptUserResponse, RejectUserResponse } from "../models/admin.models";
+import { PendingPatientsResponse, PendingDoctorsResponse, AcceptUserResponse, RejectUserResponse } from "../models/admin.models";
 import { HttpClient, HttpErrorResponse} from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -15,6 +15,13 @@ export class AdminService {
 
     public getPendingPatients(): Observable<PendingPatientsResponse[]> {
         return this.http.get<PendingPatientsResponse[]>(`${this.baseUrl}/admin/pending/patients`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getPendingDoctors(): Observable<PendingDoctorsResponse[]> {
+        return this.http.get<PendingDoctorsResponse[]>(`${this.baseUrl}/admin/pending/doctors`)
             .pipe(
                 catchError(this.handleError)
             );

@@ -1,4 +1,4 @@
-import { PendingPatientsResponse, AcceptUserResponse } from "../models/admin.models";
+import { PendingPatientsResponse, PendingDoctorsResponse, AcceptUserResponse, RejectUserResponse } from "../models/admin.models";
 import { HttpClient, HttpErrorResponse} from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -6,24 +6,40 @@ import { Observable } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
-    
 })
 
 export class AdminService {
+    private readonly baseUrl = 'http://localhost:3001';
+
     constructor(private http: HttpClient) { }
 
     public getPendingPatients(): Observable<PendingPatientsResponse[]> {
-        return this.http.get<PendingPatientsResponse[]>('http://localhost:3001/admin/pending/patients')
+        return this.http.get<PendingPatientsResponse[]>(`${this.baseUrl}/admin/pending/patients`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getPendingDoctors(): Observable<PendingDoctorsResponse[]> {
+        return this.http.get<PendingDoctorsResponse[]>(`${this.baseUrl}/admin/pending/doctors`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public acceptUser(id: number): Observable<AcceptUserResponse> {
-        return this.http.put<AcceptUserResponse>(`http://localhost:3001/auth/admin/approved/${id}`, {})
+        return this.http.put<AcceptUserResponse>(`${this.baseUrl}/auth/admin/approved/${id}`, {})
             .pipe(
                 catchError(this.handleError)
             );
+    }
+
+    public rejectUser(id: number): Observable<RejectUserResponse> {
+        return this.http.delete<RejectUserResponse>(`${this.baseUrl}/admin/delete/user`, {
+            body: { id }
+        }).pipe(
+            catchError(this.handleError)
+        );
     }
 
     private handleError(error: HttpErrorResponse) {
@@ -34,11 +50,9 @@ export class AdminService {
         } else {
             const serverError = error.error?.error || error.error?.message || error.statusText;
             errorMessage = `Error del servidor: Código ${error.status}, Mensaje: ${serverError}`;
-
-            console.error('Cuerpo completo del error:', error.error);
         }
 
-        console.error(errorMessage);
+        console.error('Error completo:', error);
         return throwError(() => new Error(errorMessage));
     }
 }

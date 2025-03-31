@@ -167,8 +167,8 @@ export class LoginComponent implements OnInit {
         }
         else if (this.authService.isStandardResponse(response)) {
           if (response.success) {
-            localStorage.setItem('userRole', response.role.id.toString());
             localStorage.setItem('userRoleName', response.role.name);
+            localStorage.setItem('token', response.token);
 
             switch (response.role.name) {
               case 'doctor': 

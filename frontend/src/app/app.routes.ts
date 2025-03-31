@@ -16,6 +16,7 @@ import { AppointmentsComponent } from './doctor/appointments/appointments.compon
 import { SchedulesComponent } from './doctor/schedules/schedules.component';
 import { HistoryComponent } from './doctor/history/history.component';
 import { ProfileComponent } from './doctor/profile/profile.component';
+import { NotFoundComponent } from './core/components/notfound.component';
 
 export const routes: Routes = [
     {
@@ -46,7 +47,7 @@ export const routes: Routes = [
         path: 'patients', 
         title: "Patients", 
         component: PatientsComponent,
-        canActivate: [patientGuard]
+        canActivate: [authGuard, patientGuard]
     },
     {
         path: 'admin',
@@ -88,7 +89,7 @@ export const routes: Routes = [
     {
         path: 'doctor',
         component: DoctorLayoutComponent,
-        canActivate: [doctorGuard],
+        canActivate: [authGuard, doctorGuard],
         children: [
             {
                 path: 'appointments',
@@ -109,12 +110,22 @@ export const routes: Routes = [
                 path: 'profile',
                 title: "Perfil médico",
                 component: ProfileComponent
+            },
+            {
+                path: '',
+                redirectTo: 'appointments',
+                pathMatch: 'full'
             }
         ]
     },
     {
+        path: 'not-found',
+        title: "Página no encontrada",
+        component: NotFoundComponent,
+    },
+    {
         path: '**',
-        redirectTo: '',
+        redirectTo: '/not-found',
         pathMatch: 'full'
     }
 ];

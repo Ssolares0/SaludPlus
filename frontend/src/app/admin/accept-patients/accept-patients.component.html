@@ -79,7 +79,7 @@
                     <i-lucide [name]="Check" class="btn-icon"></i-lucide>
                     <span>Aceptar</span>
                 </button>
-                <button class="btn-reject" title="Rechazar solicitud" (click)="rejectPatient(patient)">
+                <button class="btn-reject" title="Rechazar solicitud" (click)="confirmRejectPatient(patient)">
                     <i-lucide [name]="X" class="btn-icon"></i-lucide>
                     <span>Rechazar</span>
                 </button>
@@ -101,6 +101,6 @@
     }
     <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
         [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
-        (close)="closeModal()" (confirm)="onConfirmAccept()">
+        (close)="closeModal()" (confirm)="onConfirmAction()">
     </app-modal>
 </div>

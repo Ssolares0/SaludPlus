@@ -1,0 +1,178 @@
+<div class="appointments-container">
+    <div class="page-header">
+        <div class="header-title">
+            <h1>Gestión de Citas</h1>
+            <p>Citas pendientes por atender</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" placeholder="Buscar por nombre de paciente..." class="search-input"
+                    [formControl]="searchControl">
+            </div>
+            <div class="filter-box">
+                <select class="filter-select" [formControl]="filterControl">
+                    <option value="all">Todos los estados</option>
+                    <option value="pending">Pendientes</option>
+                    <option value="confirmed">Confirmadas</option>
+                    <option value="urgent">Urgentes</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="appointments-stats">
+        <div class="stat-card">
+            <div class="stat-icon pending">
+                <i-lucide [name]="Clock"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{stats.pending}}</span>
+                <span class="stat-label">Pendientes</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon confirmed">
+                <i-lucide [name]="CheckCircle2"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{stats.confirmed}}</span>
+                <span class="stat-label">Confirmadas</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon urgent">
+                <i-lucide [name]="AlertCircle"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{stats.urgent}}</span>
+                <span class="stat-label">Urgentes</span>
+            </div>
+        </div>
+    </div>
+
+    @if (filteredAppointments.length === 0) {
+    <div class="no-results">
+        <p>No se encontraron citas que coincidan con tu búsqueda.</p>
+    </div>
+    }
+
+    <div class="appointments-grid">
+        @for (appointment of filteredAppointments; track trackByAppointmentId(0, appointment)) {
+        <div class="appointment-card">
+            <div class="appointment-header">
+                <div class="patient-info">
+                    <div class="patient-avatar">
+                        {{ appointment.patientName[0] }}
+                    </div>
+                    <div class="patient-details">
+                        <h3>{{ appointment.patientName }}</h3>
+                        <p class="patient-metadata">
+                            {{ appointment.patientAge }} años • {{ appointment.patientGender }}
+                        </p>
+                    </div>
+                </div>
+                <span class="status-badge" [class]="appointment.status">
+                    {{ appointment.status === 'pending' ? 'Pendiente' :
+                    appointment.status === 'confirmed' ? 'Confirmada' : 'Urgente' }}
+                </span>
+            </div>
+
+            <div class="appointment-details">
+                <div class="detail-item">
+                    <i-lucide [name]="Calendar" class="detail-icon"></i-lucide>
+                    <span>{{ appointment.date | date:'dd/MM/yyyy' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Clock" class="detail-icon"></i-lucide>
+                    <span>{{ appointment.time }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
+                    <span>{{ appointment.reason }}</span>
+                </div>
+
+                <div class="symptoms-info">
+                    <div class="symptoms-header">
+                        <i-lucide [name]="AlertCircle" class="symptoms-icon"></i-lucide>
+                        <span>Síntomas reportados</span>
+                    </div>
+                    <p class="symptoms-text">{{ appointment.symptoms }}</p>
+                </div>
+            </div>
+
+            <div class="appointment-actions">
+                <button class="btn-attend" (click)="openTreatmentModal(appointment)">
+                    <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
+                    Atender
+                </button>
+                <button class="btn-cancel" (click)="cancelAppointment(appointment)">
+                    <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                    Cancelar
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+
+    @if (showTreatmentModal) {
+    <div class="modal">
+        <div class="modal-overlay" (click)="closeTreatmentModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close-btn" (click)="closeTreatmentModal()">
+                <i-lucide [name]="X"></i-lucide>
+            </button>
+
+            <h2>Registrar Tratamiento</h2>
+
+            <div class="modal-patient-info">
+                <div class="modal-patient-avatar">
+                    {{ selectedAppointment?.patientName[0] }}
+                </div>
+                <div class="modal-patient-details">
+                    <h3>{{ selectedAppointment?.patientName }}</h3>
+                    <p>{{ selectedAppointment?.patientAge }} años • {{ selectedAppointment?.patientGender }}</p>
+                </div>
+            </div>
+
+            <div class="modal-appointment-info">
+                <div class="info-item">
+                    <span class="info-label">Motivo de consulta:</span>
+                    <span class="info-value">{{ selectedAppointment?.reason }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Síntomas:</span>
+                    <span class="info-value">{{ selectedAppointment?.symptoms }}</span>
+                </div>
+            </div>
+
+            <form [formGroup]="treatmentForm">
+                <div class="form-group">
+                    <label for="treatment">Tratamiento:</label>
+                    <textarea id="treatment" rows="4" placeholder="Describe el tratamiento para el paciente..."
+                        formControlName="treatmentText"></textarea>
+
+                    @if (treatmentForm.get('treatmentText')?.invalid && treatmentForm.get('treatmentText')?.touched) {
+                    <div class="error-message">
+                        El tratamiento es requerido y debe tener al menos 10 caracteres
+                    </div>
+                    }
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" type="button" (click)="closeTreatmentModal()">
+                        <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                        Cancelar
+                    </button>
+                    <button class="btn-primary" type="button" (click)="saveTreatment()">
+                        <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+</div>

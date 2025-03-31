@@ -64,7 +64,7 @@ export class AuthService {
           })
         );
 
-        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
         person.photo = photoUrl;
       }
       // 1. Crear Persona
@@ -153,7 +153,7 @@ export class AuthService {
             })
         );
 
-        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
         person.photo = photoUrl;
     }
       // 1. Crear Persona
@@ -209,7 +209,7 @@ export class AuthService {
       employee_number: string;
       id_specialty: number;
       name_department: string;
-      direccion_department: string;
+      direccion_departamento: string;
     },
     file: Express.Multer.File
   ) {
@@ -238,7 +238,7 @@ export class AuthService {
         })
       );
 
-      const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
 
       //Crear Persona
       const person = new Person();
@@ -290,14 +290,14 @@ export class AuthService {
       //Crear departmento (direccion de la clinica)
       const department = new Department();
       department.name = doctorData.name_department;
-      department.location = doctorData.direccion_department;
+      department.location = doctorData.direccion_departamento;
       await queryRunner.manager.save(department);
 
       //Crear Relacion doctor con departamentos
       const employeeDeparment = new EmployeeDepartmetn();
       employeeDeparment.department = department;
       employeeDeparment.employee = employee;
-      await queryRunner.manager.save(department);
+      await queryRunner.manager.save(employeeDeparment);
 
       await queryRunner.commitTransaction();
       return { success: true, userId: user.id };

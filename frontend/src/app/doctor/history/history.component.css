@@ -1,0 +1,477 @@
+:host ::ng-deep svg {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+i-lucide {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.history-container {
+    padding: 2rem;
+    background-color: var(--marfil-ligero-100);
+    min-height: 100vh;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-title h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+    margin-bottom: 0.5rem;
+}
+
+.header-title p {
+    color: var(--gris);
+    font-size: 1rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--gris);
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.search-input {
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid var(--strokes);
+    border-radius: 0.75rem;
+    width: 300px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    background-color: var(--blanco);
+}
+
+.search-input:focus {
+    border-color: var(--azl-serenidad-400);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--strokes);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    min-width: 200px;
+    background-color: var(--blanco);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: var(--azl-serenidad-400);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.history-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-icon.attended {
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-500);
+}
+
+.stat-icon.cancelled-doctor {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}
+
+.stat-icon.cancelled-patient {
+    background-color: var(--arena-suave-100);
+    color: var(--arena-suave-500);
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--gris);
+    margin-top: 0.25rem;
+}
+
+.no-results {
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--gris);
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.history-card {
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.patient-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.patient-avatar {
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-500);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.patient-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.patient-details h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-attended {
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-500);
+}
+
+.status-cancelled-doctor {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}
+
+.status-cancelled-patient {
+    background-color: var(--arena-suave-100);
+    color: var(--arena-suave-500);
+}
+
+.appointment-date {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gris);
+    font-size: 0.875rem;
+}
+
+.date-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--azl-serenidad-400);
+}
+
+.appointment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--strokes);
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--negro-suave);
+}
+
+.detail-value {
+    font-size: 0.875rem;
+    color: var(--gris);
+    line-height: 1.5;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 4px solid var(--azl-serenidad-100);
+    border-top: 4px solid var(--azl-serenidad-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-container p {
+    color: var(--gris);
+    font-size: 1rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 4rem;
+    height: 4rem;
+    color: var(--gris-claro);
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--gris);
+    font-size: 0.875rem;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 0.75rem;
+}
+
+.pagination-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--azl-serenidad-50);
+    color: var(--azl-serenidad-600);
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+}
+
+.pagination-btn:not(:disabled):hover {
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-700);
+}
+
+.pagination-btn:disabled {
+    background-color: var(--gris-claro);
+    color: var(--blanco);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.pagination-num-btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--azl-serenidad-50);
+    font-size: 0.875rem;
+    color: var(--azl-serenidad-600);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.pagination-num-btn:not(.pagination-active):hover {
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-700);
+}
+
+.pagination-active {
+    background-color: var(--azl-serenidad-500);
+    color: var(--blanco);
+}
+
+@media (max-width: 768px) {
+    .history-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .search-input,
+    .filter-select {
+        width: 100%;
+    }
+
+    .history-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .appointment-date {
+        flex-direction: row;
+        gap: 1rem;
+    }
+
+    .pagination-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pagination-btn {
+        min-width: 90px;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .pagination-numbers {
+        gap: 0.25rem;
+    }
+
+    .pagination-num-btn {
+        min-width: 2rem;
+        height: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagination-numbers {
+        order: 2;
+        justify-content: center;
+    }
+
+    .pagination-btn {
+        width: 100%;
+    }
+}

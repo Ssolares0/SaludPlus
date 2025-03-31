@@ -58,6 +58,13 @@
     padding: 0.5rem;
 }
 
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
 .modal-button {
     width: min(365px, 90%);
     height: 50px;
@@ -81,9 +88,29 @@
     transform: translateY(1px);
 }
 
+.cancel-button {
+    background: var(--terracota-suave);
+}
+
+.cancel-button:hover {
+    background: var(--placeholder);
+}
+
+.confirm-button {
+    background: var(--azl-serenidad-500);
+}
+
+.confirm-button:hover {
+    background: var(--azl-serenidad-400);
+}
+
 @media (max-width: 480px) {
     .modal-container {
         padding: 1.5rem 1rem;
         min-height: 200px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
     }
 }

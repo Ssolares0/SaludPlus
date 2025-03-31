@@ -1,0 +1,160 @@
+<div class="schedules-container">
+    <div class="page-header">
+        <div class="header-title">
+            <h1>Gestión de Horarios</h1>
+            <p>Configure sus días y horas de atención</p>
+        </div>
+        <button class="btn-primary" (click)="saveSchedules()">
+            <i-lucide [name]="Save" class="btn-icon"></i-lucide>
+            Guardar cambios
+        </button>
+    </div>
+
+    <div class="schedule-content">
+        <div class="schedule-card">
+            <div class="card-header">
+                <h2>Horario actual</h2>
+                <span class="status-badge" [class]="isScheduleActive ? 'active' : 'inactive'">
+                    {{ isScheduleActive ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
+
+            @if (doctorSchedule.workingDays.length > 0) {
+            <div class="current-schedule">
+                <div class="schedule-info">
+                    <div class="info-item">
+                        <i-lucide [name]="Calendar" class="info-icon"></i-lucide>
+                        <div class="info-content">
+                            <span class="info-label">Días de atención</span>
+                            <span class="info-value">
+                                {{ getWorkingDaysText() }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Clock" class="info-icon"></i-lucide>
+                        <div class="info-content">
+                            <span class="info-label">Horario</span>
+                            <span class="info-value">{{ doctorSchedule.startTime }} - {{ doctorSchedule.endTime
+                                }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Clock" class="info-icon"></i-lucide>
+                        <div class="info-content">
+                            <span class="info-label">Duración de consulta</span>
+                            <span class="info-value">{{ doctorSchedule.slotDuration }} minutos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (doctorSchedule.workingDays.length === 0) {
+            <div class="no-schedule">
+                <div class="empty-state">
+                    <i-lucide [name]="Calendar" class="empty-icon"></i-lucide>
+                    <p>No tiene configurado un horario de atención</p>
+                    <p class="empty-subtitle">Configure sus días y horarios usando el formulario</p>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div class="schedule-form-card">
+            <h2>Configurar horario</h2>
+
+            <div class="form-section">
+                <h3>Días de atención</h3>
+                <p class="section-description">Seleccione los días en los que atenderá pacientes</p>
+
+                <div class="days-selector">
+                    @for (day of availableDays; track day.value) {
+                    <div class="day-item" [class.selected]="isDaySelected(day.value)" (click)="toggleDay(day.value)">
+                        <div class="day-checkbox">
+                            @if (isDaySelected(day.value)) {
+                            <i-lucide [name]="Check"></i-lucide>
+                            }
+                        </div>
+                        <span>{{ day.label }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Horario de atención</h3>
+                <p class="section-description">Establezca el rango horario en el que atenderá pacientes</p>
+
+                <div class="time-range-selector">
+                    <div class="time-input-group">
+                        <label for="startTime">Hora inicio</label>
+                        <div class="time-input">
+                            <i-lucide [name]="Clock" class="time-icon"></i-lucide>
+                            <select id="startTime" [(ngModel)]="doctorSchedule.startTime">
+                                @for (time of availableStartTimes; track time) {
+                                <option [value]="time">{{ time }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="time-input-group">
+                        <label for="endTime">Hora fin</label>
+                        <div class="time-input">
+                            <i-lucide [name]="Clock" class="time-icon"></i-lucide>
+                            <select id="endTime" [(ngModel)]="doctorSchedule.endTime">
+                                @for (time of availableEndTimes; track time) {
+                                <option [value]="time">{{ time }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Duración de consultas</h3>
+                <p class="section-description">Defina la duración de cada consulta médica</p>
+
+                <div class="slot-selector">
+                    @for (duration of availableDurations; track duration.value) {
+                    <div class="slot-option" [class.selected]="doctorSchedule.slotDuration === duration.value"
+                        (click)="selectDuration(duration.value)">
+                        <span class="duration-value">{{ duration.value }}</span>
+                        <span class="duration-unit">minutos</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <div class="schedule-toggle">
+                    <label class="toggle-label" for="activeToggle">
+                        <span>Estado del horario</span>
+                        <div class="toggle-wrapper">
+                            <input type="checkbox" id="activeToggle" [(ngModel)]="isScheduleActive">
+                            <div class="toggle-slider">
+                                <div class="toggle-knob"></div>
+                            </div>
+                            <span class="toggle-text">{{ isScheduleActive ? 'Activo' : 'Inactivo' }}</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" (click)="resetForm()">
+                        <i-lucide [name]="RefreshCw" class="btn-icon"></i-lucide>
+                        Restablecer
+                    </button>
+                    <button class="btn-primary" (click)="saveSchedules()">
+                        <i-lucide [name]="Save" class="btn-icon"></i-lucide>
+                        Guardar cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

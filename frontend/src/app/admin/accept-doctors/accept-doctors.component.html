@@ -4,14 +4,17 @@
         <div class="header-actions">
             <div class="search-box">
                 <i-lucide [name]="Search" class="search-icon"></i-lucide>
-                <input type="text" placeholder="Buscar por nombre o DPI..." class="search-input">
+                <input type="text" [(ngModel)]="searchTerm" (input)="searchDoctors()"
+                    placeholder="Buscar por nombre o DPI..." class="search-input">
             </div>
             <div class="filter-box">
-                <select class="filter-select">
+                <select [(ngModel)]="selectedSpecialty" (change)="searchDoctors()" class="filter-select">
                     <option value="all">Todas las especialidades</option>
-                    <option value="cardiology">Cardiología</option>
-                    <option value="dermatology">Dermatología</option>
-                    <option value="pediatrics">Pediatría</option>
+                    @for (doctor of pendingDoctors; track doctor.id) {
+                    @for (spec of doctor.specialty; track spec.id) {
+                    <option [value]="spec.specialty.name.toLowerCase()">{{ spec.specialty.name }}</option>
+                    }
+                    }
                 </select>
             </div>
         </div>
@@ -20,69 +23,82 @@
     @if (isLoading) {
     <div class="loading-container">
         <div class="loading-spinner"></div>
-        <p>Cargando solicitudes...</p>
+        <p>Cargando solicitudes de médicos...</p>
+    </div>
+    } @else if (errorMessage) {
+    <div class="error-container">
+        <div class="empty-state">
+            <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+            <h3>Error al cargar datos</h3>
+            <p>{{ errorMessage }}</p>
+            <button class="btn-retry" (click)="loadPendingDoctors()">Reintentar</button>
+        </div>
     </div>
     } @else {
     <div class="doctors-grid">
-        @for (i of pendingDoctors; track $index) {
+        @for (doctor of filteredDoctors; track doctor.id) {
         <div class="doctor-card">
             <div class="doctor-header">
                 <div class="doctor-avatar">
-                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop"
-                        alt="Doctor avatar">
+                    @if (doctor.photo) {
+                    <img [src]="doctor.photo | safeImage" [alt]="'Foto de ' + doctor.firstame">
+                    } @else {
+                    <div class="default-avatar">{{ doctor.firstame[0] }}{{ doctor.lastName[0] }}</div>
+                    }
                 </div>
                 <div class="doctor-info">
-                    <h3>Dr. Carlos Ramírez</h3>
-                    <p class="doctor-specialty">Cardiología</p>
-                    <p class="doctor-email">{{ 'carlos.ramirez&#64;email.com' }}</p>
+                    <h3 class="truncate" title="Dr. {{ doctor.firstame }} {{ doctor.lastName }}">Dr. {{ doctor.firstame
+                        }} {{ doctor.lastName }}</h3>
+                    <p class="doctor-specialty line-clamp-2" title="{{ getSpecialtiesText(doctor) }}">{{
+                        getSpecialtiesText(doctor) }}</p>
                 </div>
-                <span class="status-badge pending">Pendiente</span>
             </div>
 
             <div class="doctor-details">
                 <div class="detail-item">
                     <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
-                    <span>DPI: 2345678901234</span>
+                    <span class="truncate" title="DPI: {{ doctor.dpi }}">DPI: {{ doctor.dpi }}</span>
                 </div>
 
                 <div class="detail-item">
                     <i-lucide [name]="User" class="detail-icon"></i-lucide>
-                    <span>Masculino</span>
+                    <span>{{ doctor.gender === '1' ? 'Masculino' : doctor.gender === '2' ? 'Femenino' : 'Otro' }}</span>
                 </div>
 
                 <div class="detail-item">
                     <i-lucide [name]="Award" class="detail-icon"></i-lucide>
-                    <span>Colegiado: MED-12345</span>
+                    <span class="truncate" title="Colegiado: {{ doctor.number_col }}">Colegiado: {{ doctor.number_col
+                        }}</span>
                 </div>
 
                 <div class="detail-item">
                     <i-lucide [name]="Building" class="detail-icon"></i-lucide>
-                    <span>Hospital Central - Departamento de Cardiología</span>
+                    <span class="line-clamp-2" title="{{ getDepartmentsText(doctor) }}">{{ getDepartmentsText(doctor)
+                        }}</span>
                 </div>
 
                 <div class="detail-item">
                     <i-lucide [name]="Phone" class="detail-icon"></i-lucide>
-                    <span>+502 5555-7890</span>
-                </div>
-
-                <div class="license-info">
-                    <div class="license-header">
-                        <i-lucide [name]="FileText" class="license-icon"></i-lucide>
-                        <span>Información de licencia médica</span>
-                    </div>
-                    <p class="license-number">LIC-2024-789456 • Válida hasta: 31/12/2025</p>
+                    <span class="truncate" title="{{ doctor.phone }}">{{ doctor.phone }}</span>
                 </div>
             </div>
 
             <div class="doctor-actions">
-                <button class="btn-accept">
+                @if (isProcessingDoctor(doctor.id)) {
+                <div class="processing-action">
+                    <div class="loading-spinner-small"></div>
+                    <span>Procesando...</span>
+                </div>
+                } @else {
+                <button class="btn-accept" (click)="confirmAcceptDoctor(doctor)">
                     <i-lucide [name]="Check" class="btn-icon"></i-lucide>
                     Aceptar
                 </button>
-                <button class="btn-reject">
+                <button class="btn-reject" (click)="confirmRejectDoctor(doctor)">
                     <i-lucide [name]="X" class="btn-icon"></i-lucide>
                     Rechazar
                 </button>
+                }
             </div>
         </div>
         }
@@ -98,4 +114,9 @@
         }
     </div>
     }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Confirmar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
 </div>

@@ -1,5 +1,9 @@
 import { application, Router } from 'express';
-import { activesDating, createAppointment, doctorsAvailables,findMedic, scheduleMedic} from '../controller/patient.controller';
+import {
+    activesAppointment, cancelAppointment, createAppointment,
+    doctorsAvailables,
+    findMedic, scheduleMedic
+} from '../controller/patient.controller';
 import multer from 'multer';
 
 const router = Router();
@@ -26,8 +30,12 @@ router.post(
 
 router.get(
     '/appointment-actives/:id',
-    activesDating
+    activesAppointment
 )
- 
+router.delete(
+    '/cancel-appointment/:id',
+    cancelAppointment
+)
+
 
 export { router as patientRouter };

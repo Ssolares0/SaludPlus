@@ -4,14 +4,8 @@
         <div class="header-actions">
             <div class="search-box">
                 <i-lucide [name]="Search" class="search-icon"></i-lucide>
-                <input type="text" placeholder="Buscar por nombre o DPI..." class="search-input">
-            </div>
-            <div class="filter-box">
-                <select class="filter-select">
-                    <option value="all">Todos los estados</option>
-                    <option value="active">Activos</option>
-                    <option value="inactive">Inactivos</option>
-                </select>
+                <input type="text" [(ngModel)]="searchTerm" (input)="searchPatients()"
+                    placeholder="Buscar por nombre..." class="search-input">
             </div>
         </div>
     </div>
@@ -23,27 +17,61 @@
                     <th>Paciente</th>
                     <th>Edad</th>
                     <th>Teléfono</th>
-                    <th>Última Consulta</th>
+                    <th>Dirección</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @for (i of [1,2,3,4,5,6,7,8]; track $index) {
+                @if (loading) {
+                <tr>
+                    <td colspan="6">
+                        <div class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <p>Cargando pacientes...</p>
+                        </div>
+                    </td>
+                </tr>
+                } @else if (error) {
+                <tr>
+                    <td colspan="6">
+                        <div class="error-state">
+                            <i-lucide [name]="UserX" class="error-icon"></i-lucide>
+                            <p>{{ error }}</p>
+                        </div>
+                    </td>
+                </tr>
+                } @else if (filteredPatients.length === 0) {
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+                            <p>No se encontraron pacientes</p>
+                        </div>
+                    </td>
+                </tr>
+                } @else {
+                @for (patient of getCurrentPageItems(); track patient.id) {
                 <tr>
                     <td>
                         <div class="patient-info">
-                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop"
-                                alt="Foto del paciente" class="patient-avatar">
-                            <div>
-                                <p class="patient-name">María González</p>
-                                <p class="patient-email">{{ 'maria.gonzalez&#64;email.com' }}</p>
+                            <div class="patient-avatar" [class.has-image]="patient.photo">
+                                @if (patient.photo) {
+                                <img [src]="patient.photo" [alt]="patient.firstame">
+                                } @else {
+                                <div class="avatar-initials">
+                                    {{ getInitials(patient.firstame, patient.lastName) }}
+                                </div>
+                                }
+                            </div>
+                            <div class="patient-name-container">
+                                <p class="patient-name">{{ patient.firstame }} {{ patient.lastName }}</p>
                             </div>
                         </div>
                     </td>
-                    <td>28 años</td>
-                    <td>+502 5555 7890</td>
-                    <td>15 Mar 2024</td>
+                    <td>{{ calculateAge(patient.birht_date) }} años</td>
+                    <td>{{ patient.phone }}</td>
+                    <td class="address-cell">{{ patient.addres }}</td>
                     <td>
                         <span class="status-badge active">
                             <i-lucide [name]="Circle" class="icon" [size]="12"></i-lucide>
@@ -52,39 +80,46 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-icon" title="Ver perfil">
-                                <i-lucide [name]="User" class="icon"></i-lucide>
-                            </button>
-                            <button class="btn-icon" title="Ver historial">
-                                <i-lucide [name]="FileText" class="icon"></i-lucide>
-                            </button>
-                            <button class="btn-icon" title="Editar">
-                                <i-lucide [name]="Edit" class="icon"></i-lucide>
-                            </button>
-                            <button class="btn-icon btn-delete" title="Dar de baja">
+                            @if (isProcessingPatient(patient.id)) {
+                            <div class="processing-action">
+                                <div class="loading-spinner-small"></div>
+                                <span>Procesando...</span>
+                            </div>
+                            } @else {
+                            <button class="btn-icon btn-delete" title="Dar de baja"
+                                (click)="confirmRejectPatient(patient)">
                                 <i-lucide [name]="UserX" class="icon"></i-lucide>
                             </button>
+                            }
                         </div>
                     </td>
                 </tr>
+                }
                 }
             </tbody>
         </table>
     </div>
 
+    @if (!loading && !error && filteredPatients.length > 0) {
     <div class="pagination">
-        <button class="pagination-btn">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
             <i-lucide [name]="ChevronLeft" class="icon"></i-lucide>
         </button>
         <div class="pagination-numbers">
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-number">3</button>
-            <span>...</span>
-            <button class="page-number">8</button>
+            @for (page of getPageNumbers(); track page) {
+            <button class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+                {{ page }}
+            </button>
+            }
         </div>
-        <button class="pagination-btn">
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
             <i-lucide [name]="ChevronRight" class="icon"></i-lucide>
         </button>
     </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
 </div>

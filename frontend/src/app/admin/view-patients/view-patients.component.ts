@@ -22,12 +22,6 @@ import { ModalComponent } from '../../core/components/modal/modal.component';
 })
 
 export class ViewPatientsComponent implements OnInit {
-  protected readonly Search = Search;
-  protected readonly UserX = UserX;
-  protected readonly Circle = Circle;
-  protected readonly ChevronRight = ChevronRight;
-  protected readonly ChevronLeft = ChevronLeft;
-
   patients: ActivePatientsResponse[] = [];
   filteredPatients: ActivePatientsResponse[] = [];
   loading: boolean = true;
@@ -237,4 +231,10 @@ export class ViewPatientsComponent implements OnInit {
         return 'other';
     }
   }
+
+  protected readonly Search = Search;
+  protected readonly UserX = UserX;
+  protected readonly Circle = Circle;
+  protected readonly ChevronRight = ChevronRight;
+  protected readonly ChevronLeft = ChevronLeft;
 }

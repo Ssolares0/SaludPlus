@@ -10,7 +10,7 @@ export const registerPatient = async (req: Request, res: Response) => {
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({
-      error: error.message || 'Error al registrar el paciente'
+      error: 'Error al registrar el paciente'
     });
   }
 };

@@ -409,3 +409,41 @@ textarea.form-input {
       transform: rotate(360deg);
   }
 }
+
+.header-actions {
+  margin-left: auto;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.appointment-card {
+  background: var(--azl-serenidad-100);
+  border: 1px solid var(--azl-serenidad-300);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.appointment-status {
+  padding: 0.25rem 0.5rem;
+  background: var(--verde-exito);
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.no-appointments {
+  text-align: center;
+  padding: 2rem;
+  color: var(--gris);
+}

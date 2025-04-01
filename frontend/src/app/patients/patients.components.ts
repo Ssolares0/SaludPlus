@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientsService } from './patients.service';
-import { Doctor, TimeSlot, ScheduleResponse, DoctorSchedule } from './patients.models';
+import { Doctor, TimeSlot, ActiveAppointment, DoctorSchedule } from './patients.models';
 
 @Component({
     selector: 'app-patients',
@@ -25,6 +25,8 @@ export class PatientsComponent implements OnInit {
     availableHours: TimeSlot[] = [];
     selectedDoctor: Doctor | null = null;
     doctorSchedule: DoctorSchedule | null = null;
+    showActiveAppointments: boolean = false;
+    activeAppointments: ActiveAppointment[] = [];
 
     constructor(private patientsService: PatientsService) { }
 
@@ -178,5 +180,26 @@ export class PatientsComponent implements OnInit {
             doctor.especialidad.forEach(esp => specialties.add(esp));
         });
         return Array.from(specialties);
+    }
+
+    loadActiveAppointments() {
+        this.loading = true;
+        this.error = '';
+        
+        this.patientsService.getActiveAppointments(7).subscribe({
+            next: (response) => {
+                if (!response.error) {
+                    this.activeAppointments = response.data;
+                    this.showActiveAppointments = true;
+                } else {
+                    this.error = 'Error al cargar las citas';
+                }
+                this.loading = false;
+            },
+            error: (error) => {
+                this.error = error.message;
+                this.loading = false;
+            }
+        });
     }
 }

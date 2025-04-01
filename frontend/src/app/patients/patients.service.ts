@@ -1,4 +1,4 @@
-import { Doctor, ScheduleResponse, ScheduleRequest } from "./patients.models";
+import { Doctor, ScheduleResponse, ActiveAppointmentsResponse } from "./patients.models";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { catchError, map, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -59,6 +59,18 @@ export class PatientsService {
         );
     }
     
+    public getActiveAppointments(patientId: number): Observable<ActiveAppointmentsResponse> {
+        return this.http.get<ActiveAppointmentsResponse>(
+            `${this.apiUrl}/patient/appointment-actives/${patientId}`
+        ).pipe(
+            map(response => {
+                console.log('Citas activas:', response);
+                return response;
+            }),
+            catchError(this.handleError)
+        );
+    }
+
     private formatDateToString(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');

@@ -3,13 +3,50 @@
         <!-- Logo Header -->
         <header class="dashboard-header">
             <div class="header-content">
-                <img class="logo" src="assets/images/login/logo.png" alt="Logo de SaludPlus" />
-                <div class="brand-name">
-                    <h1 class="brand-title">Centro Médico</h1>
-                    <h2 class="brand-subtitle">SaludPlus</h2>
+                <div class="logo-container">
+                    <img class="logo" src="assets/images/login/logo.png" alt="Logo de SaludPlus" />
+                    <div class="brand-name">
+                        <h1 class="brand-title">Centro Médico</h1>
+                        <h2 class="brand-subtitle">SaludPlus</h2>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="primary-button" (click)="loadActiveAppointments()">
+                        <i class="fas fa-calendar-check"></i>
+                        Ver mis citas activas
+                    </button>
                 </div>
             </div>
         </header>
+        
+        <!-- Modal para mostrar citas activas -->
+        <div class="modal-overlay" *ngIf="showActiveAppointments" (click)="showActiveAppointments = false">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <h3 class="modal-title">Mis Citas Activas</h3>
+                
+                <div *ngIf="loading" class="loading-container">
+                    <div class="spinner"></div>
+                    <p>Cargando citas...</p>
+                </div>
+        
+                <div class="appointments-list" *ngIf="!loading && activeAppointments.length > 0">
+                    <div class="appointment-card" *ngFor="let appointment of activeAppointments">
+                        <div class="appointment-header">
+                            <h4>Dr. {{ appointment.doctor.nombre }} {{ appointment.doctor.apellido }}</h4>
+                            <span class="appointment-status">{{ appointment.estado }}</span>
+                        </div>
+                        <div class="appointment-details">
+                            <p><strong>Fecha:</strong> {{ appointment.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+                            <p><strong>Motivo:</strong> {{ appointment.motivo }}</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div *ngIf="!loading && activeAppointments.length === 0" class="no-appointments">
+                    No tienes citas activas en este momento
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <section class="dashboard-content">

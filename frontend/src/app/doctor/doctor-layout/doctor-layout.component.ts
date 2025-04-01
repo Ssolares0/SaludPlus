@@ -10,17 +10,20 @@ import {
   ChevronDown,
   LogOut
 } from 'lucide-angular';
+import { DoctorService } from '../services/doctor.service';
+import { DataDoctorResponse } from '../models/doctor.model';
+import { SafeImagePipe } from '../../core/pipes/safe-image.pipe';
 
 @Component({
   selector: 'app-doctor-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, SafeImagePipe],
   templateUrl: './doctor-layout.component.html',
   styleUrls: ['./doctor-layout.component.css']
 })
-
 export class DoctorLayoutComponent implements OnInit {
   isDropdownOpen = false;
+  doctorData?: DataDoctorResponse;
 
   navItems = [
     {
@@ -49,16 +52,34 @@ export class DoctorLayoutComponent implements OnInit {
     }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private doctorService: DoctorService
+  ) { }
 
   ngOnInit() {
     this.updateActiveItem(this.router.url);
+    this.loadDoctorData();
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.updateActiveItem(event.url);
       }
     });
+  }
+
+  private loadDoctorData() {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      this.doctorService.getDataDoctor(Number(userId)).subscribe({
+        next: (data) => {
+          this.doctorData = data;
+        },
+        error: (error) => {
+          console.error('Error al cargar datos del doctor:', error);
+        }
+      });
+    }
   }
 
   private updateActiveItem(url: string) {

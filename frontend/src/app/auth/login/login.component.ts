@@ -169,6 +169,7 @@ export class LoginComponent implements OnInit {
           if (response.success) {
             localStorage.setItem('userRoleName', response.role.name);
             localStorage.setItem('token', response.token);
+            localStorage.setItem('userId', response.userId.toString());
 
             switch (response.role.name) {
               case 'doctor': 

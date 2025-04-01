@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from './patients.service';
+import { PatientsService } from './patients.service';
 import { Doctor, TimeSlot, ScheduleResponse, DoctorSchedule } from './patients.models';
 
 @Component({
@@ -26,7 +26,7 @@ export class PatientsComponent implements OnInit {
     selectedDoctor: Doctor | null = null;
     doctorSchedule: DoctorSchedule | null = null;
 
-    constructor(private authService: AuthService) { }
+    constructor(private patientsService: PatientsService) { }
 
     ngOnInit() {
         this.loadDoctors();
@@ -36,7 +36,7 @@ export class PatientsComponent implements OnInit {
         this.loading = true;
         this.error = '';
         
-        this.authService.getAvailableDoctors(2).subscribe({
+        this.patientsService.getAvailableDoctors(2).subscribe({
             next: (doctors) => {
                 this.doctors = doctors;
                 this.loading = false;
@@ -57,7 +57,7 @@ export class PatientsComponent implements OnInit {
             return;
         }
     
-        this.authService.getDoctorsBySpeciality(especialidad).subscribe({
+        this.patientsService.getDoctorsBySpeciality(especialidad).subscribe({
             next: (doctors) => {
                 this.doctors = doctors;
                 this.loading = false;
@@ -90,7 +90,7 @@ export class PatientsComponent implements OnInit {
 
         const formattedDate = `${this.selectedDate} 17:05:33.000000`;
 
-        this.authService.getDoctorSchedule(
+        this.patientsService.getDoctorSchedule(
             this.selectedDoctor.id.toString(),
             formattedDate
         ).subscribe({

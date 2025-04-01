@@ -334,8 +334,7 @@ export class AuthService {
       return { token, requiresAuth2: true };
     }
 
-
-    return { success: true, message: "Usuario logeado satisfactoriamente!", role: user.role };
+    return { success: true, message: "Usuario logeado satisfactoriamente!", role: user.role ,userId:user.id,token};
 
   }
   async approvedUser(userId: number) {

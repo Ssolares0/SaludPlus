@@ -7,7 +7,7 @@ import { Observable } from "rxjs";
 @Injectable({
     providedIn: 'root'
 })
-export class AuthService {
+export class PatientsService {
     private apiUrl = 'http://localhost:3001';
 
     constructor(private http: HttpClient) { }

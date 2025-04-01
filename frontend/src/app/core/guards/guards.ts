@@ -9,7 +9,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     if (token) {
         return true;
     } else {
-        router.navigate(['/']);
+        router.navigate(['/404']);
         return false;
     }
 };
@@ -23,7 +23,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
     if (token && isAdmin) {
         return true;
     } else {
-        router.navigate(['/']);
+        router.navigate(['/404']);
         return false;
     }
 };
@@ -34,10 +34,10 @@ export const doctorGuard: CanActivateFn = (route, state) => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRoleName');
 
-    if (userRole === 'doctor') {
+    if (token && userRole === 'doctor') {
         return true;
     } else {
-        router.navigate(['']);
+        router.navigate(['/404']);
         return false;
     }
 };
@@ -48,10 +48,10 @@ export const patientGuard: CanActivateFn = (route, state) => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRoleName');
 
-    if (userRole === 'paciente') {
+    if (token && userRole === 'paciente') {
         return true;
     } else {
-        router.navigate(['']);
+        router.navigate(['/404']);
         return false;
     }
 };

@@ -23,7 +23,7 @@ export class User {
   email_verified_at?: Date;
 
   @Column({type:'boolean', default: false})
-  approved!: boolean;
+  approved!: boolean | null;
 
 
   // Relación Muchos a Uno (N Usuarios → 1 Rol)

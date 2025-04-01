@@ -38,7 +38,7 @@ router.post(
 
 )
 router.put(
-    '/approve/:id',
+    '/admin/approved/:id',
     approverUser
 );
 

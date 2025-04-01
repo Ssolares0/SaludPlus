@@ -11,6 +11,7 @@ import { Patient } from '../models/Patient.entity';
 
 
 
+
 export const doctorsAvailables = async (req: Request, res: Response) => {
     try {
 
@@ -316,7 +317,7 @@ export const createAppointment = async (req: Request, res: Response) => {
 
 }
 
-export const activesDating = async (req: Request, res: Response) => {
+export const activesAppointment = async (req: Request, res: Response) => {
 
     try {
         const { id } = req.params;
@@ -392,3 +393,67 @@ export const activesDating = async (req: Request, res: Response) => {
     }
 }
 
+export const cancelAppointment = async (req: Request, res: Response) => {
+    try{
+        const { id } = req.params;
+
+        if(!id){
+            res.status(400).json({
+                error: false,
+                message: 'El ID del paciente y el ID de la cita son requeridos'
+            });
+            return
+        }
+
+        const appointment = await AppDataSource.manager
+            .createQueryBuilder(Appointment, 'appointment')
+            .leftJoinAndSelect('appointment.patient', 'patient')
+            .leftJoinAndSelect('appointment.doctor', 'doctor')
+            .leftJoinAndSelect('doctor.person', 'doctorPerson')
+            .leftJoinAndSelect('patient.person', 'patientPerson')
+            .where('appointment.id = :id', { id })
+            .andWhere('appointment.status = :status', { status: 'scheduled' })
+            .getOne();
+
+
+        if(!appointment){
+            res.status(404).json({
+                error: false,
+                message: 'Cita no encontrada'
+            });
+            return
+        }
+
+        appointment.status = 'canceled';
+        appointment.cancellation_reason = 'Cancelada por el paciente';
+        await AppDataSource.manager.save(Appointment, appointment);
+
+        res.status(200).json({
+            error: false,
+            message: 'Cita cancelada exitosamente',
+            data: {
+                id: appointment.id,
+                fecha: appointment.appointment_date,
+                motivo: appointment.reason,
+                estado: appointment.status,
+                doctor: {
+                    id: appointment.doctor.id,
+                    nombre: appointment.doctor.person.first_name,
+                    apellido: appointment.doctor.person.last_name
+                },
+                paciente: {
+                    id: appointment.patient.id,
+                    nombre: appointment.patient.person.first_name,
+                    apellido: appointment.patient.person.last_name
+                }
+            }
+
+        })
+        return
+
+    }catch(error: any){
+        res.status(400).json({
+            error: error.message
+        });
+    }
+};

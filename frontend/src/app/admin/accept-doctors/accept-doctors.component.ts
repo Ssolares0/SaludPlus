@@ -20,6 +20,7 @@ import { ModalComponent } from '../../core/components/modal/modal.component';
   templateUrl: './accept-doctors.component.html',
   styleUrls: ['./accept-doctors.component.css']
 })
+
 export class AcceptDoctorsComponent implements OnInit {
   isLoading: boolean = true;
   pendingDoctors: PendingDoctorsResponse[] = [];

@@ -77,6 +77,13 @@
     font-weight: 500;
 }
 
+.user-avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .dropdown-icon {
     color: white;
     transition: transform 0.3s ease;

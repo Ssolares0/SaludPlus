@@ -46,6 +46,32 @@ export interface PendingDoctorsResponse {
     department: DoctorDepartment[];
 }
 
+export interface ActivePatientsResponse {
+    id: number;
+    firstame: string; 
+    lastName: string;
+    birht_date: string;
+    gender: string;
+    phone: string;
+    photo: string | null;
+    addres: string;
+}
+
+export interface ActiveDoctorsResponse {
+    id: number;
+    firstame: string;
+    lastName: string;
+    dpi: string;
+    birht_date: string;
+    gender: string;
+    phone: string;
+    photo: string | null;
+    addres: string;
+    number_col: string;
+    specialty: DoctorSpecialty[];
+    department: DoctorDepartment[];
+}
+
 export interface AcceptUserResponse {
     message: string;
     success: boolean;

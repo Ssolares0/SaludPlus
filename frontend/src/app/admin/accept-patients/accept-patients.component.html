@@ -7,13 +7,6 @@
                 <input type="text" [(ngModel)]="searchTerm" (input)="searchPatients()"
                     placeholder="Buscar por nombre..." class="search-input">
             </div>
-            <div class="filter-box">
-                <select class="filter-select">
-                    <option value="all">Todos</option>
-                    <option value="recent">Más recientes</option>
-                    <option value="oldest">Más antiguos</option>
-                </select>
-            </div>
         </div>
     </div>
     @if (isLoading) {

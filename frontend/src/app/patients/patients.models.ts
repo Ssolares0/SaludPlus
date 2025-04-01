@@ -30,3 +30,25 @@ export interface ScheduleResponse {
         date: string;
     }
 }
+
+export interface ActiveAppointment {
+    id: number;
+    fecha: string;
+    motivo: string;
+    estado: string;
+    doctor: {
+        id: number;
+        nombre: string;
+        apellido: string;
+    };
+    paciente: {
+        id: number;
+        nombre: string;
+        apellido: string;
+    };
+}
+
+export interface ActiveAppointmentsResponse {
+    error: boolean;
+    data: ActiveAppointment[];
+}

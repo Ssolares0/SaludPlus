@@ -10,48 +10,24 @@
                 <input type="text" placeholder="Buscar por nombre de paciente..." class="search-input"
                     [formControl]="searchControl">
             </div>
-            <div class="filter-box">
-                <select class="filter-select" [formControl]="filterControl">
-                    <option value="all">Todos los estados</option>
-                    <option value="pending">Pendientes</option>
-                    <option value="confirmed">Confirmadas</option>
-                    <option value="urgent">Urgentes</option>
-                </select>
-            </div>
         </div>
     </div>
 
-    <div class="appointments-stats">
-        <div class="stat-card">
-            <div class="stat-icon pending">
-                <i-lucide [name]="Clock"></i-lucide>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">{{stats.pending}}</span>
-                <span class="stat-label">Pendientes</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon confirmed">
-                <i-lucide [name]="CheckCircle2"></i-lucide>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">{{stats.confirmed}}</span>
-                <span class="stat-label">Confirmadas</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon urgent">
-                <i-lucide [name]="AlertCircle"></i-lucide>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value">{{stats.urgent}}</span>
-                <span class="stat-label">Urgentes</span>
-            </div>
-        </div>
+    @if (loading) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando citas...</p>
     </div>
+    }
 
-    @if (filteredAppointments.length === 0) {
+    @if (error) {
+    <div class="error-state">
+        <i-lucide [name]="AlertCircle" class="error-icon"></i-lucide>
+        <p>{{ error }}</p>
+    </div>
+    }
+
+    @if (!loading && !error && filteredAppointments.length === 0) {
     <div class="no-results">
         <p>No se encontraron citas que coincidan con tu búsqueda.</p>
     </div>
@@ -62,44 +38,64 @@
         <div class="appointment-card">
             <div class="appointment-header">
                 <div class="patient-info">
-                    <div class="patient-avatar">
-                        {{ appointment.patientName[0] }}
+                    @if (appointment.patient.person.photo) {
+                    <div class="patient-photo">
+                        <img [src]="appointment.patient.person.photo | safeImage" alt="Foto paciente">
                     </div>
+                    } @else {
+                    <div class="patient-avatar">
+                        {{ appointment.patient.person.first_name[0] }}
+                    </div>
+                    }
                     <div class="patient-details">
-                        <h3>{{ appointment.patientName }}</h3>
+                        <h3>{{ appointment.patient.person.first_name }} {{ appointment.patient.person.last_name.split('
+                            ')[0] }}</h3>
                         <p class="patient-metadata">
-                            {{ appointment.patientAge }} años • {{ appointment.patientGender }}
+                            {{ getPatientAge(appointment.patient.person.birth_date) }} años •
+                            {{ getGenderText(appointment.patient.person.gender) }}
                         </p>
                     </div>
                 </div>
-                <span class="status-badge" [class]="appointment.status">
-                    {{ appointment.status === 'pending' ? 'Pendiente' :
-                    appointment.status === 'confirmed' ? 'Confirmada' : 'Urgente' }}
-                </span>
             </div>
 
             <div class="appointment-details">
                 <div class="detail-item">
                     <i-lucide [name]="Calendar" class="detail-icon"></i-lucide>
-                    <span>{{ appointment.date | date:'dd/MM/yyyy' }}</span>
+                    <div class="detail-content">
+                        <span class="detail-label">Fecha:</span>
+                        <span class="detail-value">{{ formatDate(appointment.appointment_date) }}</span>
+                    </div>
                 </div>
 
                 <div class="detail-item">
                     <i-lucide [name]="Clock" class="detail-icon"></i-lucide>
-                    <span>{{ appointment.time }}</span>
+                    <div class="detail-content">
+                        <span class="detail-label">Hora:</span>
+                        <span class="detail-value">{{ formatTime(appointment.appointment_date) }}</span>
+                    </div>
                 </div>
 
                 <div class="detail-item">
                     <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
-                    <span>{{ appointment.reason }}</span>
+                    <div class="detail-content">
+                        <span class="detail-label">Motivo:</span>
+                        <span class="detail-value">{{ appointment.reason }}</span>
+                    </div>
                 </div>
 
-                <div class="symptoms-info">
-                    <div class="symptoms-header">
-                        <i-lucide [name]="AlertCircle" class="symptoms-icon"></i-lucide>
-                        <span>Síntomas reportados</span>
+                <div class="patient-contact">
+                    <div class="contact-item">
+                        <span class="contact-label">Teléfono:</span>
+                        <span class="contact-value">{{ appointment.patient.person.phone }}</span>
                     </div>
-                    <p class="symptoms-text">{{ appointment.symptoms }}</p>
+                    <div class="contact-item">
+                        <span class="contact-label">DPI:</span>
+                        <span class="contact-value">{{ appointment.patient.person.national_id }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">Email:</span>
+                        <span class="contact-value">{{ appointment.patient.person.email }}</span>
+                    </div>
                 </div>
             </div>
 
@@ -117,7 +113,7 @@
         }
     </div>
 
-    @if (showTreatmentModal) {
+    @if (showTreatmentModal && selectedAppointment) {
     <div class="modal">
         <div class="modal-overlay" (click)="closeTreatmentModal()"></div>
         <div class="modal-content">
@@ -128,23 +124,27 @@
             <h2>Registrar Tratamiento</h2>
 
             <div class="modal-patient-info">
-                <div class="modal-patient-avatar">
-                    {{ selectedAppointment?.patientName[0] }}
+                @if (selectedAppointment.patient.person.photo) {
+                <div class="modal-patient-photo">
+                    <img [src]="selectedAppointment.patient.person.photo | safeImage" alt="Foto paciente">
                 </div>
+                } @else {
+                <div class="modal-patient-avatar">
+                    {{ selectedAppointment.patient.person.first_name[0] }}
+                </div>
+                }
                 <div class="modal-patient-details">
-                    <h3>{{ selectedAppointment?.patientName }}</h3>
-                    <p>{{ selectedAppointment?.patientAge }} años • {{ selectedAppointment?.patientGender }}</p>
+                    <h3>{{ selectedAppointment.patient.person.first_name }} {{
+                        selectedAppointment.patient.person.last_name.split(' ')[0] }}</h3>
+                    <p>{{ getPatientAge(selectedAppointment.patient.person.birth_date) }} años •
+                        {{ getGenderText(selectedAppointment.patient.person.gender) }}</p>
                 </div>
             </div>
 
             <div class="modal-appointment-info">
                 <div class="info-item">
                     <span class="info-label">Motivo de consulta:</span>
-                    <span class="info-value">{{ selectedAppointment?.reason }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Síntomas:</span>
-                    <span class="info-value">{{ selectedAppointment?.symptoms }}</span>
+                    <span class="info-value">{{ selectedAppointment.reason }}</span>
                 </div>
             </div>
 

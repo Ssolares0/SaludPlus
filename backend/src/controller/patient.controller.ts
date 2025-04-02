@@ -8,6 +8,7 @@ import { parse } from 'dotenv';
 import { DoctorSchedule } from '../models/DoctorSchedule.entity';
 import { generateTimeSlots, getDayName } from '../helpers/slotsPacient';
 import { Patient } from '../models/Patient.entity';
+import { User } from '../models/User.entity';
 
 
 
@@ -15,7 +16,7 @@ import { Patient } from '../models/Patient.entity';
 export const doctorsAvailables = async (req: Request, res: Response) => {
     try {
 
-        const id = Number(req.params.id);
+        /* const id = Number(req.params.id);
 
         const appointments = await AppDataSource.getRepository(Appointment).find({
             where: {
@@ -61,7 +62,36 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
 
         res.status(200).send(availableDoctors);
         return
+ */
+        // Consulta para obtener los doctores con role = 2 y approved = true
+        const doctors = await AppDataSource.manager
+            .createQueryBuilder(User, 'user')
+            .leftJoinAndSelect('user.person', 'person') // Relación con la tabla 'person'
+            .where('user.role = :role', { role: 2 })
+            .andWhere('user.approved = :approved', { approved: true })
+            .getMany();
 
+        // Verificar si hay doctores disponibles
+        if (doctors.length === 0) {
+            res.status(404).json({
+                error: true,
+                message: 'No hay doctores disponibles'
+            });
+            return;
+        }
+
+        // Formatear la respuesta
+        const formattedDoctors = doctors.map(doctor => ({
+            id: doctor.id,
+            nombre: doctor.person.first_name,
+            apellido: doctor.person.last_name,
+            email: doctor.person.email
+        }));
+
+        res.status(200).json({
+            error: false,
+            data: formattedDoctors
+        });
     } catch (error: any) {
         res.status(400).json({
             error: error.message || 'Error al registrar el paciente'

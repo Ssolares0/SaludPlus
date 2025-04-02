@@ -1,4 +1,4 @@
-import { DataDoctorResponse, PendingAppointmentResponse } from "../models/doctor.model";
+import { DataDoctorResponse, PendingAppointmentResponse, CancelAndCompleteAppointmentResponse, CancelAppointmentBody, AcceptAppointmentBody, AppointmentHistoryBody, AppointmentHistoryResponse, UpdateDoctorData } from "../models/doctor.model";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -22,6 +22,47 @@ export class DoctorService {
 
     public getPendintgAppointments(id: number): Observable<PendingAppointmentResponse[]> {
         return this.http.get<PendingAppointmentResponse[]>(`${this.baseUrl}/employee/pendiente/appointment/${id}`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public acceptAppointment(id: number, body: AcceptAppointmentBody): Observable<CancelAndCompleteAppointmentResponse> {
+        return this.http.put<CancelAndCompleteAppointmentResponse>(`${this.baseUrl}/employee/complete/appointment/${id}`, body)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public cancelAppointment(id: number, body: CancelAppointmentBody): Observable<CancelAndCompleteAppointmentResponse> {
+        return this.http.delete<CancelAndCompleteAppointmentResponse>(`${this.baseUrl}/employee/cancel/appointment/${id}`, { body })
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getAppointmentHistory(id: number, body: AppointmentHistoryBody): Observable<AppointmentHistoryResponse[]> {
+        return this.http.post<AppointmentHistoryResponse[]>(`${this.baseUrl}/employee/history/appointments/${id}`, body)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public updateDoctor(id: number, doctorData: UpdateDoctorData) {
+        const formData = new FormData();
+
+        formData.append('first_name', doctorData.first_name);
+        formData.append('last_name', doctorData.last_name);
+        formData.append('birth_date', doctorData.birth_date);
+        formData.append('gender', doctorData.gender);
+        formData.append('phone', doctorData.phone);
+        formData.append('address', doctorData.address);
+
+        if (doctorData.photo) {
+            formData.append('photo', doctorData.photo, doctorData.photo.name);
+        }
+
+        return this.http.put<DataDoctorResponse>(`${this.baseUrl}/employee/update/doctor/${id}`, formData)
             .pipe(
                 catchError(this.handleError)
             );

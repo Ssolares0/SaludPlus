@@ -100,19 +100,32 @@
             </div>
 
             <div class="appointment-actions">
+                @if (isProcessingAppointment(appointment.id, 'complete')) {
+                <div class="processing-action">
+                    <div class="spinner-small"></div>
+                    <span>Completando cita...</span>
+                </div>
+                } @else if (isProcessingAppointment(appointment.id, 'cancel')) {
+                <div class="processing-action">
+                    <div class="spinner-small"></div>
+                    <span>Cancelando cita...</span>
+                </div>
+                } @else {
                 <button class="btn-attend" (click)="openTreatmentModal(appointment)">
                     <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
                     Atender
                 </button>
-                <button class="btn-cancel" (click)="cancelAppointment(appointment)">
+                <button class="btn-cancel" (click)="openCancelModal(appointment)">
                     <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
                     Cancelar
                 </button>
+                }
             </div>
         </div>
         }
     </div>
 
+    <!-- Modal de Tratamiento -->
     @if (showTreatmentModal && selectedAppointment) {
     <div class="modal">
         <div class="modal-overlay" (click)="closeTreatmentModal()"></div>
@@ -162,17 +175,105 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button class="btn-secondary" type="button" (click)="closeTreatmentModal()">
+                    <button class="btn-secondary" type="button" [disabled]="isSavingTreatment"
+                        (click)="closeTreatmentModal()">
                         <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
                         Cancelar
                     </button>
-                    <button class="btn-primary" type="button" (click)="saveTreatment()">
+                    <button class="btn-primary" type="button" [disabled]="isSavingTreatment"
+                        (click)="completeAppointment()">
+                        @if (isSavingTreatment) {
+                        <div class="button-spinner"></div>
+                        <span>Guardando...</span>
+                        } @else {
                         <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
-                        Guardar
+                        <span>Guardar</span>
+                        }
                     </button>
                 </div>
             </form>
         </div>
     </div>
     }
+
+    <!-- Modal de Cancelación -->
+    @if (showCancelModal && selectedAppointment) {
+    <div class="modal">
+        <div class="modal-overlay" (click)="closeCancelModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close-btn" (click)="closeCancelModal()">
+                <i-lucide [name]="X"></i-lucide>
+            </button>
+
+            <h2>Cancelar Cita</h2>
+
+            <div class="modal-patient-info">
+                @if (selectedAppointment.patient.person.photo) {
+                <div class="modal-patient-photo">
+                    <img [src]="selectedAppointment.patient.person.photo | safeImage" alt="Foto paciente">
+                </div>
+                } @else {
+                <div class="modal-patient-avatar">
+                    {{ selectedAppointment.patient.person.first_name[0] }}
+                </div>
+                }
+                <div class="modal-patient-details">
+                    <h3>{{ selectedAppointment.patient.person.first_name }} {{
+                        selectedAppointment.patient.person.last_name.split(' ')[0] }}</h3>
+                    <p>{{ getPatientAge(selectedAppointment.patient.person.birth_date) }} años •
+                        {{ getGenderText(selectedAppointment.patient.person.gender) }}</p>
+                </div>
+            </div>
+
+            <form [formGroup]="cancelForm">
+                <div class="form-group">
+                    <label for="reason">Motivo de cancelación:</label>
+                    <textarea id="reason" rows="3" placeholder="Indica el motivo de la cancelación..."
+                        formControlName="reason"></textarea>
+
+                    @if (cancelForm.get('reason')?.invalid && cancelForm.get('reason')?.touched) {
+                    <div class="error-message">
+                        El motivo es requerido y debe tener al menos 10 caracteres
+                    </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="apology">Mensaje para el paciente:</label>
+                    <textarea id="apology" rows="3" placeholder="Escribe un mensaje de disculpa para el paciente..."
+                        formControlName="apology"></textarea>
+
+                    @if (cancelForm.get('apology')?.invalid && cancelForm.get('apology')?.touched) {
+                    <div class="error-message">
+                        El mensaje es requerido y debe tener al menos 10 caracteres
+                    </div>
+                    }
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" type="button" [disabled]="isCancelingAppointment"
+                        (click)="closeCancelModal()">
+                        <i-lucide [name]="X" class="btn-icon"></i-lucide>
+                        Volver
+                    </button>
+                    <button class="btn-danger" type="button" [disabled]="isCancelingAppointment"
+                        (click)="cancelAppointment()">
+                        @if (isCancelingAppointment) {
+                        <div class="button-spinner"></div>
+                        <span>Cancelando...</span>
+                        } @else {
+                        <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                        <span>Confirmar Cancelación</span>
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
 </div>

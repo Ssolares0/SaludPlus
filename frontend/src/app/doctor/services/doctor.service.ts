@@ -1,5 +1,5 @@
-import { DataDoctorResponse } from "../models/doctor.model";
-import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { DataDoctorResponse, PendingAppointmentResponse } from "../models/doctor.model";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -15,6 +15,13 @@ export class DoctorService {
 
     public getDataDoctor(id: number): Observable<DataDoctorResponse> {
         return this.http.get<DataDoctorResponse>(`${this.baseUrl}/employee/doctor/${id}`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getPendintgAppointments(id: number): Observable<PendingAppointmentResponse[]> {
+        return this.http.get<PendingAppointmentResponse[]>(`${this.baseUrl}/employee/pendiente/appointment/${id}`)
             .pipe(
                 catchError(this.handleError)
             );

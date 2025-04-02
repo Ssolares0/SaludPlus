@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PatientsService } from './patients.service';
 import { Doctor, TimeSlot, ActiveAppointment, DoctorSchedule } from './patients.models';
 
@@ -28,7 +29,10 @@ export class PatientsComponent implements OnInit {
     showActiveAppointments: boolean = false;
     activeAppointments: ActiveAppointment[] = [];
 
-    constructor(private patientsService: PatientsService) { }
+    constructor(
+        private patientsService: PatientsService,
+        private router: Router
+    ) { }
 
     ngOnInit() {
         this.loadDoctors();
@@ -201,5 +205,10 @@ export class PatientsComponent implements OnInit {
                 this.loading = false;
             }
         });
+    }
+    
+    logout() {
+        localStorage.clear();
+        this.router.navigate(['/']);
     }
 }

@@ -16,6 +16,13 @@
                         Ver mis citas activas
                     </button>
                 </div>
+                <!-- Botón de logout -->
+                <div class="logout-container">
+                    <button class="logout-button" (click)="logout()">
+                        <span class="logout-icon">↩</span>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </div>
             </div>
         </header>
         
@@ -58,11 +65,8 @@
                 <form class="search-form">
                     <div class="form-group">
                         <div class="input-container">
-                            <select [(ngModel)]="selectedEspecialidad" 
-                                    name="specialty" 
-                                    id="specialty" 
-                                    class="form-input"
-                                    (change)="filterByEspecialidad(selectedEspecialidad)">
+                            <select [(ngModel)]="selectedEspecialidad" name="specialty" id="specialty"
+                                class="form-input" (change)="filterByEspecialidad(selectedEspecialidad)">
                                 <option value="">Todas las especialidades</option>
                                 <option *ngFor="let especialidad of getUniqueSpecialties()">
                                     {{especialidad}}
@@ -115,7 +119,7 @@
         <footer class="dashboard-footer">
             <p class="copyright">© 2025 SaludPlus. Todos los derechos reservados.</p>
             <p class="legal-links">
-                <a href="#">Términos y Condiciones</a> • 
+                <a href="#">Términos y Condiciones</a> •
                 <a href="#">Política de Privacidad</a>
             </p>
         </footer>
@@ -132,7 +136,7 @@
             <div class="doctor-info" *ngIf="selectedDoctor">
                 <h4 class="doctor-name">Dr. {{ selectedDoctor.nombre }} {{ selectedDoctor.apellido }}</h4>
             </div>
-            
+
             <!-- Error Message -->
             <div *ngIf="error" class="error-message">
                 {{ error }}
@@ -149,10 +153,7 @@
             <!-- Date Selection -->
             <div class="form-group">
                 <label class="form-label">Seleccione una fecha:</label>
-                <input type="date" 
-                    [(ngModel)]="selectedDate" 
-                    name="scheduleDate"
-                    class="form-input"
+                <input type="date" [(ngModel)]="selectedDate" name="scheduleDate" class="form-input"
                     (change)="generateAvailableHours()">
             </div>
 
@@ -164,10 +165,8 @@
 
             <!-- Available hours -->
             <div class="time-slots-grid" *ngIf="!loading && availableHours && availableHours.length > 0">
-                <div *ngFor="let slot of availableHours" 
-                    [class.available]="slot.isAvailable"
-                    [class.selected]="appointmentTime === slot.time"
-                    class="time-slot"
+                <div *ngFor="let slot of availableHours" [class.available]="slot.isAvailable"
+                    [class.selected]="appointmentTime === slot.time" class="time-slot"
                     (click)="slot.isAvailable && selectTimeSlot(slot)">
                     <span class="time">{{ slot.time }}</span>
                     <span class="status">
@@ -177,22 +176,17 @@
             </div>
 
             <!-- No hours message -->
-            <div *ngIf="!loading && (!availableHours || availableHours.length === 0)" 
-                class="no-hours-message">
+            <div *ngIf="!loading && (!availableHours || availableHours.length === 0)" class="no-hours-message">
                 No hay horarios disponibles para esta fecha
             </div>
 
             <!-- Modal Actions -->
             <div class="button-group">
-                <button type="button" 
-                        class="primary-button" 
-                        *ngIf="appointmentTime"
-                        (click)="showAppointmentForm = true">
+                <button type="button" class="primary-button" *ngIf="appointmentTime"
+                    (click)="showAppointmentForm = true">
                     Agendar cita
                 </button>
-                <button type="button" 
-                        class="secondary-button" 
-                        (click)="closeScheduleView()">
+                <button type="button" class="secondary-button" (click)="closeScheduleView()">
                     Cerrar
                 </button>
             </div>
@@ -212,21 +206,16 @@
                 <div class="form-group">
                     <label class="form-label">Doctor</label>
                     <div class="input-container">
-                        <input type="text" 
+                        <input type="text"
                             [value]="selectedDoctor ? 'Dr. ' + selectedDoctor.nombre + ' ' + selectedDoctor.apellido : ''"
-                            class="form-input"
-                            readonly>
+                            class="form-input" readonly>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Fecha</label>
                     <div class="input-container">
-                        <input type="date" 
-                            [(ngModel)]="appointmentDate" 
-                            name="date" 
-                            required 
-                            class="form-input"
+                        <input type="date" [(ngModel)]="appointmentDate" name="date" required class="form-input"
                             readonly>
                     </div>
                 </div>
@@ -234,11 +223,7 @@
                 <div class="form-group">
                     <label class="form-label">Hora</label>
                     <div class="input-container">
-                        <input type="text" 
-                            [(ngModel)]="appointmentTime" 
-                            name="time" 
-                            required 
-                            class="form-input"
+                        <input type="text" [(ngModel)]="appointmentTime" name="time" required class="form-input"
                             readonly>
                     </div>
                 </div>
@@ -246,12 +231,8 @@
                 <div class="form-group">
                     <label class="form-label">Motivo de la consulta</label>
                     <div class="input-container">
-                        <textarea [(ngModel)]="appointmentReason" 
-                                name="reason" 
-                                required
-                                rows="4"
-                                class="form-input"
-                                placeholder="Describa el motivo de su consulta"></textarea>
+                        <textarea [(ngModel)]="appointmentReason" name="reason" required rows="4" class="form-input"
+                            placeholder="Describa el motivo de su consulta"></textarea>
                     </div>
                 </div>
 
@@ -263,9 +244,7 @@
                 <!-- Form Actions -->
                 <div class="button-group">
                     <button type="submit" class="primary-button">Confirmar cita</button>
-                    <button type="button" 
-                            class="secondary-button" 
-                            (click)="resetAppointmentForm()">
+                    <button type="button" class="secondary-button" (click)="resetAppointmentForm()">
                         Cancelar
                     </button>
                 </div>

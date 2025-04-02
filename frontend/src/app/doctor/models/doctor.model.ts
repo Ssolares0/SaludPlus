@@ -79,3 +79,13 @@ export interface AppointmentHistoryResponse {
         }
     }
 }
+
+export interface UpdateDoctorData {
+    first_name: string;
+    last_name: string;
+    birth_date: string;
+    gender: string;
+    phone: string;
+    address: string;
+    photo: File | null;
+}

@@ -175,13 +175,20 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button class="btn-secondary" type="button" (click)="closeTreatmentModal()">
+                    <button class="btn-secondary" type="button" [disabled]="isSavingTreatment"
+                        (click)="closeTreatmentModal()">
                         <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
                         Cancelar
                     </button>
-                    <button class="btn-primary" type="button" (click)="completeAppointment()">
+                    <button class="btn-primary" type="button" [disabled]="isSavingTreatment"
+                        (click)="completeAppointment()">
+                        @if (isSavingTreatment) {
+                        <div class="button-spinner"></div>
+                        <span>Guardando...</span>
+                        } @else {
                         <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
-                        Guardar
+                        <span>Guardar</span>
+                        }
                     </button>
                 </div>
             </form>
@@ -244,13 +251,20 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button class="btn-secondary" type="button" (click)="closeCancelModal()">
+                    <button class="btn-secondary" type="button" [disabled]="isCancelingAppointment"
+                        (click)="closeCancelModal()">
                         <i-lucide [name]="X" class="btn-icon"></i-lucide>
                         Volver
                     </button>
-                    <button class="btn-danger" type="button" (click)="cancelAppointment()">
+                    <button class="btn-danger" type="button" [disabled]="isCancelingAppointment"
+                        (click)="cancelAppointment()">
+                        @if (isCancelingAppointment) {
+                        <div class="button-spinner"></div>
+                        <span>Cancelando...</span>
+                        } @else {
                         <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
-                        Confirmar Cancelación
+                        <span>Confirmar Cancelación</span>
+                        }
                     </button>
                 </div>
             </form>
@@ -258,15 +272,8 @@
     </div>
     }
 
-    <app-modal 
-        [isVisible]="modalVisible"
-        [type]="modalType"
-        [title]="modalTitle"
-        [message]="modalMessage"
-        [showConfirmButton]="modalShowConfirmButton"
-        confirmButtonText="Aceptar"
-        cancelButtonText="Cancelar"
-        (close)="closeModal()"
-        (confirm)="onConfirmAction()">
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
     </app-modal>
 </div>

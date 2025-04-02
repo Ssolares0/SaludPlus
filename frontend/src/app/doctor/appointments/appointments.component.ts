@@ -23,6 +23,9 @@ export class AppointmentsComponent implements OnInit {
   appointments: PendingAppointmentResponse[] = [];
   filteredAppointments: PendingAppointmentResponse[] = [];
 
+  isSavingTreatment: boolean = false;
+  isCancelingAppointment: boolean = false;
+
   showTreatmentModal = false;
   showCancelModal = false;
   selectedAppointment: PendingAppointmentResponse | null = null;
@@ -30,7 +33,6 @@ export class AppointmentsComponent implements OnInit {
   error: string | null = null;
   processingAppointment: { id: number, action: 'complete' | 'cancel' } | null = null;
 
-  // Modal properties
   modalVisible: boolean = false;
   modalType: 'success' | 'warning' | 'error' = 'success';
   modalTitle: string = '';
@@ -144,6 +146,9 @@ export class AppointmentsComponent implements OnInit {
       return;
     }
 
+    this.isSavingTreatment = true;
+    this.cdr.markForCheck();
+
     this.processingAppointment = {
       id: this.selectedAppointment.id,
       action: 'complete'
@@ -156,6 +161,7 @@ export class AppointmentsComponent implements OnInit {
 
     this.doctorService.acceptAppointment(this.selectedAppointment.id, body).subscribe({
       next: (response) => {
+        this.isSavingTreatment = false;
         this.showModal(
           'success',
           'Cita Completada',
@@ -167,6 +173,7 @@ export class AppointmentsComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: (error) => {
+        this.isSavingTreatment = false;
         this.showModal(
           'error',
           'Error al Completar la Cita',
@@ -202,6 +209,9 @@ export class AppointmentsComponent implements OnInit {
       return;
     }
 
+    this.isCancelingAppointment = true;
+    this.cdr.markForCheck();
+
     this.processingAppointment = {
       id: this.selectedAppointment.id,
       action: 'cancel'
@@ -215,6 +225,7 @@ export class AppointmentsComponent implements OnInit {
 
     this.doctorService.cancelAppointment(this.selectedAppointment.id, body).subscribe({
       next: (response) => {
+        this.isCancelingAppointment = false; 
         this.showModal(
           'success',
           'Cita Cancelada',
@@ -226,6 +237,7 @@ export class AppointmentsComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: (error) => {
+        this.isCancelingAppointment = false;
         this.showModal(
           'error',
           'Error al Cancelar la Cita',

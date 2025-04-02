@@ -1,4 +1,4 @@
-import { DataDoctorResponse, PendingAppointmentResponse } from "../models/doctor.model";
+import { DataDoctorResponse, PendingAppointmentResponse, CancelAndCompleteAppointmentResponse, CancelAppointmentBody, AcceptAppointmentBody, AppointmentHistoryBody, AppointmentHistoryResponse } from "../models/doctor.model";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -22,6 +22,27 @@ export class DoctorService {
 
     public getPendintgAppointments(id: number): Observable<PendingAppointmentResponse[]> {
         return this.http.get<PendingAppointmentResponse[]>(`${this.baseUrl}/employee/pendiente/appointment/${id}`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public acceptAppointment(id: number, body: AcceptAppointmentBody): Observable<CancelAndCompleteAppointmentResponse> {
+        return this.http.put<CancelAndCompleteAppointmentResponse>(`${this.baseUrl}/employee/complete/appointment/${id}`, body)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public cancelAppointment(id: number, body: CancelAppointmentBody): Observable<CancelAndCompleteAppointmentResponse> {
+        return this.http.delete<CancelAndCompleteAppointmentResponse>(`${this.baseUrl}/employee/cancel/appointment/${id}`, { body })
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getAppointmentHistory(id: number, body: AppointmentHistoryBody): Observable<AppointmentHistoryResponse[]> {
+        return this.http.post<AppointmentHistoryResponse[]>(`${this.baseUrl}/employee/history/appointments/${id}`, body)
             .pipe(
                 catchError(this.handleError)
             );

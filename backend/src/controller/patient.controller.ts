@@ -44,7 +44,6 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
             })
             .getMany();
 
-        console.log("aqui ando x2")
         if (doctors.length === 0) {
             res.status(400).send('No hay doctores disponibles');
             return
@@ -200,25 +199,23 @@ export const createAppointment = async (req: Request, res: Response) => {
         const { date, motive, doctorId, hour } = req.body;
         const { id } = req.params;
 
+        // Validar datos requeridos
         if (!date || !motive || !doctorId || !hour) {
             res.status(400).json({
-                error: false,
-                message: 'La fecha, motivo y doctor son requeridos'
+                error: true,
+                message: 'La fecha, motivo, doctor y hora son requeridos'
             });
-            return
+            return;
         }
 
-        // Parse date components
-        const [dateStr] = date.split(' ');
-        const [year, month, day] = dateStr.split('-').map(Number);
+        // Parsear y ajustar la fecha y hora
+        const [year, month, day] = date.split('-').map(Number);
         const [hours, minutes] = hour.split(':').map(Number);
-
-        // Create date with timezone adjustment
         const selectedDate = new Date(year, month - 1, day, hours, minutes);
         selectedDate.setMinutes(selectedDate.getMinutes() - selectedDate.getTimezoneOffset());
         const dayOfWeek = selectedDate.getDay();
 
-        // Get doctor's schedule
+        // Verificar el horario del doctor
         const doctorSchedule = await AppDataSource.manager
             .createQueryBuilder(DoctorSchedule, 'schedule')
             .leftJoinAndSelect('schedule.doctor', 'doctor')
@@ -227,23 +224,23 @@ export const createAppointment = async (req: Request, res: Response) => {
 
         if (doctorSchedule.length === 0) {
             res.status(404).json({
-                error: false,
+                error: true,
                 message: 'No se encontró el horario del doctor'
             });
-            return
+            return;
         }
 
-        // Check if doctor works on this day
+        // Verificar si el doctor trabaja ese día
         const daySchedule = doctorSchedule.find(schedule => schedule.day_of_week === dayOfWeek);
         if (!daySchedule) {
             res.status(400).json({
-                error: false,
+                error: true,
                 message: 'El doctor no atiende este día'
             });
-            return
+            return;
         }
 
-        // Check for existing appointments
+        // Verificar si el horario está ocupado
         const existingAppointment = await AppDataSource.manager
             .createQueryBuilder(Appointment, 'appointment')
             .where('appointment.employee_id = :doctorId', { doctorId })
@@ -254,24 +251,40 @@ export const createAppointment = async (req: Request, res: Response) => {
 
         if (existingAppointment) {
             res.status(400).json({
-                error: false,
+                error: true,
                 message: 'El horario seleccionado ya está ocupado'
             });
-            return
+            return;
         }
 
-        // Get doctor and patient with their relationships
-        const doctor = await AppDataSource.manager.findOneOrFail(Employee, {
+        // Obtener doctor y paciente con sus relaciones
+        const doctor = await AppDataSource.manager.findOne(Employee, {
             where: { id: doctorId },
             relations: ['person']
         });
 
-        const patient = await AppDataSource.manager.findOneOrFail(Patient, {
+        if (!doctor) {
+            res.status(404).json({
+                error: true,
+                message: 'Doctor no encontrado'
+            });
+            return;
+        }
+
+        const patient = await AppDataSource.manager.findOne(Patient, {
             where: { id: parseInt(id) },
             relations: ['person']
         });
 
-        // Create new appointment using repository
+        if (!patient) {
+            res.status(404).json({
+                error: true,
+                message: 'Paciente no encontrado'
+            });
+            return;
+        }
+
+        // Crear nueva cita
         const appointmentRepository = AppDataSource.getRepository(Appointment);
         const appointment = appointmentRepository.create({
             appointment_date: selectedDate,
@@ -281,11 +294,11 @@ export const createAppointment = async (req: Request, res: Response) => {
             doctor: doctor
         });
 
-        // Save using repository
+        // Guardar la cita
         const savedAppointment = await appointmentRepository.save(appointment);
 
         res.status(201).json({
-            error: true,
+            error: false,
             message: 'Cita creada exitosamente',
             data: {
                 id: savedAppointment.id,
@@ -304,19 +317,15 @@ export const createAppointment = async (req: Request, res: Response) => {
                 }
             }
         });
-        return
-
     } catch (error: any) {
-        console.error('Error creating appointment:', error);
+        console.error('Error al crear la cita:', error);
         res.status(500).json({
+            error: true,
             message: 'Error al crear la cita',
-            error: error.message
+            details: error.message
         });
-        return
     }
-
-}
-
+};
 export const activesAppointment = async (req: Request, res: Response) => {
 
     try {
@@ -457,3 +466,86 @@ export const cancelAppointment = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const getAndUpdateProfile = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params; // ID del paciente
+        const { firstName, lastName, phone, address, birth_date, gender,photoUrl } = req.body;
+
+        // Verificar si el ID del paciente es válido
+        if (!id) {
+            res.status(400).json({
+                error: true,
+                message: 'El ID del paciente es requerido'
+            });
+            return;
+        }
+
+        // Buscar al paciente con sus relaciones
+        const patient = await AppDataSource.manager.findOne(Patient, {
+            where: { id: parseInt(id) },
+            relations: ['person']
+        });
+
+        if (!patient) {
+            res.status(404).json({
+                error: true,
+                message: 'Paciente no encontrado'
+            });
+            return;
+        }
+
+        // Si no hay datos en el cuerpo de la solicitud, devolver el perfil
+        if (!req.body || Object.keys(req.body).length === 0) {
+            res.status(200).json({
+                error: false,
+                data: {
+                    id: patient.id,
+                    firstName: patient.person.first_name,
+                    lastName: patient.person.last_name,
+                    phone: patient.person.phone,
+                    address: patient.person.address,
+                    birth_date: patient.person.birth_date,
+                    gender: patient.person.gender,
+                    photoUrl: patient.person.photo
+                }
+            });
+            return;
+        }
+
+        // Actualizar los datos del perfil (excepto el correo electrónico)
+        if (firstName) patient.person.first_name = firstName;
+        if (lastName) patient.person.last_name = lastName;
+        if (phone) patient.person.phone = phone;
+        if (address) patient.person.address = address;
+        if (birth_date) patient.person.birth_date = new Date(birth_date);
+        if (gender) patient.person.gender = gender;
+        if(photoUrl) patient.person.photo = photoUrl
+
+        // Guardar los cambios
+        await AppDataSource.manager.save(patient.person);
+
+        res.status(200).json({
+            error: false,
+            message: 'Perfil actualizado correctamente',
+            data: {
+                id: patient.id,
+                firstName: patient.person.first_name,
+                lastName: patient.person.last_name,
+                phone: patient.person.phone,
+                address: patient.person.address,
+                birth_date: patient.person.birth_date,
+                gender: patient.person.gender,
+                email: patient.person.email // El correo no se puede modificar
+            }
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            error: true,
+            message: 'Error al obtener o actualizar el perfil',
+            details: error.message
+        });
+    }
+};
+
+

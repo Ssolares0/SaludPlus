@@ -15,12 +15,14 @@ export interface AdminAuth2Response {
 }
 
 export interface LoginResponse {
-    "success": boolean;
-    "message": string;
-    "role": {
-        "id": number;
-        "name": string;
-    };
+    success: boolean;
+    message: string;
+    role: string;
+    userId: number;
+    peopleId: number;
+    token: string;
+    patientId: number | null;
+    doctorId: number | null;
 }
 
 export interface RegisterResponse {

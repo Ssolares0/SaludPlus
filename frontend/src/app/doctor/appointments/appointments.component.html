@@ -1,0 +1,279 @@
+<div class="appointments-container">
+    <div class="page-header">
+        <div class="header-title">
+            <h1>Gestión de Citas</h1>
+            <p>Citas pendientes por atender</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" placeholder="Buscar por nombre de paciente..." class="search-input"
+                    [formControl]="searchControl">
+            </div>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando citas...</p>
+    </div>
+    }
+
+    @if (error) {
+    <div class="error-state">
+        <i-lucide [name]="AlertCircle" class="error-icon"></i-lucide>
+        <p>{{ error }}</p>
+    </div>
+    }
+
+    @if (!loading && !error && filteredAppointments.length === 0) {
+    <div class="no-results">
+        <p>No se encontraron citas que coincidan con tu búsqueda.</p>
+    </div>
+    }
+
+    <div class="appointments-grid">
+        @for (appointment of filteredAppointments; track trackByAppointmentId(0, appointment)) {
+        <div class="appointment-card">
+            <div class="appointment-header">
+                <div class="patient-info">
+                    @if (appointment.patient.person.photo) {
+                    <div class="patient-photo">
+                        <img [src]="appointment.patient.person.photo | safeImage" alt="Foto paciente">
+                    </div>
+                    } @else {
+                    <div class="patient-avatar">
+                        {{ appointment.patient.person.first_name[0] }}
+                    </div>
+                    }
+                    <div class="patient-details">
+                        <h3>{{ appointment.patient.person.first_name }} {{ appointment.patient.person.last_name.split('
+                            ')[0] }}</h3>
+                        <p class="patient-metadata">
+                            {{ getPatientAge(appointment.patient.person.birth_date) }} años •
+                            {{ getGenderText(appointment.patient.person.gender) }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="appointment-details">
+                <div class="detail-item">
+                    <i-lucide [name]="Calendar" class="detail-icon"></i-lucide>
+                    <div class="detail-content">
+                        <span class="detail-label">Fecha:</span>
+                        <span class="detail-value">{{ formatDate(appointment.appointment_date) }}</span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Clock" class="detail-icon"></i-lucide>
+                    <div class="detail-content">
+                        <span class="detail-label">Hora:</span>
+                        <span class="detail-value">{{ formatTime(appointment.appointment_date) }}</span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
+                    <div class="detail-content">
+                        <span class="detail-label">Motivo:</span>
+                        <span class="detail-value">{{ appointment.reason }}</span>
+                    </div>
+                </div>
+
+                <div class="patient-contact">
+                    <div class="contact-item">
+                        <span class="contact-label">Teléfono:</span>
+                        <span class="contact-value">{{ appointment.patient.person.phone }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">DPI:</span>
+                        <span class="contact-value">{{ appointment.patient.person.national_id }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">Email:</span>
+                        <span class="contact-value">{{ appointment.patient.person.email }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="appointment-actions">
+                @if (isProcessingAppointment(appointment.id, 'complete')) {
+                <div class="processing-action">
+                    <div class="spinner-small"></div>
+                    <span>Completando cita...</span>
+                </div>
+                } @else if (isProcessingAppointment(appointment.id, 'cancel')) {
+                <div class="processing-action">
+                    <div class="spinner-small"></div>
+                    <span>Cancelando cita...</span>
+                </div>
+                } @else {
+                <button class="btn-attend" (click)="openTreatmentModal(appointment)">
+                    <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
+                    Atender
+                </button>
+                <button class="btn-cancel" (click)="openCancelModal(appointment)">
+                    <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                    Cancelar
+                </button>
+                }
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- Modal de Tratamiento -->
+    @if (showTreatmentModal && selectedAppointment) {
+    <div class="modal">
+        <div class="modal-overlay" (click)="closeTreatmentModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close-btn" (click)="closeTreatmentModal()">
+                <i-lucide [name]="X"></i-lucide>
+            </button>
+
+            <h2>Registrar Tratamiento</h2>
+
+            <div class="modal-patient-info">
+                @if (selectedAppointment.patient.person.photo) {
+                <div class="modal-patient-photo">
+                    <img [src]="selectedAppointment.patient.person.photo | safeImage" alt="Foto paciente">
+                </div>
+                } @else {
+                <div class="modal-patient-avatar">
+                    {{ selectedAppointment.patient.person.first_name[0] }}
+                </div>
+                }
+                <div class="modal-patient-details">
+                    <h3>{{ selectedAppointment.patient.person.first_name }} {{
+                        selectedAppointment.patient.person.last_name.split(' ')[0] }}</h3>
+                    <p>{{ getPatientAge(selectedAppointment.patient.person.birth_date) }} años •
+                        {{ getGenderText(selectedAppointment.patient.person.gender) }}</p>
+                </div>
+            </div>
+
+            <div class="modal-appointment-info">
+                <div class="info-item">
+                    <span class="info-label">Motivo de consulta:</span>
+                    <span class="info-value">{{ selectedAppointment.reason }}</span>
+                </div>
+            </div>
+
+            <form [formGroup]="treatmentForm">
+                <div class="form-group">
+                    <label for="treatment">Tratamiento:</label>
+                    <textarea id="treatment" rows="4" placeholder="Describe el tratamiento para el paciente..."
+                        formControlName="treatmentText"></textarea>
+
+                    @if (treatmentForm.get('treatmentText')?.invalid && treatmentForm.get('treatmentText')?.touched) {
+                    <div class="error-message">
+                        El tratamiento es requerido y debe tener al menos 10 caracteres
+                    </div>
+                    }
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" type="button" [disabled]="isSavingTreatment"
+                        (click)="closeTreatmentModal()">
+                        <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                        Cancelar
+                    </button>
+                    <button class="btn-primary" type="button" [disabled]="isSavingTreatment"
+                        (click)="completeAppointment()">
+                        @if (isSavingTreatment) {
+                        <div class="button-spinner"></div>
+                        <span>Guardando...</span>
+                        } @else {
+                        <i-lucide [name]="CheckCircle2" class="btn-icon"></i-lucide>
+                        <span>Guardar</span>
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+
+    <!-- Modal de Cancelación -->
+    @if (showCancelModal && selectedAppointment) {
+    <div class="modal">
+        <div class="modal-overlay" (click)="closeCancelModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close-btn" (click)="closeCancelModal()">
+                <i-lucide [name]="X"></i-lucide>
+            </button>
+
+            <h2>Cancelar Cita</h2>
+
+            <div class="modal-patient-info">
+                @if (selectedAppointment.patient.person.photo) {
+                <div class="modal-patient-photo">
+                    <img [src]="selectedAppointment.patient.person.photo | safeImage" alt="Foto paciente">
+                </div>
+                } @else {
+                <div class="modal-patient-avatar">
+                    {{ selectedAppointment.patient.person.first_name[0] }}
+                </div>
+                }
+                <div class="modal-patient-details">
+                    <h3>{{ selectedAppointment.patient.person.first_name }} {{
+                        selectedAppointment.patient.person.last_name.split(' ')[0] }}</h3>
+                    <p>{{ getPatientAge(selectedAppointment.patient.person.birth_date) }} años •
+                        {{ getGenderText(selectedAppointment.patient.person.gender) }}</p>
+                </div>
+            </div>
+
+            <form [formGroup]="cancelForm">
+                <div class="form-group">
+                    <label for="reason">Motivo de cancelación:</label>
+                    <textarea id="reason" rows="3" placeholder="Indica el motivo de la cancelación..."
+                        formControlName="reason"></textarea>
+
+                    @if (cancelForm.get('reason')?.invalid && cancelForm.get('reason')?.touched) {
+                    <div class="error-message">
+                        El motivo es requerido y debe tener al menos 10 caracteres
+                    </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="apology">Mensaje para el paciente:</label>
+                    <textarea id="apology" rows="3" placeholder="Escribe un mensaje de disculpa para el paciente..."
+                        formControlName="apology"></textarea>
+
+                    @if (cancelForm.get('apology')?.invalid && cancelForm.get('apology')?.touched) {
+                    <div class="error-message">
+                        El mensaje es requerido y debe tener al menos 10 caracteres
+                    </div>
+                    }
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" type="button" [disabled]="isCancelingAppointment"
+                        (click)="closeCancelModal()">
+                        <i-lucide [name]="X" class="btn-icon"></i-lucide>
+                        Volver
+                    </button>
+                    <button class="btn-danger" type="button" [disabled]="isCancelingAppointment"
+                        (click)="cancelAppointment()">
+                        @if (isCancelingAppointment) {
+                        <div class="button-spinner"></div>
+                        <span>Cancelando...</span>
+                        } @else {
+                        <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                        <span>Confirmar Cancelación</span>
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

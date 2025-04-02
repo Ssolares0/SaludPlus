@@ -4,26 +4,51 @@
         <div class="header-actions">
             <div class="search-box">
                 <i-lucide [name]="Search" class="search-icon"></i-lucide>
-                <input type="text" placeholder="Buscar por nombre o especialidad..." class="search-input">
+                <input type="text" [(ngModel)]="searchTerm" (input)="filterDoctors()"
+                    placeholder="Buscar por nombre o especialidad..." class="search-input">
             </div>
             <div class="filter-box">
-                <select class="filter-select">
+                <select [(ngModel)]="selectedSpecialty" (change)="filterDoctors()" class="filter-select">
                     <option value="all">Todas las especialidades</option>
-                    <option value="cardiology">Cardiología</option>
-                    <option value="dermatology">Dermatología</option>
-                    <option value="pediatrics">Pediatría</option>
+                    @for (specialty of getUniqueSpecialties(); track specialty) {
+                    <option [value]="specialty">{{ specialty }}</option>
+                    }
                 </select>
             </div>
         </div>
     </div>
 
+    @if (loading) {
+    <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Cargando médicos...</p>
+    </div>
+    } @else if (error) {
+    <div class="error-state">
+        <i-lucide [name]="UserX" class="error-icon"></i-lucide>
+        <p>{{ error }}</p>
+    </div>
+    } @else if (filteredDoctors.length === 0) {
+    <div class="empty-state">
+        <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+        <p>No se encontraron médicos</p>
+    </div>
+    } @else {
     <div class="doctors-grid">
-        <div class="doctor-card" *ngFor="let i of [1,2,3,4,5,6]">
+        @for (doctor of getCurrentPageItems(); track doctor.id) {
+        <div class="doctor-card">
             <div class="doctor-header">
-                <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop"
-                    alt="Foto del médico" class="doctor-avatar">
+                @if (doctor.photo) {
+                <img [src]="doctor.photo | safeImage" [alt]="doctor.firstame" class="doctor-avatar">
+                } @else {
+                <div class="doctor-avatar default-avatar">
+                    {{ getInitials(doctor.firstame, doctor.lastName) }}
+                </div>
+                }
                 <div class="doctor-badges">
-                    <span class="specialty-badge">Cardiología</span>
+                    @for (spec of doctor.specialty; track spec.id) {
+                    <span class="specialty-badge">{{ spec.specialty.name }}</span>
+                    }
                     <span class="status-badge active">
                         <i-lucide [name]="Circle" class="icon" [size]="10"></i-lucide>
                         Activo
@@ -32,78 +57,99 @@
             </div>
 
             <div class="doctor-info">
-                <h3>Dr. Carlos Ramírez</h3>
-                <p class="doctor-email">{{ 'carlos.ramirez&#64;email.com' }}</p>
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <i-lucide [name]="Users" class="stat-icon"></i-lucide>
-                        <div class="stat-text">
-                            <span class="stat-value">1,234</span>
-                            <span class="stat-label">Pacientes</span>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <i-lucide [name]="Calendar" class="stat-icon"></i-lucide>
-                        <div class="stat-text">
-                            <span class="stat-value">156</span>
-                            <span class="stat-label">Citas</span>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <i-lucide [name]="Star" class="stat-icon"></i-lucide>
-                        <div class="stat-text">
-                            <span class="stat-value">4.8</span>
-                            <span class="stat-label">Rating</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <h3>Dr. {{ doctor.firstame }} {{ doctor.lastName }}</h3>
 
-            <div class="doctor-contact">
-                <div class="contact-item">
-                    <i-lucide [name]="Phone" class="contact-icon"></i-lucide>
-                    <span>+502 5555 7890</span>
-                </div>
-                <div class="contact-item">
-                    <i-lucide [name]="Building" class="contact-icon"></i-lucide>
-                    <span>Hospital Central - Departamento de Cardiología</span>
-                </div>
-                <div class="contact-item">
-                    <i-lucide [name]="FileText" class="contact-icon"></i-lucide>
-                    <span>Colegiado: MED-12345</span>
+                <div class="info-list">
+                    <div class="info-item">
+                        <i-lucide [name]="CreditCard" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">DPI</span>
+                            <span class="info-value">{{ doctor.dpi }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Calendar" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Fecha de Nacimiento</span>
+                            <span class="info-value">{{ formatDate(doctor.birht_date) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="User2" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Género</span>
+                            <span class="info-value gender-badge" [ngClass]="getGenderClass(doctor.gender)">
+                                {{ getGenderText(doctor.gender) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="FileText" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Colegiado</span>
+                            <span class="info-value">{{ doctor.number_col }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Phone" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value">{{ doctor.phone }}</span>
+                        </div>
+                    </div>
+
+                    @for (dept of doctor.department; track dept.id) {
+                    <div class="info-item">
+                        <i-lucide [name]="Building" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Departamento - Ubicación</span>
+                            <span class="info-value">{{ dept.department.name }} - {{ dept.department.location }}</span>
+                        </div>
+                    </div>
+                    }
                 </div>
             </div>
 
             <div class="doctor-actions">
-                <button class="btn-action">
-                    <i-lucide [name]="User" class="btn-icon"></i-lucide>
-                    Ver perfil
-                </button>
-                <button class="btn-action secondary">
-                    <i-lucide [name]="Edit" class="btn-icon"></i-lucide>
-                    Editar
-                </button>
-                <button class="btn-action delete">
+                @if (isProcessingDoctor(doctor.id)) {
+                <div class="processing-action">
+                    <div class="loading-spinner-small"></div>
+                    <span>Procesando...</span>
+                </div>
+                } @else {
+                <button class="btn-action delete" (click)="confirmDeactivateDoctor(doctor)">
                     <i-lucide [name]="UserX" class="btn-icon"></i-lucide>
                     Dar de baja
                 </button>
+                }
             </div>
         </div>
+        }
     </div>
 
     <div class="pagination">
-        <button class="pagination-btn">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
             <i-lucide [name]="ChevronLeft" class="btn-icon"></i-lucide>
         </button>
         <div class="pagination-numbers">
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-number">3</button>
-            <span>...</span>
-            <button class="page-number">8</button>
+            @for (page of getPageNumbers(); track page) {
+            <button class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+                {{ page }}
+            </button>
+            }
         </div>
-        <button class="pagination-btn">
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
             <i-lucide [name]="ChevronRight" class="btn-icon"></i-lucide>
         </button>
     </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
 </div>

@@ -64,7 +64,7 @@ export class AuthService {
           })
         );
 
-        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
         person.photo = photoUrl;
       }
       // 1. Crear Persona
@@ -120,44 +120,44 @@ export class AuthService {
       gender: string; //1 hombre, 0 mujer
       phone: string;
       address: string;
-      role_id: number;  
-  },
-  file?: Express.Multer.File
-  ){
+      role_id: number;
+    },
+    file?: Express.Multer.File
+  ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    try{
-      if(adminData.password === adminData.seconf_password){
+    try {
+      if (adminData.password === adminData.seconf_password) {
         throw new Error("Las constrasenas no pueden ser iguales");
       }
       const person = new Person();
-    // subi foto si tiene
-    if (file){
+      // subi foto si tiene
+      if (file) {
         const filename = `${uuidv4()}_${file.originalname}`;
         const s3Client = new S3Client({
-            region: process.env.AWS_REGION,
-            credentials: {
+          region: process.env.AWS_REGION,
+          credentials: {
             accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-            },
+          },
         });
 
         await s3Client.send(
-            new PutObjectCommand({
-              Bucket: process.env.S3_BUCKET!,
-              Key: `fotos/${filename}`,
-              Body: file.buffer,
-              ContentType: file.mimetype,
-            })
+          new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET!,
+            Key: `fotos/${filename}`,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          })
         );
 
-        const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
         person.photo = photoUrl;
-    }
+      }
       // 1. Crear Persona
-      
+
       person.first_name = adminData.firstName;
       person.last_name = adminData.lastName;
       person.national_id = adminData.dpi;
@@ -170,14 +170,14 @@ export class AuthService {
 
       // 2. Crear Usuario (con contraseña encriptada)
       const user = new User();
-      user.name = adminData.firstName+adminData.lastName;
+      user.name = adminData.firstName + adminData.lastName;
       user.email = adminData.email;
       user.password = await hashPassword(adminData.password);
       user.remember_token = await hashPassword(adminData.seconf_password);
       user.email_verified_at = new Date();
       user.person = person;
-      const role = await AppDataSource.manager.findOne(Role, {where: {id: adminData.role_id},});
-      if (!role){
+      const role = await AppDataSource.manager.findOne(Role, { where: { id: adminData.role_id }, });
+      if (!role) {
         throw new Error('Rol no encontrado');
       }
       user.role = role;
@@ -185,15 +185,15 @@ export class AuthService {
 
       await queryRunner.commitTransaction();
       return { success: true, userId: user.id };
-    } catch (error:any){
+    } catch (error: any) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
       await queryRunner.release();
     }
-    
+
   }
-  
+
   async registerDoctor(
     doctorData: {
       firstName: string;
@@ -209,7 +209,7 @@ export class AuthService {
       employee_number: string;
       id_specialty: number;
       name_department: string;
-      direccion_department: string;
+      direccion_departamento: string;
     },
     file: Express.Multer.File
   ) {
@@ -238,7 +238,7 @@ export class AuthService {
         })
       );
 
-      const photoUrl = `https://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
 
       //Crear Persona
       const person = new Person();
@@ -290,14 +290,14 @@ export class AuthService {
       //Crear departmento (direccion de la clinica)
       const department = new Department();
       department.name = doctorData.name_department;
-      department.location = doctorData.direccion_department;
+      department.location = doctorData.direccion_departamento;
       await queryRunner.manager.save(department);
 
       //Crear Relacion doctor con departamentos
       const employeeDeparment = new EmployeeDepartmetn();
       employeeDeparment.department = department;
       employeeDeparment.employee = employee;
-      await queryRunner.manager.save(department);
+      await queryRunner.manager.save(employeeDeparment);
 
       await queryRunner.commitTransaction();
       return { success: true, userId: user.id };
@@ -307,7 +307,7 @@ export class AuthService {
     } finally {
       await queryRunner.release();
     }
-  
+
   }
 
   async login(userData: { email: string; password: string }) {
@@ -315,6 +315,7 @@ export class AuthService {
       where: { email: userData.email },
       relations: ['person', 'role']
     });
+
 
     if (!user) {
       throw new Error('Usuario no encontrado');
@@ -334,8 +335,36 @@ export class AuthService {
       return { token, requiresAuth2: true };
     }
 
+    let patientId = null;
+    let doctorId = null;
 
-    return { success: true, message: "Usuario logeado satisfactoriamente!", role: user.role };
+    if (user.role.name === 'paciente') {
+      const patient = await AppDataSource.manager.findOne(Patient, {
+        where: { person: { id: user.person.id } },
+      });
+      if (patient) {
+        patientId = patient.id;
+      }
+    } else if (user.role.name === 'doctor') {
+      const employee = await AppDataSource.manager.findOne(Employee, {
+        where: { person: { id: user.person.id } },
+      });
+      if (employee) {
+        doctorId = employee.id;
+      }
+    }
+
+    return {
+      success: true,
+      message: "Usuario logeado satisfactoriamente!",
+      role: user.role.name,
+      userId: user.id,
+      peopleId: user.person.id,
+      token,
+      patientId,
+      doctorId
+  
+    };
 
   }
   async approvedUser(userId: number) {

@@ -4,9 +4,10 @@ import { connectPg } from './database/Postgres';
 import { authRouter } from '../routers/auth.routes';
 import { employeeRouter } from '../routers/employee.routes';
 import { patientRouter } from '../routers/patient.routes';
+import { adminRouter } from '../routers/admin.routes';
 
 const PORT = 3001;
-const app = express();
+export const app = express();
 
 app.use(
     cors({
@@ -32,6 +33,7 @@ res.status(200).json({ version: '1.0.0' });
 app.use('/auth', authRouter);
 app.use('/employee', employeeRouter);
 app.use('/patient', patientRouter);
+app.use('/admin', adminRouter);
   
 
 app.listen(PORT, () => {

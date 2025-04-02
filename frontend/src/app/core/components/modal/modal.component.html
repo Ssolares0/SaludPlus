@@ -8,9 +8,20 @@
         <div class="modal-message">
             {{ message }}
         </div>
-        <button class="modal-button" (click)="closeModal()">
-            Aceptar
-        </button>
+        <div class="modal-buttons">
+            @if (showConfirmButton) {
+            <button class="modal-button cancel-button" (click)="closeModal()">
+                {{ cancelButtonText }}
+            </button>
+            <button class="modal-button confirm-button" (click)="confirmAction()">
+                {{ confirmButtonText }}
+            </button>
+            } @else {
+            <button class="modal-button" (click)="closeModal()">
+                {{ confirmButtonText }}
+            </button>
+            }
+        </div>
     </div>
 </div>
 }

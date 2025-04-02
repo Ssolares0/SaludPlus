@@ -19,7 +19,7 @@ i-lucide {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     flex-wrap: wrap;
     gap: 1rem;
 }
@@ -54,6 +54,9 @@ i-lucide {
     color: var(--gris);
     width: 1.25rem;
     height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-input {
@@ -72,18 +75,45 @@ i-lucide {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
-.filter-select {
+/* Filter Form Styles */
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--blanco);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+.filter-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--negro-suave);
+    margin-bottom: 0.5rem;
+}
+
+.filter-select,
+.filter-date {
+    width: 100%;
     padding: 0.75rem 1rem;
     border: 2px solid var(--strokes);
     border-radius: 0.75rem;
     font-size: 0.875rem;
-    min-width: 200px;
     background-color: var(--blanco);
-    cursor: pointer;
+    color: var(--negro-suave);
     transition: all 0.3s ease;
 }
 
-.filter-select:focus {
+.filter-select:focus,
+.filter-date:focus {
     border-color: var(--azl-serenidad-400);
     outline: none;
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
@@ -116,17 +146,17 @@ i-lucide {
     font-size: 1.5rem;
 }
 
-.stat-icon.attended {
+.stat-icon.completed {
     background-color: var(--azl-serenidad-100);
     color: var(--azl-serenidad-500);
 }
 
-.stat-icon.cancelled-doctor {
+.stat-icon.canceled {
     background-color: #FEE2E2;
     color: #DC2626;
 }
 
-.stat-icon.cancelled-patient {
+.stat-icon.scheduled {
     background-color: var(--arena-suave-100);
     color: var(--arena-suave-500);
 }
@@ -147,6 +177,25 @@ i-lucide {
     font-size: 0.875rem;
     color: var(--gris);
     margin-top: 0.25rem;
+}
+
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    color: #DC2626;
+    margin-bottom: 2rem;
+}
+
+.error-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 1rem;
 }
 
 .no-results {
@@ -170,6 +219,12 @@ i-lucide {
     border-radius: 1rem;
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.history-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .appointment-header {
@@ -198,6 +253,21 @@ i-lucide {
     font-size: 1.25rem;
 }
 
+.patient-photo {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: var(--marfil-ligero-200);
+}
+
+.patient-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .patient-details {
     display: flex;
     flex-direction: column;
@@ -210,25 +280,32 @@ i-lucide {
     color: var(--negro-suave);
 }
 
+.patient-metadata {
+    font-size: 0.875rem;
+    color: var(--gris);
+    margin-bottom: 0.25rem;
+}
+
 .status-badge {
     display: inline-block;
     padding: 0.375rem 0.75rem;
     border-radius: 2rem;
     font-size: 0.75rem;
     font-weight: 500;
+    align-self: flex-start;
 }
 
-.status-attended {
+.status-completed {
     background-color: var(--azl-serenidad-100);
     color: var(--azl-serenidad-500);
 }
 
-.status-cancelled-doctor {
+.status-canceled {
     background-color: #FEE2E2;
     color: #DC2626;
 }
 
-.status-cancelled-patient {
+.status-scheduled {
     background-color: var(--arena-suave-100);
     color: var(--arena-suave-500);
 }
@@ -257,26 +334,72 @@ i-lucide {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding-top: 1rem;
+    padding: 1.25rem 0;
     border-top: 1px solid var(--strokes);
+    border-bottom: 1px solid var(--strokes);
+    margin-bottom: 1.25rem;
 }
 
 .detail-item {
     display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.detail-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--azl-serenidad-400);
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+}
+
+.detail-content {
+    display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    flex-grow: 1;
 }
 
 .detail-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    color: var(--negro-suave);
+    color: var(--gris);
+    margin-bottom: 0.125rem;
 }
 
 .detail-value {
     font-size: 0.875rem;
+    color: var(--negro-suave);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
+.patient-contact {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.75rem;
+    background-color: var(--marfil-ligero-100);
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.contact-label {
+    font-size: 0.75rem;
     color: var(--gris);
-    line-height: 1.5;
+    font-weight: 500;
+}
+
+.contact-value {
+    font-size: 0.8125rem;
+    color: var(--negro-suave);
+    word-break: break-word;
 }
 
 .loading-container {
@@ -305,6 +428,7 @@ i-lucide {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -363,6 +487,7 @@ i-lucide {
     align-items: center;
     justify-content: center;
     border: none;
+    border-radius: 0.5rem;
 }
 
 .pagination-btn:not(:disabled):hover {
@@ -394,6 +519,7 @@ i-lucide {
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
+    border-radius: 0.5rem;
 }
 
 .pagination-num-btn:not(.pagination-active):hover {
@@ -421,9 +547,12 @@ i-lucide {
         width: 100%;
     }
 
-    .search-input,
-    .filter-select {
+    .search-input {
         width: 100%;
+    }
+
+    .filter-form {
+        flex-direction: column;
     }
 
     .history-grid {

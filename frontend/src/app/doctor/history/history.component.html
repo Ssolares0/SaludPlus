@@ -8,45 +8,57 @@
             <div class="search-box">
                 <i-lucide [name]="Search" class="search-icon"></i-lucide>
                 <input type="text" placeholder="Buscar por nombre de paciente o motivo..." class="search-input"
-                    [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)">
-            </div>
-            <div class="filter-box">
-                <select class="filter-select" [ngModel]="selectedFilter" (ngModelChange)="onFilterChange($event)">
-                    <option value="all">Todos los estados</option>
-                    <option value="attended">Atendidos</option>
-                    <option value="cancelled_doctor">Cancelados por médico</option>
-                    <option value="cancelled_patient">Cancelados por paciente</option>
-                </select>
+                    [formControl]="searchControl">
             </div>
         </div>
     </div>
 
+    <form [formGroup]="filterForm" class="filter-form">
+        <div class="filter-group">
+            <label for="status" class="filter-label">Estado</label>
+            <select id="status" formControlName="status" class="filter-select">
+                <option value="all">Todos los estados</option>
+                <option value="completed">Atendidos</option>
+                <option value="canceled">Cancelados</option>
+                <option value="scheduled">Programados</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="startDate" class="filter-label">Desde</label>
+            <input type="date" id="startDate" formControlName="startDate" class="filter-date">
+        </div>
+        <div class="filter-group">
+            <label for="endDate" class="filter-label">Hasta</label>
+            <input type="date" id="endDate" formControlName="endDate" class="filter-date">
+        </div>
+    </form>
+
     <div class="history-stats">
         <div class="stat-card">
-            <div class="stat-icon attended">
+            <div class="stat-icon completed">
                 <i-lucide [name]="CheckCircle2"></i-lucide>
             </div>
             <div class="stat-info">
-                <span class="stat-value">{{getAttendedCount()}}</span>
+                <span class="stat-value">{{getCompletedCount()}}</span>
                 <span class="stat-label">Atendidos</span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon cancelled-doctor">
+            <div class="stat-icon canceled">
                 <i-lucide [name]="XCircle"></i-lucide>
             </div>
             <div class="stat-info">
-                <span class="stat-value">{{getCancelledByDoctorCount()}}</span>
-                <span class="stat-label">Cancelados por médico</span>
+                <span class="stat-value">{{getCanceledCount()}}</span>
+                <span class="stat-label">Cancelados</span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon cancelled-patient">
+            <div class="stat-icon scheduled">
                 <i-lucide [name]="UserX"></i-lucide>
             </div>
             <div class="stat-info">
-                <span class="stat-value">{{getCancelledByPatientCount()}}</span>
-                <span class="stat-label">Cancelados por paciente</span>
+                <span class="stat-value">{{getScheduledCount()}}</span>
+                <span class="stat-label">Programados</span>
             </div>
         </div>
     </div>
@@ -58,7 +70,14 @@
     </div>
     }
 
-    @if (!isLoading && filteredAppointments.length === 0) {
+    @if (error) {
+    <div class="error-state">
+        <i-lucide [name]="AlertCircle" class="error-icon"></i-lucide>
+        <p>{{ error }}</p>
+    </div>
+    }
+
+    @if (!isLoading && !error && filteredAppointments.length === 0) {
     <div class="no-results">
         <div class="empty-state">
             <i-lucide [name]="ClipboardList" class="empty-icon"></i-lucide>
@@ -68,17 +87,27 @@
     </div>
     }
 
-    @if (!isLoading && filteredAppointments.length > 0) {
+    @if (!isLoading && !error && filteredAppointments.length > 0) {
     <div class="history-grid">
-        @for (appointment of filteredAppointments; track trackByAppointmentId(0, appointment)) {
+        @for (appointment of paginatedAppointments; track trackByAppointmentId(0, appointment)) {
         <div class="history-card">
             <div class="appointment-header">
                 <div class="patient-info">
-                    <div class="patient-avatar">
-                        {{appointment.patientName[0]}}
+                    @if (appointment.patient.person.photo) {
+                    <div class="patient-photo">
+                        <img [src]="appointment.patient.person.photo | safeImage" alt="Foto de paciente">
                     </div>
+                    } @else {
+                    <div class="patient-avatar">
+                        {{appointment.patient.person.first_name[0]}}
+                    </div>
+                    }
                     <div class="patient-details">
-                        <h3>{{appointment.patientName}}</h3>
+                        <h3>{{appointment.patient.person.first_name}} {{appointment.patient.person.last_name}}</h3>
+                        <p class="patient-metadata">
+                            {{ getPatientAge(appointment.patient.person.birth_date) }} años •
+                            {{ getGenderText(appointment.patient.person.gender) }}
+                        </p>
                         <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
                             {{getStatusText(appointment.status)}}
                         </span>
@@ -87,48 +116,65 @@
                 <div class="appointment-date">
                     <div class="date-item">
                         <i-lucide [name]="Calendar" class="date-icon"></i-lucide>
-                        <span>{{formatDate(appointment.date)}}</span>
+                        <span>{{formatDate(appointment.appointment_date)}}</span>
                     </div>
                     <div class="date-item">
                         <i-lucide [name]="Clock" class="date-icon"></i-lucide>
-                        <span>{{appointment.time}}</span>
+                        <span>{{formatTime(appointment.appointment_date)}}</span>
                     </div>
                 </div>
             </div>
 
             <div class="appointment-details">
                 <div class="detail-item">
-                    <span class="detail-label">Motivo de la consulta:</span>
-                    <span class="detail-value">{{appointment.reason}}</span>
+                    <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
+                    <div class="detail-content">
+                        <span class="detail-label">Motivo de la consulta:</span>
+                        <span class="detail-value">{{appointment.reason}}</span>
+                    </div>
                 </div>
-
-                @if (appointment.symptoms) {
-                <div class="detail-item">
-                    <span class="detail-label">Síntomas:</span>
-                    <span class="detail-value">{{appointment.symptoms}}</span>
-                </div>
-                }
 
                 @if (appointment.treatment) {
                 <div class="detail-item">
-                    <span class="detail-label">Tratamiento:</span>
-                    <span class="detail-value">{{appointment.treatment}}</span>
+                    <i-lucide [name]="CheckCircle2" class="detail-icon"></i-lucide>
+                    <div class="detail-content">
+                        <span class="detail-label">Tratamiento:</span>
+                        <span class="detail-value">{{appointment.treatment}}</span>
+                    </div>
                 </div>
                 }
 
-                @if (appointment.cancellationReason) {
+                @if (appointment.cancellation_reason) {
                 <div class="detail-item">
-                    <span class="detail-label">Motivo de cancelación:</span>
-                    <span class="detail-value">{{appointment.cancellationReason}}</span>
+                    <i-lucide [name]="XCircle" class="detail-icon"></i-lucide>
+                    <div class="detail-content">
+                        <span class="detail-label">Motivo de cancelación:</span>
+                        <span class="detail-value">{{appointment.cancellation_reason}}</span>
+                    </div>
                 </div>
                 }
+            </div>
+
+            <div class="patient-contact">
+                <div class="contact-item">
+                    <span class="contact-label">Teléfono:</span>
+                    <span class="contact-value">{{ appointment.patient.person.phone }}</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">DPI:</span>
+                    <span class="contact-value">{{ appointment.patient.person.national_id }}</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-label">Email:</span>
+                    <span class="contact-value">{{ appointment.patient.person.email }}</span>
+                </div>
             </div>
         </div>
         }
     </div>
     }
 
-    @if (!isLoading && totalPages > 1) {
+    @if (!isLoading && !error && totalPages > 1) {
     <div class="pagination-controls">
         <button class="pagination-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
             Anterior

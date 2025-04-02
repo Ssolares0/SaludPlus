@@ -1,27 +1,16 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Calendar, Clock, CheckCircle2, XCircle, UserX, ClipboardList } from 'lucide-angular';
-import { BehaviorSubject, debounceTime, distinctUntilChanged } from 'rxjs';
-
-interface Appointment {
-  id: number;
-  date: string;
-  time: string;
-  patientName: string;
-  patientAge: number;
-  patientGender: string;
-  reason: string;
-  symptoms: string;
-  status: 'attended' | 'cancelled_doctor' | 'cancelled_patient';
-  treatment?: string;
-  cancellationReason?: string;
-}
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { LucideAngularModule, Search, Calendar, Clock, CheckCircle2, XCircle, UserX, ClipboardList, FileText, AlertCircle } from 'lucide-angular';
+import { BehaviorSubject, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
+import { DoctorService } from '../services/doctor.service';
+import { SafeImagePipe } from '../../core/pipes/safe-image.pipe';
+import { AppointmentHistoryResponse } from '../models/doctor.model';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, SafeImagePipe],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -30,188 +19,187 @@ export class HistoryComponent implements OnInit {
   private searchSubject = new BehaviorSubject<string>('');
   private filterSubject = new BehaviorSubject<string>('all');
 
-  searchTerm: string = '';
-  selectedFilter: string = 'all';
+  searchControl = new FormControl('');
+  filterForm: FormGroup;
+
   currentPage: number = 1;
   itemsPerPage: number = 6;
   totalItems: number = 0;
   isLoading: boolean = true;
+  error: string | null = null;
 
-  private cachedStats = {
-    attended: 0,
-    cancelled_doctor: 0,
-    cancelled_patient: 0
+  stats = {
+    completed: 0,
+    canceled: 0,
+    scheduled: 0
   };
 
-  appointments: Appointment[] = [
-    {
-      id: 1,
-      date: '2024-03-15',
-      time: '09:00',
-      patientName: 'Juan Pérez',
-      patientAge: 45,
-      patientGender: 'Masculino',
-      reason: 'Consulta general',
-      symptoms: 'Dolor de cabeza y mareos frecuentes',
-      status: 'attended',
-      treatment: 'Reposo y medicamentos antiinflamatorios. Se receta paracetamol 500mg cada 8 horas por 5 días y abundante hidratación.'
-    },
-    {
-      id: 2,
-      date: '2024-03-14',
-      time: '10:30',
-      patientName: 'María García',
-      patientAge: 35,
-      patientGender: 'Femenino',
-      reason: 'Control mensual',
-      symptoms: 'Seguimiento de tratamiento',
-      status: 'cancelled_doctor',
-      cancellationReason: 'Emergencia médica'
-    },
-    {
-      id: 3,
-      date: '2024-03-13',
-      time: '15:00',
-      patientName: 'Carlos López',
-      patientAge: 52,
-      patientGender: 'Masculino',
-      reason: 'Dolor de espalda',
-      symptoms: 'Dolor lumbar agudo',
-      status: 'cancelled_patient'
-    },
-    {
-      id: 4,
-      date: '2024-03-12',
-      time: '11:00',
-      patientName: 'Ana Torres',
-      patientAge: 28,
-      patientGender: 'Femenino',
-      reason: 'Consulta de rutina',
-      symptoms: 'Chequeo general',
-      status: 'attended',
-      treatment: 'Todo en orden, se recomienda chequeo anual.'
-    },
-    {
-      id: 5,
-      date: '2024-03-11',
-      time: '14:00',
-      patientName: 'Luis Martínez',
-      patientAge: 60,
-      patientGender: 'Masculino',
-      reason: 'Consulta por alergias',
-      symptoms: 'Estornudos y picazón en los ojos',
-      status: 'attended'
-    },
-    {
-      id: 6,
-      date: '2024-03-10',
-      time: '16:30',
-      patientName: 'Laura Fernández',
-      patientAge: 40,
-      patientGender: 'Femenino',
-      reason: 'Control de diabetes',
-      symptoms: 'Control de glucosa y presión arterial',
-      status: 'attended'
-    },
-    {
-      id: 7,
-      date: '2024-03-09',
-      time: '09:30',
-      patientName: 'Javier Ramírez',
-      patientAge: 50,
-      patientGender: 'Masculino',
-      reason: 'Consulta por hipertensión',
-      symptoms: 'Dolor de cabeza y mareos frecuentes',
-      status: 'attended'
-    },
-    {
-      id: 8,
-      date: '2024-03-08',
-      time: '10:00',
-      patientName: 'Sofía Castro',
-      patientAge: 30,
-      patientGender: 'Femenino',
-      reason: 'Chequeo de rutina',
-      symptoms: 'Todo en orden, se recomienda chequeo anual.',
-      status: 'attended'
-    }
-  ];
+  appointments: AppointmentHistoryResponse[] = [];
+  filteredAppointments: AppointmentHistoryResponse[] = [];
 
-  private filteredAppointmentsCache: Appointment[] = [];
-
-  constructor(private cdr: ChangeDetectorRef) { }
+  constructor(
+    private doctorService: DoctorService,
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder
+  ) {
+    this.filterForm = this.fb.group({
+      status: ['all'],
+      startDate: [this.getOneMonthAgoDate()],
+      endDate: [this.getCurrentDate()]
+    });
+  }
 
   ngOnInit(): void {
     this.initializeSearchSubscription();
     this.initializeFilterSubscription();
-    this.calculateStats();
+    this.loadAppointments();
+  }
 
-    setTimeout(() => {
-      this.isLoading = false;
-      this.totalItems = this.appointments.length;
-      this.cdr.markForCheck();
-    }, 800);
+  private getOneMonthAgoDate(): string {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1);
+    return date.toISOString().split('T')[0];
+  }
+
+  private getCurrentDate(): string {
+    return new Date().toISOString().split('T')[0];
   }
 
   private initializeSearchSubscription(): void {
-    this.searchSubject.pipe(
+    this.searchControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged()
-    ).subscribe(() => {
+    ).subscribe(value => {
+      this.searchSubject.next(value || '');
       this.currentPage = 1;
-      this.updateFilteredAppointments();
+      this.filterAppointments();
+      this.cdr.markForCheck();
     });
   }
 
   private initializeFilterSubscription(): void {
-    this.filterSubject.pipe(
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
       distinctUntilChanged()
     ).subscribe(() => {
-      this.currentPage = 1;
-      this.updateFilteredAppointments();
+      this.loadAppointments();
     });
   }
 
-  onSearchChange(value: string): void {
-    this.searchTerm = value;
-    this.searchSubject.next(value);
+  loadAppointments(): void {
+    this.isLoading = true;
+    this.error = null;
+    this.cdr.markForCheck();
+
+    const doctorId = Number(localStorage.getItem('doctorId'));
+
+    if (!doctorId) {
+      this.error = 'No se pudo identificar al doctor.';
+      this.isLoading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const status = this.filterForm.get('status')?.value;
+    const startDate = this.filterForm.get('startDate')?.value;
+    const endDate = this.filterForm.get('endDate')?.value;
+
+    if (status === 'all') {
+      const completedRequest = this.doctorService.getAppointmentHistory(doctorId, {
+        status: 'completed',
+        startDate,
+        endDate
+      });
+
+      const canceledRequest = this.doctorService.getAppointmentHistory(doctorId, {
+        status: 'canceled',
+        startDate,
+        endDate
+      });
+
+      const scheduledRequest = this.doctorService.getAppointmentHistory(doctorId, {
+        status: 'scheduled',
+        startDate,
+        endDate
+      });
+
+      forkJoin([completedRequest, canceledRequest, scheduledRequest]).subscribe({
+        next: ([completed, canceled, scheduled]) => {
+          this.appointments = [...completed, ...canceled, ...scheduled];
+          this.stats = {
+            completed: completed.length,
+            canceled: canceled.length,
+            scheduled: scheduled.length
+          };
+
+          this.isLoading = false;
+          this.filterAppointments();
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          this.error = 'Error al cargar el historial de citas. Por favor, intente nuevamente.';
+          this.isLoading = false;
+          console.error('Error loading appointment history:', error);
+          this.cdr.markForCheck();
+        }
+      });
+    } else {
+      this.doctorService.getAppointmentHistory(doctorId, {
+        status,
+        startDate,
+        endDate
+      }).subscribe({
+        next: (appointments) => {
+          this.appointments = appointments;
+
+          this.stats = {
+            completed: status === 'completed' ? appointments.length : 0,
+            canceled: status === 'canceled' ? appointments.length : 0,
+            scheduled: status === 'scheduled' ? appointments.length : 0
+          };
+
+          this.isLoading = false;
+          this.filterAppointments();
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          this.error = 'Error al cargar el historial de citas. Por favor, intente nuevamente.';
+          this.isLoading = false;
+          console.error('Error loading appointment history:', error);
+          this.cdr.markForCheck();
+        }
+      });
+    }
   }
 
-  onFilterChange(value: string): void {
-    this.selectedFilter = value;
-    this.filterSubject.next(value);
-  }
+  filterAppointments(): void {
+    const searchTerm = this.searchSubject.getValue().toLowerCase();
+    const status = this.filterForm.get('status')?.value;
 
-  private calculateStats(): void {
-    this.cachedStats = {
-      attended: this.appointments.filter(a => a.status === 'attended').length,
-      cancelled_doctor: this.appointments.filter(a => a.status === 'cancelled_doctor').length,
-      cancelled_patient: this.appointments.filter(a => a.status === 'cancelled_patient').length
-    };
-  }
+    this.filteredAppointments = this.appointments.filter(appointment => {
+      const patientName = `${appointment.patient.person.first_name} ${appointment.patient.person.last_name}`.toLowerCase();
+      const reason = appointment.reason.toLowerCase();
 
-  private updateFilteredAppointments(): void {
-    this.filteredAppointmentsCache = this.appointments
-      .filter(app =>
-        app.patientName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        app.reason.toLowerCase().includes(this.searchTerm.toLowerCase())
-      )
-      .filter(app =>
-        this.selectedFilter === 'all' ||
-        app.status === this.selectedFilter
-      );
+      const matchesSearch = !searchTerm ||
+        patientName.includes(searchTerm) ||
+        reason.includes(searchTerm);
 
-    this.totalItems = this.filteredAppointmentsCache.length;
+      const matchesStatus = status === 'all' || appointment.status === status;
+
+      return matchesSearch && matchesStatus;
+    });
+
+    this.totalItems = this.filteredAppointments.length;
     this.cdr.markForCheck();
   }
 
-  get filteredAppointments(): Appointment[] {
+  get paginatedAppointments(): AppointmentHistoryResponse[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredAppointmentsCache.slice(startIndex, startIndex + this.itemsPerPage);
+    return this.filteredAppointments.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.totalItems / this.itemsPerPage);
+    return Math.ceil(this.filteredAppointments.length / this.itemsPerPage);
   }
 
   changePage(page: number): void {
@@ -221,32 +209,32 @@ export class HistoryComponent implements OnInit {
     }
   }
 
-  getAttendedCount(): number {
-    return this.cachedStats.attended;
+  getCompletedCount(): number {
+    return this.stats.completed;
   }
 
-  getCancelledByDoctorCount(): number {
-    return this.cachedStats.cancelled_doctor;
+  getCanceledCount(): number {
+    return this.stats.canceled;
   }
 
-  getCancelledByPatientCount(): number {
-    return this.cachedStats.cancelled_patient;
+  getScheduledCount(): number {
+    return this.stats.scheduled;
   }
 
   getStatusText(status: string): string {
     switch (status) {
-      case 'attended': return 'Atendido';
-      case 'cancelled_doctor': return 'Cancelado por médico';
-      case 'cancelled_patient': return 'Cancelado por paciente';
-      default: return '';
+      case 'completed': return 'Atendido';
+      case 'canceled': return 'Cancelado';
+      case 'scheduled': return 'Programado';
+      default: return status;
     }
   }
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'attended': return 'status-attended';
-      case 'cancelled_doctor': return 'status-cancelled-doctor';
-      case 'cancelled_patient': return 'status-cancelled-patient';
+      case 'completed': return 'status-completed';
+      case 'canceled': return 'status-canceled';
+      case 'scheduled': return 'status-scheduled';
       default: return '';
     }
   }
@@ -260,7 +248,42 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  trackByAppointmentId(index: number, appointment: Appointment): number {
+  formatTime(dateString: string): string {
+    const dateObj = new Date(dateString);
+    const hours = dateObj.getHours();
+    const minutes = dateObj.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  }
+
+  getPatientAge(birthDate: string): number {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return age;
+  }
+
+  getGenderText(gender: string): string {
+    switch (gender) {
+      case '1':
+        return 'Masculino';
+      case '2':
+        return 'Femenino';
+      default:
+        return 'Otro';
+    }
+  }
+
+  trackByAppointmentId(index: number, appointment: AppointmentHistoryResponse): number {
     return appointment.id;
   }
 
@@ -290,4 +313,6 @@ export class HistoryComponent implements OnInit {
   protected readonly XCircle = XCircle;
   protected readonly UserX = UserX;
   protected readonly ClipboardList = ClipboardList;
+  protected readonly FileText = FileText;
+  protected readonly AlertCircle = AlertCircle;
 }

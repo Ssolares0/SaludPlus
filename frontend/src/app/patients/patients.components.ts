@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PatientsService } from './patients.service';
 import { Doctor, TimeSlot, ScheduleResponse, DoctorSchedule } from './patients.models';
 
@@ -26,7 +27,10 @@ export class PatientsComponent implements OnInit {
     selectedDoctor: Doctor | null = null;
     doctorSchedule: DoctorSchedule | null = null;
 
-    constructor(private patientsService: PatientsService) { }
+    constructor(
+        private patientsService: PatientsService,
+        private router: Router
+    ) { }
 
     ngOnInit() {
         this.loadDoctors();
@@ -178,5 +182,10 @@ export class PatientsComponent implements OnInit {
             doctor.especialidad.forEach(esp => specialties.add(esp));
         });
         return Array.from(specialties);
+    }
+
+    logout() {
+        localStorage.clear();
+        this.router.navigate(['/']);
     }
 }

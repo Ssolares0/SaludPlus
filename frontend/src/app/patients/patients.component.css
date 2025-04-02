@@ -24,6 +24,7 @@
 .header-content {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
@@ -35,6 +36,7 @@
 .brand-name {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .brand-title {
@@ -46,6 +48,37 @@
 .brand-subtitle {
   font-size: 1.25rem;
   color: var(--azl-serenidad-400);
+}
+
+/* Logout Button Styles */
+.logout-container {
+  display: flex;
+  align-items: center;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--perla-cremosa-200);
+  color: var(--azl-serenidad-500);
+  border: 1px solid var(--azl-serenidad-300);
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: var(--azl-serenidad-100);
+  color: var(--azl-serenidad-500);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logout-icon {
+  font-size: 1.25rem;
 }
 
 /* Content Styles */
@@ -372,40 +405,54 @@ textarea.form-input {
 /* Responsive Design */
 @media (max-width: 1100px) {
   .doctors-grid {
-      grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .doctors-grid {
-      grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
   }
 
   .patient-dashboard {
-      padding: 1rem;
+    padding: 1rem;
   }
 
   .dashboard-container {
-      margin: 0;
-      border-radius: 0;
+    margin: 0;
+    border-radius: 0;
   }
 
   .time-slots-grid {
-      grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .button-group {
-      flex-direction: column;
+    flex-direction: column;
   }
 
   .modal-content {
-      padding: 1.5rem;
-      width: 95%;
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .header-content {
+    flex-direction: column;
+  }
+
+  .logout-container {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .logout-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @keyframes spin {
   to {
-      transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }

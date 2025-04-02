@@ -7,7 +7,7 @@ import { patientRouter } from '../routers/patient.routes';
 import { adminRouter } from '../routers/admin.routes';
 
 const PORT = 3001;
-const app = express();
+export const app = express();
 
 app.use(
     cors({

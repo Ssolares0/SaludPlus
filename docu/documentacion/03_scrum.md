@@ -1,0 +1,7 @@
+# 🌀 SCRUM
+
+## Sprints
+
+## Daily
+
+## Retrospectiva

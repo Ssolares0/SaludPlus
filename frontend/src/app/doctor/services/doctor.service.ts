@@ -1,4 +1,4 @@
-import { DataDoctorResponse, PendingAppointmentResponse, CancelAndCompleteAppointmentResponse, CancelAppointmentBody, AcceptAppointmentBody, AppointmentHistoryBody, AppointmentHistoryResponse, UpdateDoctorData } from "../models/doctor.model";
+import { DataDoctorResponse, PendingAppointmentResponse, CancelAndCompleteAppointmentResponse, CancelAppointmentBody, AcceptAppointmentBody, AppointmentHistoryBody, AppointmentHistoryResponse, UpdateDoctorData, SchedulesResponse, DoctorScheduleBody, DoctorScheduleResponse } from "../models/doctor.model";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
@@ -42,6 +42,20 @@ export class DoctorService {
 
     public getAppointmentHistory(id: number, body: AppointmentHistoryBody): Observable<AppointmentHistoryResponse[]> {
         return this.http.post<AppointmentHistoryResponse[]>(`${environment.apiUrl}/employee/history/appointments/${id}`, body)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public setDoctorSchedule(id: number, body: DoctorScheduleBody): Observable<DoctorScheduleResponse> {
+        return this.http.post<DoctorScheduleResponse>(`${environment.apiUrl}/employee/scheduled/${id}`, body)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getSchedules(id: number): Observable<SchedulesResponse[]> {
+        return this.http.get<SchedulesResponse[]>(`${environment.apiUrl}/employee/scheduled/${id}`)
             .pipe(
                 catchError(this.handleError)
             );

@@ -498,6 +498,91 @@ export const cancelAppointment = async (req: Request, res: Response) => {
     }
 };
 
+export const getAllPatientAppointments = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            res.status(400).json({
+                error: true,
+                message: 'El ID del paciente es requerido'
+            });
+            return;
+        }
+
+        // Obtener todas las citas del paciente sin filtrar por estado
+        const appointments = await AppDataSource.manager
+            .createQueryBuilder(Appointment, 'appointment')
+            .select([
+                'appointment.id as appointment_id',
+                'appointment.appointment_date as appointment_date',
+                'appointment.reason as reason',
+                'appointment.status as status',
+                'appointment.treatment as treatment',
+                'appointment.cancellation_reason as cancellation_reason',
+                'doctor.id as doctor_id',
+                'doctorPerson.first_name as doctorPerson_first_name',
+                'doctorPerson.last_name as doctorPerson_last_name',
+                'doctorPerson.photo as doctorPerson_photo',
+                'patient.id as patient_id',
+                'patientPerson.first_name as patientPerson_first_name',
+                'patientPerson.last_name as patientPerson_last_name'
+            ])
+            .leftJoinAndSelect('appointment.patient', 'patient')
+            .leftJoinAndSelect('appointment.doctor', 'doctor')
+            .leftJoinAndSelect('doctor.person', 'doctorPerson')
+            .leftJoinAndSelect('patient.person', 'patientPerson')
+            .where('appointment.patient_id = :id', { id })
+            .orderBy('appointment.appointment_date', 'DESC') // Las más recientes primero
+            .getRawMany();
+
+        if (appointments.length === 0) {
+            // No se encontraron citas, pero esto no es un error
+            res.status(200).json({
+                error: false,
+                message: 'El paciente no tiene citas registradas',
+                data: []
+            });
+            return;
+        }
+
+        // Formatear los datos para la respuesta
+        const appointmentData = appointments.map(app => ({
+            id: app.appointment_id,
+            fecha: app.appointment_date,
+            motivo: app.reason,
+            estado: app.status,
+            tratamiento: app.treatment,
+            motivo_cancelacion: app.cancellation_reason,
+            doctor: {
+                id: app.doctor_id,
+                nombre: app.doctorPerson_first_name,
+                apellido: app.doctorPerson_last_name,
+                foto: app.doctorPerson_photo
+            },
+            paciente: {
+                id: app.patient_id,
+                nombre: app.patientPerson_first_name,
+                apellido: app.patientPerson_last_name
+            }
+        }));
+
+        // Enviar la respuesta
+        res.status(200).json({
+            error: false,
+            data: appointmentData
+        });
+
+    } catch (error: any) {
+        console.error('Error al obtener las citas del paciente:', error);
+        res.status(500).json({
+            error: true,
+            message: 'Error al obtener las citas del paciente',
+            details: error.message
+        });
+    }
+};
+
 export const getAndUpdateProfile = async (req: Request, res: Response) => {
     try {
         const { id } = req.params; // ID del paciente

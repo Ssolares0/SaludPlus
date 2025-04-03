@@ -1,5 +1,6 @@
 import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion, AdminAuth2Response } from "../models/auth.models";
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -12,7 +13,7 @@ export class AuthService {
     constructor(private http: HttpClient) { }
 
     public Login(LoginBody: LoginBody): Observable<LoginResponseUnion> {
-        return this.http.post<LoginResponseUnion>('http://localhost:3001/auth/login', LoginBody)
+        return this.http.post<LoginResponseUnion>(`${environment.apiUrl}/auth/login`, LoginBody)
             .pipe(
                 catchError(this.handleError)
             );
@@ -32,7 +33,7 @@ export class AuthService {
         const formData = new FormData();
         formData.append('archivo', file, file.name);
 
-        return this.http.post<AdminAuth2Response>('http://localhost:3001/auth/admin/auth2', formData, {
+        return this.http.post<AdminAuth2Response>(`${environment.apiUrl}/auth/admin/auth2`, formData, {
             headers: headers
         }).pipe(
             catchError(this.handleError)
@@ -65,7 +66,7 @@ export class AuthService {
             formData.append('photo', patientData.photo, patientData.photo.name);
         }
 
-        return this.http.post<RegisterResponse>('http://localhost:3001/auth/register/patient', formData)
+        return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/patient`, formData)
             .pipe(
                 catchError(this.handleError)
             );
@@ -95,7 +96,7 @@ export class AuthService {
             formData.append('photo', doctorData.photo, doctorData.photo.name);
         }
 
-        return this.http.post<RegisterResponse>('http://localhost:3001/auth/register/doctor', formData)
+        return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/doctor`, formData)
             .pipe(
                 catchError(this.handleError)
             );

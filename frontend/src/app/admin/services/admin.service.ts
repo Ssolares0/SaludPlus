@@ -1,5 +1,6 @@
 import { PendingPatientsResponse, PendingDoctorsResponse, ActivePatientsResponse, ActiveDoctorsResponse, AcceptUserResponse, RejectUserResponse } from "../models/admin.models";
 import { HttpClient, HttpErrorResponse} from "@angular/common/http";
+import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -9,47 +10,46 @@ import { Observable } from "rxjs";
 })
 
 export class AdminService {
-    private readonly baseUrl = 'http://localhost:3001';
 
     constructor(private http: HttpClient) { }
 
     public getPendingPatients(): Observable<PendingPatientsResponse[]> {
-        return this.http.get<PendingPatientsResponse[]>(`${this.baseUrl}/admin/pending/patients`)
+        return this.http.get<PendingPatientsResponse[]>(`${environment.apiUrl}/admin/pending/patients`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public getPendingDoctors(): Observable<PendingDoctorsResponse[]> {
-        return this.http.get<PendingDoctorsResponse[]>(`${this.baseUrl}/admin/pending/doctors`)
+        return this.http.get<PendingDoctorsResponse[]>(`${environment.apiUrl}/admin/pending/doctors`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public getActivePatients(): Observable<ActivePatientsResponse[]> {
-        return this.http.get<ActivePatientsResponse[]>(`${this.baseUrl}/admin/active/patients`)
+        return this.http.get<ActivePatientsResponse[]>(`${environment.apiUrl}/admin/active/patients`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public getActiveDoctors(): Observable<ActiveDoctorsResponse[]> {
-        return this.http.get<ActiveDoctorsResponse[]>(`${this.baseUrl}/admin/active/doctors`)
+        return this.http.get<ActiveDoctorsResponse[]>(`${environment.apiUrl}/admin/active/doctors`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public acceptUser(id: number): Observable<AcceptUserResponse> {
-        return this.http.put<AcceptUserResponse>(`${this.baseUrl}/auth/admin/approved/${id}`, {})
+        return this.http.put<AcceptUserResponse>(`${environment.apiUrl}/auth/admin/approved/${id}`, {})
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public rejectUser(id: number): Observable<RejectUserResponse> {
-        return this.http.delete<RejectUserResponse>(`${this.baseUrl}/admin/delete/user`, {
+        return this.http.delete<RejectUserResponse>(`${environment.apiUrl}/admin/delete/user`, {
             body: { id }
         }).pipe(
             catchError(this.handleError)

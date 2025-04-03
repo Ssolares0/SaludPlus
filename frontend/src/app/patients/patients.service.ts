@@ -86,6 +86,17 @@ export class PatientsService {
             );
     }
 
+    public cancelAppointment(appointmentId: number): Observable<any> {
+        return this.http.delete<any>(`${this.apiUrl}/patient/cancel-appointment/${appointmentId}`)
+            .pipe(
+                map(response => {
+                    console.log('Respuesta del servidor al cancelar cita:', response);
+                    return response;
+                }),
+                catchError(this.handleError)
+            );
+    }
+
     private formatDateToString(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');

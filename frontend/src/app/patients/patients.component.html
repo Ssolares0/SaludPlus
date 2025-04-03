@@ -46,6 +46,11 @@
                             <p><strong>Fecha:</strong> {{ appointment.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
                             <p><strong>Motivo:</strong> {{ appointment.motivo }}</p>
                         </div>
+                        <div class="appointment-actions">
+                            <button class="cancel-button" (click)="confirmCancelAppointment(appointment)">
+                                Cancelar cita
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -200,6 +205,42 @@
                 </button>
                 <button type="button" class="secondary-button" (click)="closeScheduleView()">
                     Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para cancelar cita -->
+    <div class="modal-overlay" *ngIf="showCancelConfirmation" (click)="showCancelConfirmation = false">
+        <div class="modal-content confirm-modal" (click)="$event.stopPropagation()">
+            <h3 class="modal-title">Confirmar cancelación</h3>
+            <p class="confirm-message">
+                ¿Está seguro que desea cancelar esta cita con
+                <strong>Dr. {{ appointmentToCancel?.doctor?.nombre }} {{ appointmentToCancel?.doctor?.apellido
+                    }}</strong>
+                programada para el <strong>{{ appointmentToCancel?.fecha | date:'dd/MM/yyyy HH:mm' }}</strong>?
+            </p>
+
+            <div *ngIf="loading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Procesando...</p>
+            </div>
+
+            <div *ngIf="error" class="error-message">
+                {{ error }}
+            </div>
+
+            <div *ngIf="successMessage" class="success-message">
+                <div class="success-icon">✓</div>
+                <p>{{ successMessage }}</p>
+            </div>
+
+            <div class="button-group" *ngIf="!loading && !successMessage">
+                <button class="primary-button cancel-confirm" (click)="cancelAppointment()">
+                    Sí, cancelar cita
+                </button>
+                <button class="secondary-button" (click)="showCancelConfirmation = false">
+                    No, mantener cita
                 </button>
             </div>
         </div>

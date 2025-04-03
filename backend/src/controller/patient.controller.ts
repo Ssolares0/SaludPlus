@@ -16,58 +16,15 @@ import { EmployeeSpecialty } from '../models/EmployeeSpecialties.entity';
 
 export const doctorsAvailables = async (req: Request, res: Response) => {
     try {
-
-        /* const id = Number(req.params.id);
-
-        const appointments = await AppDataSource.getRepository(Appointment).find({
-            where: {
-                patient: { id: id },
-            },
-            relations: ['doctor'],
-        });
-
-
-        const bookedDoctorIds = appointments.map(app => app.doctor.id);
-
-        console.log("aqui ando")
-
-
+        // Consulta para obtener los doctores con role = 2 y approved = true
         const doctors = await AppDataSource.manager
-            .createQueryBuilder(Employee, 'employee')
-            .leftJoinAndSelect('employee.person', 'person')
+            .createQueryBuilder(User, 'user')
+            .leftJoinAndSelect('user.person', 'person')
+            .leftJoinAndSelect('person.employee', 'employee')
             .leftJoinAndSelect('employee.specialty', 'employeeSpecialty')
             .leftJoinAndSelect('employeeSpecialty.specialty', 'specialty')
             .leftJoinAndSelect('employee.department', 'employeeDepartment')
             .leftJoinAndSelect('employeeDepartment.department', 'department')
-            .where(qb => {
-                if (bookedDoctorIds.length > 0) {
-                    qb.where('employee.id NOT IN (:...bookedDoctorIds)', { bookedDoctorIds });
-                }
-            })
-            .getMany();
-
-        if (doctors.length === 0) {
-            res.status(400).send('No hay doctores disponibles');
-            return
-        }
-        // Formatear la respuesta
-        const availableDoctors = doctors.map(doctor => ({
-            id: doctor.id,
-            nombre: doctor.person.first_name,
-            apellido: doctor.person.last_name,
-            especialidad: doctor.specialty.map(es => es.specialty.name),
-            locacion: doctor.department.map(ed => ed.department.name)
-        }));
-
-
-
-        res.status(200).send(availableDoctors);
-        return
- */
-        // Consulta para obtener los doctores con role = 2 y approved = true
-        const doctors = await AppDataSource.manager
-            .createQueryBuilder(User, 'user')
-            .leftJoinAndSelect('user.person', 'person') // Relación con la tabla 'person'Relación con la tabla 'employee'
             .where('user.role = :role', { role: 2 })
             .andWhere('user.approved = :approved', { approved: true })
             .getMany();
@@ -81,21 +38,26 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
             return;
         }
 
-        // Formatear la respuesta
-        const formattedDoctors = doctors.map(doctor => ({
-            id: doctor.id,
-            nombre: doctor.person.first_name,
-            apellido: doctor.person.last_name,
-            email: doctor.person.email,
-            foto: doctor.person.photo, // Incluir la foto desde la tabla People
-            //eespecialidades: doctor.employee?.specialty?.map((es) => es.specialty?.name) || []
-// Obtener los nombres de las especialidades
-        }));
+        // Formatear la respuesta incluyendo especialidades y ubicaciones
+        const formattedDoctors = doctors.map(doctor => {
+            const especialidades = doctor.person?.employee?.specialty?.map(es => es.specialty?.name) || [];
+            
+            return {
+                id: doctor.id,
+                nombre: doctor.person.first_name,
+                apellido: doctor.person.last_name,
+                email: doctor.person.email,
+                foto: doctor.person.photo,
+                especialidad: especialidades
+            };
+        });
+
         res.status(200).json({
             error: false,
             data: formattedDoctors
         });
     } catch (error: any) {
+        console.error("Error completo:", error);
         res.status(500).json({
             error: true,
             message: 'Error al obtener los doctores disponibles',

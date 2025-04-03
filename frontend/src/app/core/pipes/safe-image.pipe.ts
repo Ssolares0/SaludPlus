@@ -1,11 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { environment } from '../../../environments/environment';
 
 @Pipe({
     name: 'safeImage',
     standalone: true
 })
-
 export class SafeImagePipe implements PipeTransform {
     constructor(private sanitizer: DomSanitizer) { }
 
@@ -15,8 +15,13 @@ export class SafeImagePipe implements PipeTransform {
         }
 
         let processedUrl = url;
-        if (url.startsWith('https://')) {
+
+        if (!environment.production && url.startsWith('https://')) {
             processedUrl = 'http://' + url.substring(8);
+        }
+
+        if (environment.production && url.startsWith('http://')) {
+            processedUrl = 'https://' + url.substring(7);
         }
 
         try {

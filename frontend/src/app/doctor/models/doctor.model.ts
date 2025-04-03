@@ -89,3 +89,20 @@ export interface UpdateDoctorData {
     address: string;
     photo: File | null;
 }
+
+export interface SchedulesResponse {
+    id: number;
+    day_of_week: number;
+    start_time: string;
+    end_time: string;
+}
+
+export interface DoctorScheduleBody {
+    days: number[];
+    startTime: string;
+    endTime: string;
+}
+
+export interface DoctorScheduleResponse {
+    message: string;
+}

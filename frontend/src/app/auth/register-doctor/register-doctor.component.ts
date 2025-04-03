@@ -385,7 +385,7 @@ export class RegisterDoctorComponent implements OnInit {
   }
 
   goToLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   protected readonly UserCircle2 = UserCircle2;

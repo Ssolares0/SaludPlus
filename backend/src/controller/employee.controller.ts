@@ -41,6 +41,17 @@ export const cancelAppointment = async(req:Request, res: Response) => {
           });
     }
 }
+export const getScheduled = async(req: Request, res: Response) => {
+  try{
+    const employeeService = new EmployeService();
+    const result = await employeeService.getScheduledDoctor(Number(req.params.id));
+    res.status(201).json(result);
+  }catch(error: any){
+    res.status(400).json({
+      error: error.message || 'Error al obtener horarios'
+    })
+  }
+}
 
 export const updateScheduled = async(req: Request, res: Response) => {
   try{

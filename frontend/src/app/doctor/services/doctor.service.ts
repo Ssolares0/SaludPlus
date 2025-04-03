@@ -1,5 +1,6 @@
 import { DataDoctorResponse, PendingAppointmentResponse, CancelAndCompleteAppointmentResponse, CancelAppointmentBody, AcceptAppointmentBody, AppointmentHistoryBody, AppointmentHistoryResponse, UpdateDoctorData } from "../models/doctor.model";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -9,40 +10,38 @@ import { Observable } from "rxjs";
 })
 
 export class DoctorService {
-    private readonly baseUrl = 'http://localhost:3001';
-
     constructor(private http: HttpClient) { }
 
     public getDataDoctor(id: number): Observable<DataDoctorResponse> {
-        return this.http.get<DataDoctorResponse>(`${this.baseUrl}/employee/doctor/${id}`)
+        return this.http.get<DataDoctorResponse>(`${environment.apiUrl}/employee/doctor/${id}`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public getPendintgAppointments(id: number): Observable<PendingAppointmentResponse[]> {
-        return this.http.get<PendingAppointmentResponse[]>(`${this.baseUrl}/employee/pendiente/appointment/${id}`)
+        return this.http.get<PendingAppointmentResponse[]>(`${environment.apiUrl}/employee/pendiente/appointment/${id}`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public acceptAppointment(id: number, body: AcceptAppointmentBody): Observable<CancelAndCompleteAppointmentResponse> {
-        return this.http.put<CancelAndCompleteAppointmentResponse>(`${this.baseUrl}/employee/complete/appointment/${id}`, body)
+        return this.http.put<CancelAndCompleteAppointmentResponse>(`${environment.apiUrl}/employee/complete/appointment/${id}`, body)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public cancelAppointment(id: number, body: CancelAppointmentBody): Observable<CancelAndCompleteAppointmentResponse> {
-        return this.http.delete<CancelAndCompleteAppointmentResponse>(`${this.baseUrl}/employee/cancel/appointment/${id}`, { body })
+        return this.http.delete<CancelAndCompleteAppointmentResponse>(`${environment.apiUrl}/employee/cancel/appointment/${id}`, { body })
             .pipe(
                 catchError(this.handleError)
             );
     }
 
     public getAppointmentHistory(id: number, body: AppointmentHistoryBody): Observable<AppointmentHistoryResponse[]> {
-        return this.http.post<AppointmentHistoryResponse[]>(`${this.baseUrl}/employee/history/appointments/${id}`, body)
+        return this.http.post<AppointmentHistoryResponse[]>(`${environment.apiUrl}/employee/history/appointments/${id}`, body)
             .pipe(
                 catchError(this.handleError)
             );
@@ -62,7 +61,7 @@ export class DoctorService {
             formData.append('photo', doctorData.photo, doctorData.photo.name);
         }
 
-        return this.http.put<DataDoctorResponse>(`${this.baseUrl}/employee/update/doctor/${id}`, formData)
+        return this.http.put<DataDoctorResponse>(`${environment.apiUrl}/employee/update/doctor/${id}`, formData)
             .pipe(
                 catchError(this.handleError)
             );

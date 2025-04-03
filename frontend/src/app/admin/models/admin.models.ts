@@ -85,8 +85,10 @@ export interface RejectUserResponse {
 export interface StatisticsResponse {
     id: number;
     name: string;
+    photo: string | null;
     specialty: string;
-    patientsCount: string;
+    patientsCount: number;
+    appointmentsCount: number;
 }
 
 export interface StatisticsBody {

@@ -8,11 +8,12 @@ import { Chart } from 'chart.js/auto';
 import { jsPDF } from 'jspdf';
 import { forkJoin } from 'rxjs';
 import autoTable from 'jspdf-autotable';
+import { SafeImagePipe } from '../../core/pipes/safe-image.pipe';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, DecimalPipe, FormsModule],
+  imports: [CommonModule, LucideAngularModule, DecimalPipe, FormsModule, SafeImagePipe],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css']
 })
@@ -435,12 +436,13 @@ export class ReportsComponent implements OnInit, AfterViewInit {
       doc.setFontSize(10);
       doc.text(`Generado: ${today}`, 105, 30, { align: 'center' });
 
-      const tableColumn = ["Ranking", "Médico", "Especialidad", "Citas"];
+      const tableColumn = ["Ranking", "Médico", "Especialidad", "Pacientes", "Citas"];
       const tableRows = this.filteredTopDoctors.map((doctor, index) => [
         (index + 1).toString(),
         doctor.name,
         doctor.specialty,
-        doctor.patientsCount
+        doctor.patientsCount,
+        doctor.appointmentsCount
       ]);
 
       autoTable(doc, {

@@ -3,18 +3,24 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PatientsService } from './patients.service';
-import { Doctor, TimeSlot, ActiveAppointment, DoctorSchedule } from './patients.models';
+import { Doctor, TimeSlot, ActiveAppointment, DoctorSchedule, AppointmentBody } from './patients.models';
+import { SafeImagePipe } from '../core/pipes/safe-image.pipe';
 
 @Component({
     selector: 'app-patients',
     templateUrl: './patients.component.html',
     styleUrls: ['./patients.component.css'],
     standalone: true,
-    imports: [CommonModule, FormsModule]
+    imports: [CommonModule, FormsModule, SafeImagePipe]
 })
+
 export class PatientsComponent implements OnInit {
     doctors: Doctor[] = [];
+    filteredDoctors: Doctor[] = [];
+    specialties: string[] = [];
     loading: boolean = false;
+    successMessage: string = '';
+    patientId: number = localStorage.getItem('patientId') ? parseInt(localStorage.getItem('patientId') || '') : 0;
     error: string = '';
     selectedEspecialidad: string = '';
     showSchedule: boolean = false;
@@ -41,10 +47,15 @@ export class PatientsComponent implements OnInit {
     loadDoctors() {
         this.loading = true;
         this.error = '';
-        
-        this.patientsService.getAvailableDoctors(2).subscribe({
+
+        const userId = Number(localStorage.getItem('patientId'));
+
+        this.patientsService.getAvailableDoctors(userId).subscribe({
             next: (doctors) => {
+                console.log('Doctores cargados:', doctors);
                 this.doctors = doctors;
+                this.filteredDoctors = [...doctors];
+                this.updateSpecialties();
                 this.loading = false;
             },
             error: (error) => {
@@ -54,35 +65,48 @@ export class PatientsComponent implements OnInit {
         });
     }
 
+    updateSpecialties() {
+        const specialties = new Set<string>();
+
+        if (this.doctors && Array.isArray(this.doctors)) {
+            this.doctors.forEach(doctor => {
+                if (doctor.especialidad && Array.isArray(doctor.especialidad)) {
+                    doctor.especialidad.forEach(esp => {
+                        if (esp) specialties.add(esp);
+                    });
+                }
+            });
+        }
+
+        this.specialties = Array.from(specialties);
+    }
+
     filterByEspecialidad(especialidad: string) {
-        this.loading = true;
-        this.error = '';
-        
+        this.selectedEspecialidad = especialidad;
+
         if (!especialidad || especialidad === '') {
-            this.loadDoctors();
+            this.filteredDoctors = [...this.doctors];
             return;
         }
-    
-        this.patientsService.getDoctorsBySpeciality(especialidad).subscribe({
-            next: (doctors) => {
-                this.doctors = doctors;
-                this.loading = false;
-            },
-            error: (error) => {
-                this.error = error.message;
-                this.loading = false;
-            }
-        });
+
+        this.filteredDoctors = this.doctors.filter(doctor =>
+            doctor.especialidad &&
+            doctor.especialidad.some(esp =>
+                esp.toLowerCase() === especialidad.toLowerCase()
+            )
+        );
+
+        console.log(`Filtrado por ${especialidad}: ${this.filteredDoctors.length} doctores encontrados`);
     }
 
     viewSchedule(doctor: Doctor) {
         this.selectedDoctor = doctor;
         this.showSchedule = true;
         this.error = '';
-        
+
         const today = new Date();
         this.selectedDate = today.toISOString().split('T')[0];
-        
+
         this.generateAvailableHours();
     }
 
@@ -94,14 +118,24 @@ export class PatientsComponent implements OnInit {
         this.availableHours = [];
         this.doctorSchedule = null;
 
-        const formattedDate = `${this.selectedDate} 17:05:33.000000`;
+        console.log(`Consultando horarios para doctor ID ${this.selectedDoctor.id} en fecha ${this.selectedDate}`);
+
+        const dateToSend = this.selectedDate;
 
         this.patientsService.getDoctorSchedule(
-            this.selectedDoctor.id.toString(),
-            formattedDate
+            this.selectedDoctor.doctorId,
+            dateToSend
         ).subscribe({
             next: (response) => {
+                console.log('Respuesta exitosa:', response);
                 if (response && response.data) {
+                    const responseDay = response.data.doctorSchedule.day;
+                    const selectedDay = this.getDayName(new Date(this.selectedDate));
+
+                    if (responseDay !== selectedDay) {
+                        response.data.doctorSchedule.day = selectedDay;
+                    }
+
                     this.doctorSchedule = response.data.doctorSchedule;
                     this.availableHours = response.data.availability;
                 } else {
@@ -110,11 +144,16 @@ export class PatientsComponent implements OnInit {
                 this.loading = false;
             },
             error: (error) => {
-                this.error = 'Error al cargar los horarios';
+                console.error('Error al cargar horarios:', error);
+                this.error = 'Error al cargar los horarios: ' + error.message;
                 this.loading = false;
-                console.error('Error:', error);
             }
         });
+    }
+
+    getDayName(date: Date): string {
+        const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        return dayNames[date.getDay()];
     }
 
     selectTimeSlot(slot: TimeSlot) {
@@ -127,15 +166,42 @@ export class PatientsComponent implements OnInit {
 
     scheduleAppointment() {
         if (!this.validateAppointmentForm()) return;
-
-        console.log('Cita agendada:', {
-            doctorId: this.selectedDoctor?.id,
+        
+        this.loading = true;
+        this.error = '';
+        this.successMessage = '';
+        
+        const appointmentData: AppointmentBody = {
             date: this.appointmentDate,
-            time: this.appointmentTime,
-            reason: this.appointmentReason
+            hour: this.appointmentTime,
+            motive: this.appointmentReason,
+            doctorId: this.selectedDoctor?.doctorId || '',
+        };
+        
+        console.log('Enviando solicitud de cita:', appointmentData);
+        
+        this.patientsService.createAppointment(this.patientId, appointmentData).subscribe({
+            next: (response) => {
+                console.log('Respuesta del servidor:', response);
+                this.loading = false;
+                
+                if (!response.error) {
+                    this.successMessage = 'Cita agendada exitosamente';
+                    
+                    setTimeout(() => {
+                        this.resetAppointmentForm();
+                        this.generateAvailableHours(); 
+                    }, 3000);
+                } else {
+                    this.error = response.message || 'Error al agendar la cita';
+                }
+            },
+            error: (error) => {
+                console.error('Error al agendar cita:', error);
+                this.error = 'Error al agendar cita: ' + error.message;
+                this.loading = false;
+            }
         });
-
-        this.resetAppointmentForm();
     }
 
     validateAppointmentForm(): boolean {
@@ -153,17 +219,15 @@ export class PatientsComponent implements OnInit {
         }
         return true;
     }
+
     resetAppointmentForm() {
-        // Reiniciar el formulario de cita
         this.showAppointmentForm = false;
         this.appointmentDate = '';
         this.appointmentTime = '';
         this.appointmentReason = '';
-        
-        // Volver a mostrar el modal de horarios
+
         this.showSchedule = true;
-        
-        // Limpiar selección del horario
+
         this.availableHours = this.availableHours.map(slot => ({
             ...slot,
             isAvailable: true
@@ -179,18 +243,16 @@ export class PatientsComponent implements OnInit {
     }
 
     getUniqueSpecialties(): string[] {
-        const specialties = new Set<string>();
-        this.doctors.forEach(doctor => {
-            doctor.especialidad.forEach(esp => specialties.add(esp));
-        });
-        return Array.from(specialties);
+        return this.specialties;
     }
 
     loadActiveAppointments() {
         this.loading = true;
         this.error = '';
-        
-        this.patientsService.getActiveAppointments(7).subscribe({
+
+        const userId = Number(localStorage.getItem('patientId'));
+
+        this.patientsService.getActiveAppointments(userId).subscribe({
             next: (response) => {
                 if (!response.error) {
                     this.activeAppointments = response.data;
@@ -206,7 +268,7 @@ export class PatientsComponent implements OnInit {
             }
         });
     }
-    
+
     logout() {
         localStorage.clear();
         this.router.navigate(['/']);

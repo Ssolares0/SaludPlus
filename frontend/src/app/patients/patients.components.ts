@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PatientsService } from './patients.service';
-import { Doctor, TimeSlot, ActiveAppointment, DoctorSchedule, AppointmentBody } from './patients.models';
+import { Doctor, TimeSlot, ActiveAppointment, DoctorSchedule, AppointmentBody, AppointmentHistory } from './patients.models';
 import { SafeImagePipe } from '../core/pipes/safe-image.pipe';
 
 @Component({
@@ -37,6 +37,10 @@ export class PatientsComponent implements OnInit {
     showActiveAppointments: boolean = false;
     activeAppointments: ActiveAppointment[] = [];
 
+    showAppointmentHistory: boolean = false;
+    appointmentHistory: AppointmentHistory[] = [];
+    selectedHistoryFilter: string = 'all';
+
     constructor(
         private patientsService: PatientsService,
         private router: Router
@@ -65,6 +69,69 @@ export class PatientsComponent implements OnInit {
                 this.loading = false;
             }
         });
+    }
+
+    loadAppointmentHistory() {
+        this.loading = true;
+        this.error = '';
+        
+        const userId = Number(localStorage.getItem('patientId'));
+
+        this.patientsService.getAppointmentHistory(userId).subscribe({
+            next: (response) => {
+                if (!response.error) {
+                    this.appointmentHistory = response.data;
+                    this.showAppointmentHistory = true;
+                } else {
+                    this.error = response.message || 'Error al cargar el historial de citas';
+                }
+                this.loading = false;
+            },
+            error: (error) => {
+                this.error = error.message;
+                this.loading = false;
+            }
+        });
+    }
+
+    filterAppointmentHistory(filter: string) {
+        this.selectedHistoryFilter = filter;
+    }
+
+    getFilteredHistory(): AppointmentHistory[] {
+        if (this.selectedHistoryFilter === 'all') {
+            return this.appointmentHistory;
+        }
+        
+        return this.appointmentHistory.filter(
+            appointment => appointment.estado === this.selectedHistoryFilter
+        );
+    }
+
+    getStatusColor(status: string): string {
+        switch (status) {
+            case 'scheduled':
+                return 'status-scheduled';
+            case 'canceled':
+                return 'status-canceled';
+            case 'completed':
+                return 'status-completed';
+            default:
+                return '';
+        }
+    }
+
+    translateStatus(status: string): string {
+        switch (status) {
+            case 'scheduled':
+                return 'Programada';
+            case 'canceled':
+                return 'Cancelada';
+            case 'completed':
+                return 'Completada';
+            default:
+                return status;
+        }
     }
 
     updateSpecialties() {

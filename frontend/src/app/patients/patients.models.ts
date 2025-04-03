@@ -73,3 +73,29 @@ export interface AppointmentBody {
     motive: string;
     doctorId: string;
 }
+
+export interface AppointmentHistory {
+    id: number;
+    fecha: string;
+    motivo: string;
+    estado: string;
+    tratamiento: string | null;
+    motivo_cancelacion: string | null;
+    doctor: {
+        id: number;
+        nombre: string;
+        apellido: string;
+        foto: string | null;
+    };
+    paciente: {
+        id: number;
+        nombre: string;
+        apellido: string;
+    };
+}
+
+export interface AppointmentHistoryResponse {
+    error: boolean;
+    message?: string;
+    data: AppointmentHistory[];
+}

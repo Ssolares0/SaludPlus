@@ -7,8 +7,16 @@ export interface Doctor {
     id: number;
     nombre: string;
     apellido: string;
+    email: string;
+    foto: string;
+    doctorId: string;
     especialidad: string[];
-    locacion: string[];
+    locacion?: string[]; 
+}
+
+export interface DoctorResponse {
+    error: boolean;
+    data: Doctor[];
 }
 
 export interface DoctorSchedule {
@@ -31,6 +39,11 @@ export interface ScheduleResponse {
     }
 }
 
+export interface ScheduleRequest {
+    doctorId: string;
+    date: string;
+}
+
 export interface ActiveAppointment {
     id: number;
     fecha: string;
@@ -50,5 +63,13 @@ export interface ActiveAppointment {
 
 export interface ActiveAppointmentsResponse {
     error: boolean;
+    message?: string;
     data: ActiveAppointment[];
+}
+
+export interface AppointmentBody {
+    date: string;
+    hour: string;
+    motive: string;
+    doctorId: string;
 }

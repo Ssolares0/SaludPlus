@@ -25,17 +25,17 @@
                 </div>
             </div>
         </header>
-        
+
         <!-- Modal para mostrar citas activas -->
         <div class="modal-overlay" *ngIf="showActiveAppointments" (click)="showActiveAppointments = false">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <h3 class="modal-title">Mis Citas Activas</h3>
-                
+
                 <div *ngIf="loading" class="loading-container">
                     <div class="spinner"></div>
                     <p>Cargando citas...</p>
                 </div>
-        
+
                 <div class="appointments-list" *ngIf="!loading && activeAppointments.length > 0">
                     <div class="appointment-card" *ngFor="let appointment of activeAppointments">
                         <div class="appointment-header">
@@ -48,7 +48,7 @@
                         </div>
                     </div>
                 </div>
-        
+
                 <div *ngIf="!loading && activeAppointments.length === 0" class="no-appointments">
                     No tienes citas activas en este momento
                 </div>
@@ -66,7 +66,8 @@
                     <div class="form-group">
                         <div class="input-container">
                             <select [(ngModel)]="selectedEspecialidad" name="specialty" id="specialty"
-                                class="form-input" (change)="filterByEspecialidad(selectedEspecialidad)">
+                                class="form-input" [class.active-filter]="selectedEspecialidad !== ''"
+                                (change)="filterByEspecialidad(selectedEspecialidad)">
                                 <option value="">Todas las especialidades</option>
                                 <option *ngFor="let especialidad of getUniqueSpecialties()">
                                     {{especialidad}}
@@ -89,21 +90,27 @@
 
                 <!-- Doctors Grid -->
                 <div class="doctors-grid" *ngIf="!loading && !error">
-                    <div *ngFor="let doctor of doctors" class="doctor-card">
+                    <div *ngFor="let doctor of filteredDoctors" class="doctor-card">
+                        <div class="doctor-photo">
+                            <img [src]="doctor.foto | safeImage" alt="Dr. {{doctor.nombre}} {{doctor.apellido}}">
+                        </div>
                         <div class="card-content">
-                            <h3 class="card-title">{{ doctor.nombre }} {{ doctor.apellido }}</h3>
-                            <div class="info-group">
+                            <h3 class="card-title">Dr. {{ doctor.nombre }} {{ doctor.apellido }}</h3>
+
+                            <!-- Especialidades -->
+                            <div class="info-group" *ngIf="doctor.especialidad && doctor.especialidad.length > 0">
                                 <h4 class="info-label">Especialidades:</h4>
                                 <ul class="info-list">
                                     <li *ngFor="let esp of doctor.especialidad">{{ esp }}</li>
                                 </ul>
                             </div>
-                            <div class="info-group" *ngIf="doctor.locacion.length > 0">
-                                <h4 class="info-label">Ubicaciones:</h4>
-                                <ul class="info-list">
-                                    <li *ngFor="let loc of doctor.locacion">{{ loc }}</li>
-                                </ul>
+
+                            <!-- Email (opcional) -->
+                            <div class="info-group">
+                                <h4 class="info-label">Contacto:</h4>
+                                <p class="doctor-email">{{ doctor.email }}</p>
                             </div>
+
                             <div class="button-group">
                                 <button class="secondary-button" (click)="viewSchedule(doctor)">
                                     Ver horarios
@@ -111,6 +118,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Mensaje cuando no hay resultados -->
+                <div *ngIf="!loading && !error && filteredDoctors.length === 0" class="no-results">
+                    No se encontraron doctores con la especialidad seleccionada
                 </div>
             </div>
         </section>
@@ -201,7 +213,20 @@
                 <button type="button" class="close-button" (click)="resetAppointmentForm()">×</button>
             </div>
 
-            <form (ngSubmit)="scheduleAppointment()" class="appointment-form">
+            <!-- Mostrar indicador de carga si está procesando -->
+            <div *ngIf="loading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Procesando solicitud...</p>
+            </div>
+
+            <!-- Mostrar mensaje de éxito -->
+            <div *ngIf="successMessage" class="success-message">
+                <div class="success-icon">✓</div>
+                <p>{{ successMessage }}</p>
+            </div>
+
+            <!-- Formulario -->
+            <form (ngSubmit)="scheduleAppointment()" class="appointment-form" *ngIf="!loading && !successMessage">
                 <!-- Doctor Info -->
                 <div class="form-group">
                     <label class="form-label">Doctor</label>

@@ -1,5 +1,5 @@
 import { application, Router } from 'express';
-import { getPendientAppointment, putCompleteAppointment, cancelAppointment, updateScheduled, appointmentHistory, getDataDoctor, updateDoctor} from '../controller/employee.controller';
+import { getPendientAppointment, putCompleteAppointment, cancelAppointment, updateScheduled, appointmentHistory, getDataDoctor, updateDoctor, getScheduled} from '../controller/employee.controller';
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -25,6 +25,10 @@ router.delete(
     cancelAppointment
 )
 
+router.get(
+    '/scheduled/:id',
+    getScheduled
+)
 router.post(
     '/scheduled/:id',
     updateScheduled

@@ -41,7 +41,7 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
         // Formatear la respuesta incluyendo especialidades y ubicaciones
         const formattedDoctors = doctors.map(doctor => {
             const especialidades = doctor.person?.employee?.specialty?.map(es => es.specialty?.name) || [];
-            
+
             return {
                 id: doctor.id,
                 nombre: doctor.person.first_name,
@@ -112,7 +112,6 @@ export const findMedic = async (req: Request, res: Response) => {
 };
 
 export const scheduleMedic = async (req: Request, res: Response) => {
-
     const { doctorId, date } = req.body;
     if (!doctorId || !date) {
         res.status(400).json({
@@ -135,17 +134,21 @@ export const scheduleMedic = async (req: Request, res: Response) => {
         return
     }
 
+    // Usamos UTC para evitar problemas con zonas horarias
     const selectedDate = new Date(date);
+
+    // Para asegurarnos de obtener el día correcto
+    const dayOfWeek = selectedDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // Obtenemos todas las citas para ese día
     const appointments = await AppDataSource.manager
         .createQueryBuilder(Appointment, 'appointment')
         .where('appointment.employee_id = :doctorId', { doctorId })
         .andWhere('DATE(appointment.appointment_date) = DATE(:date)', { date: selectedDate })
+        .andWhere('appointment.status = :status', { status: 'scheduled' }) // Solo considerar citas programadas, no canceladas
         .getMany();
 
-    const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
     const daySchedule = doctorSchedule.find(schedule => schedule.day_of_week === dayOfWeek);
-
 
     if (!daySchedule) {
         res.status(200).json({
@@ -156,13 +159,31 @@ export const scheduleMedic = async (req: Request, res: Response) => {
         });
         return
     }
+
     const timeSlots = generateTimeSlots(
         daySchedule.start_time,
         daySchedule.end_time,
-        60,
+        60, // Intervalo de 60 minutos
         selectedDate
-
     );
+
+    // Función para verificar si un slot está disponible
+    const isSlotAvailable = (slot: Date): boolean => {
+        // Hora de inicio del slot a verificar
+        const slotStartHour = slot.getHours();
+        const slotStartMinute = slot.getMinutes();
+
+        // Verificamos si hay alguna cita programada que se solape con este slot
+        return !appointments.some(appointment => {
+            const appointmentDate = new Date(appointment.appointment_date);
+            const appointmentHour = appointmentDate.getHours();
+            const appointmentMinute = appointmentDate.getMinutes();
+
+            // Consideramos que cada cita ocupa 1 hora completa
+            // Un slot está ocupado si coincide exactamente con la hora de inicio de una cita
+            return appointmentHour === slotStartHour && appointmentMinute === slotStartMinute;
+        });
+    };
 
     const availability = timeSlots.map(slot => ({
         time: slot.toLocaleTimeString('es-ES', {
@@ -170,11 +191,11 @@ export const scheduleMedic = async (req: Request, res: Response) => {
             minute: '2-digit',
             hour12: false
         }),
-        isAvailable: !appointments.some(app =>
-            app.appointment_date.getHours() === slot.getHours() &&
-            app.appointment_date.getMinutes() === slot.getMinutes()
-        )
-    }));;
+        isAvailable: isSlotAvailable(slot)
+    }));
+
+    // Obtener el día de la semana en español
+    const correctDay = getDayName(dayOfWeek);
 
     res.status(200).json({
         error: false,
@@ -182,14 +203,13 @@ export const scheduleMedic = async (req: Request, res: Response) => {
             doctorSchedule: {
                 start_time: daySchedule.start_time,
                 end_time: daySchedule.end_time,
-                day: getDayName(daySchedule.day_of_week)
+                day: correctDay
             },
             availability,
             date: selectedDate
         }
-    })
-    return
-
+    });
+    return;
 };
 
 export const createAppointment = async (req: Request, res: Response) => {
@@ -206,14 +226,21 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Parsear y ajustar la fecha y hora
+        console.log('Datos recibidos:', { date, hour, doctorId, motive });
+
         const [year, month, day] = date.split('-').map(Number);
         const [hours, minutes] = hour.split(':').map(Number);
-        const selectedDate = new Date(year, month - 1, day, hours, minutes);
-        selectedDate.setMinutes(selectedDate.getMinutes() - selectedDate.getTimezoneOffset());
-        const dayOfWeek = selectedDate.getDay();
 
-        // Verificar el horario del doctor
+        const appointmentDateString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00.000Z`;
+
+        console.log('Fecha a guardar:', appointmentDateString);
+
+        const selectedDate = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+        console.log('Fecha seleccionada (UTC):', selectedDate.toISOString());
+
+        const dayOfWeek = selectedDate.getUTCDay();
+
         const doctorSchedule = await AppDataSource.manager
             .createQueryBuilder(DoctorSchedule, 'schedule')
             .leftJoinAndSelect('schedule.doctor', 'doctor')
@@ -228,7 +255,6 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Verificar si el doctor trabaja ese día
         const daySchedule = doctorSchedule.find(schedule => schedule.day_of_week === dayOfWeek);
         if (!daySchedule) {
             res.status(400).json({
@@ -238,12 +264,15 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Verificar si el horario está ocupado
         const existingAppointment = await AppDataSource.manager
             .createQueryBuilder(Appointment, 'appointment')
             .where('appointment.employee_id = :doctorId', { doctorId })
-            .andWhere('appointment.appointment_date = :date', {
-                date: selectedDate.toISOString()
+            .andWhere('appointment.status = :status', { status: 'scheduled' })
+            .andWhere("TO_CHAR(appointment.appointment_date, 'YYYY-MM-DD') = :dateStr", {
+                dateStr: `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+            })
+            .andWhere("TO_CHAR(appointment.appointment_date, 'HH24:MI') = :timeStr", {
+                timeStr: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
             })
             .getOne();
 
@@ -255,7 +284,6 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Obtener doctor y paciente con sus relaciones
         const doctor = await AppDataSource.manager.findOne(Employee, {
             where: { id: doctorId },
             relations: ['person']
@@ -282,18 +310,22 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Crear nueva cita
-        const appointmentRepository = AppDataSource.getRepository(Appointment);
-        const appointment = appointmentRepository.create({
-            appointment_date: selectedDate,
-            reason: motive,
-            status: 'scheduled',
-            patient: patient,
-            doctor: doctor
-        });
+        const result = await AppDataSource.createQueryBuilder()
+            .insert()
+            .into(Appointment)
+            .values({
+                appointment_date: () => `TO_TIMESTAMP('${appointmentDateString}', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
+                reason: motive,
+                status: 'scheduled',
+                patient: patient,
+                doctor: doctor
+            })
+            .returning('*')
+            .execute();
 
-        // Guardar la cita
-        const savedAppointment = await appointmentRepository.save(appointment);
+        const savedAppointment = result.raw[0];
+
+        console.log('Cita guardada con fecha:', savedAppointment.appointment_date);
 
         res.status(201).json({
             error: false,
@@ -324,6 +356,7 @@ export const createAppointment = async (req: Request, res: Response) => {
         });
     }
 };
+
 export const activesAppointment = async (req: Request, res: Response) => {
 
     try {

@@ -22,6 +22,8 @@ export class PatientsComponent implements OnInit {
     successMessage: string = '';
     patientId: number = localStorage.getItem('patientId') ? parseInt(localStorage.getItem('patientId') || '') : 0;
     error: string = '';
+    showCancelConfirmation: boolean = false;
+    appointmentToCancel: ActiveAppointment | null = null;
     selectedEspecialidad: string = '';
     showSchedule: boolean = false;
     showAppointmentForm: boolean = false;
@@ -99,6 +101,44 @@ export class PatientsComponent implements OnInit {
         console.log(`Filtrado por ${especialidad}: ${this.filteredDoctors.length} doctores encontrados`);
     }
 
+    confirmCancelAppointment(appointment: ActiveAppointment) {
+        this.appointmentToCancel = appointment;
+        this.showCancelConfirmation = true;
+        this.error = '';
+        this.successMessage = '';
+    }
+
+    cancelAppointment() {
+        if (!this.appointmentToCancel) return;
+        
+        this.loading = true;
+        this.error = '';
+        this.successMessage = '';
+        
+        this.patientsService.cancelAppointment(this.appointmentToCancel.id).subscribe({
+            next: (response) => {
+                console.log('Respuesta al cancelar cita:', response);
+                this.loading = false;
+                
+                if (!response.error) {
+                    this.successMessage = 'Cita cancelada exitosamente';
+                    
+                    setTimeout(() => {
+                        this.showCancelConfirmation = false;
+                        this.loadActiveAppointments();
+                    }, 2000);
+                } else {
+                    this.error = response.message || 'Error al cancelar la cita';
+                }
+            },
+            error: (error) => {
+                console.error('Error al cancelar cita:', error);
+                this.error = 'Error al cancelar cita: ' + error.message;
+                this.loading = false;
+            }
+        });
+    }
+
     viewSchedule(doctor: Doctor) {
         this.selectedDoctor = doctor;
         this.showSchedule = true;
@@ -129,13 +169,6 @@ export class PatientsComponent implements OnInit {
             next: (response) => {
                 console.log('Respuesta exitosa:', response);
                 if (response && response.data) {
-                    const responseDay = response.data.doctorSchedule.day;
-                    const selectedDay = this.getDayName(new Date(this.selectedDate));
-
-                    if (responseDay !== selectedDay) {
-                        response.data.doctorSchedule.day = selectedDay;
-                    }
-
                     this.doctorSchedule = response.data.doctorSchedule;
                     this.availableHours = response.data.availability;
                 } else {
@@ -166,31 +199,47 @@ export class PatientsComponent implements OnInit {
 
     scheduleAppointment() {
         if (!this.validateAppointmentForm()) return;
-        
+
         this.loading = true;
         this.error = '';
         this.successMessage = '';
-        
+
+        const timeRegex = /(\d{1,2}):(\d{2})/;
+        let formattedTime = this.appointmentTime;
+
+        const timeMatch = this.appointmentTime.match(timeRegex);
+        if (timeMatch) {
+            const hours = parseInt(timeMatch[1], 10);
+            const minutes = parseInt(timeMatch[2], 10);
+            formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        console.log(`Hora seleccionada para la cita: ${formattedTime}`);
+        console.log(`Fecha seleccionada para la cita: ${this.appointmentDate}`);
+
+        const localDate = new Date(`${this.appointmentDate}T${formattedTime}`);
+        console.log(`Hora local que debería ser guardada: ${localDate.toLocaleString()}`);
+
         const appointmentData: AppointmentBody = {
             date: this.appointmentDate,
-            hour: this.appointmentTime,
+            hour: formattedTime,
             motive: this.appointmentReason,
             doctorId: this.selectedDoctor?.doctorId || '',
         };
-        
+
         console.log('Enviando solicitud de cita:', appointmentData);
-        
+
         this.patientsService.createAppointment(this.patientId, appointmentData).subscribe({
             next: (response) => {
                 console.log('Respuesta del servidor:', response);
                 this.loading = false;
-                
+
                 if (!response.error) {
                     this.successMessage = 'Cita agendada exitosamente';
-                    
+
                     setTimeout(() => {
                         this.resetAppointmentForm();
-                        this.generateAvailableHours(); 
+                        this.generateAvailableHours();
                     }, 3000);
                 } else {
                     this.error = response.message || 'Error al agendar la cita';

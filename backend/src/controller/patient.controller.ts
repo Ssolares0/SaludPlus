@@ -48,6 +48,7 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
                 apellido: doctor.person.last_name,
                 email: doctor.person.email,
                 foto: doctor.person.photo,
+                doctorId: doctor.person.employee.id,
                 especialidad: especialidades
             };
         });
@@ -176,7 +177,7 @@ export const scheduleMedic = async (req: Request, res: Response) => {
     }));;
 
     res.status(200).json({
-        error: true,
+        error: false,
         data: {
             doctorSchedule: {
                 start_time: daySchedule.start_time,

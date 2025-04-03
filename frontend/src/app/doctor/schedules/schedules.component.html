@@ -4,22 +4,29 @@
             <h1>Gestión de Horarios</h1>
             <p>Configure sus días y horas de atención</p>
         </div>
-        <button class="btn-primary" (click)="saveSchedules()">
-            <i-lucide [name]="Save" class="btn-icon"></i-lucide>
-            Guardar cambios
-        </button>
     </div>
 
+    @if (loading) {
+    <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Cargando horarios...</p>
+    </div>
+    } @else if (error) {
+    <div class="error-state">
+        <p>Ocurrió un error al cargar los horarios. Intente de nuevo más tarde.</p>
+        <button class="btn-reload" (click)="loadSchedules()">
+            <i-lucide [name]="RefreshCw" class="btn-icon"></i-lucide>
+            Reintentar
+        </button>
+    </div>
+    } @else {
     <div class="schedule-content">
         <div class="schedule-card">
             <div class="card-header">
                 <h2>Horario actual</h2>
-                <span class="status-badge" [class]="isScheduleActive ? 'active' : 'inactive'">
-                    {{ isScheduleActive ? 'Activo' : 'Inactivo' }}
-                </span>
             </div>
 
-            @if (doctorSchedule.workingDays.length > 0) {
+            @if (schedules.length > 0) {
             <div class="current-schedule">
                 <div class="schedule-info">
                     <div class="info-item">
@@ -45,18 +52,18 @@
                         <i-lucide [name]="Clock" class="info-icon"></i-lucide>
                         <div class="info-content">
                             <span class="info-label">Duración de consulta</span>
-                            <span class="info-value">{{ doctorSchedule.slotDuration }} minutos</span>
+                            <span class="info-value">1 hora</span>
                         </div>
                     </div>
                 </div>
             </div>
             }
 
-            @if (doctorSchedule.workingDays.length === 0) {
+            @if (schedules.length === 0) {
             <div class="no-schedule">
                 <div class="empty-state">
                     <i-lucide [name]="Calendar" class="empty-icon"></i-lucide>
-                    <p>No tiene configurado un horario de atención</p>
+                    <p>No cuentas con un horario configurado, crea uno</p>
                     <p class="empty-subtitle">Configure sus días y horarios usando el formulario</p>
                 </div>
             </div>
@@ -115,46 +122,23 @@
                 </div>
             </div>
 
-            <div class="form-section">
-                <h3>Duración de consultas</h3>
-                <p class="section-description">Defina la duración de cada consulta médica</p>
-
-                <div class="slot-selector">
-                    @for (duration of availableDurations; track duration.value) {
-                    <div class="slot-option" [class.selected]="doctorSchedule.slotDuration === duration.value"
-                        (click)="selectDuration(duration.value)">
-                        <span class="duration-value">{{ duration.value }}</span>
-                        <span class="duration-unit">minutos</span>
-                    </div>
-                    }
-                </div>
-            </div>
-
             <div class="form-actions">
-                <div class="schedule-toggle">
-                    <label class="toggle-label" for="activeToggle">
-                        <span>Estado del horario</span>
-                        <div class="toggle-wrapper">
-                            <input type="checkbox" id="activeToggle" [(ngModel)]="isScheduleActive">
-                            <div class="toggle-slider">
-                                <div class="toggle-knob"></div>
-                            </div>
-                            <span class="toggle-text">{{ isScheduleActive ? 'Activo' : 'Inactivo' }}</span>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn-secondary" (click)="resetForm()">
-                        <i-lucide [name]="RefreshCw" class="btn-icon"></i-lucide>
-                        Restablecer
-                    </button>
-                    <button class="btn-primary" (click)="saveSchedules()">
-                        <i-lucide [name]="Save" class="btn-icon"></i-lucide>
-                        Guardar cambios
-                    </button>
-                </div>
+                <button class="btn-primary" [disabled]="saving" (click)="confirmSaveSchedules()">
+                    @if (saving) {
+                    <div class="loading-spinner-small"></div>
+                    <span>Guardando...</span>
+                    } @else {
+                    <i-lucide [name]="Save" class="btn-icon"></i-lucide>
+                    <span>Guardar cambios</span>
+                    }
+                </button>
             </div>
         </div>
     </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
 </div>

@@ -16,58 +16,15 @@ import { EmployeeSpecialty } from '../models/EmployeeSpecialties.entity';
 
 export const doctorsAvailables = async (req: Request, res: Response) => {
     try {
-
-        /* const id = Number(req.params.id);
-
-        const appointments = await AppDataSource.getRepository(Appointment).find({
-            where: {
-                patient: { id: id },
-            },
-            relations: ['doctor'],
-        });
-
-
-        const bookedDoctorIds = appointments.map(app => app.doctor.id);
-
-        console.log("aqui ando")
-
-
+        // Consulta para obtener los doctores con role = 2 y approved = true
         const doctors = await AppDataSource.manager
-            .createQueryBuilder(Employee, 'employee')
-            .leftJoinAndSelect('employee.person', 'person')
+            .createQueryBuilder(User, 'user')
+            .leftJoinAndSelect('user.person', 'person')
+            .leftJoinAndSelect('person.employee', 'employee')
             .leftJoinAndSelect('employee.specialty', 'employeeSpecialty')
             .leftJoinAndSelect('employeeSpecialty.specialty', 'specialty')
             .leftJoinAndSelect('employee.department', 'employeeDepartment')
             .leftJoinAndSelect('employeeDepartment.department', 'department')
-            .where(qb => {
-                if (bookedDoctorIds.length > 0) {
-                    qb.where('employee.id NOT IN (:...bookedDoctorIds)', { bookedDoctorIds });
-                }
-            })
-            .getMany();
-
-        if (doctors.length === 0) {
-            res.status(400).send('No hay doctores disponibles');
-            return
-        }
-        // Formatear la respuesta
-        const availableDoctors = doctors.map(doctor => ({
-            id: doctor.id,
-            nombre: doctor.person.first_name,
-            apellido: doctor.person.last_name,
-            especialidad: doctor.specialty.map(es => es.specialty.name),
-            locacion: doctor.department.map(ed => ed.department.name)
-        }));
-
-
-
-        res.status(200).send(availableDoctors);
-        return
- */
-        // Consulta para obtener los doctores con role = 2 y approved = true
-        const doctors = await AppDataSource.manager
-            .createQueryBuilder(User, 'user')
-            .leftJoinAndSelect('user.person', 'person') // Relación con la tabla 'person'Relación con la tabla 'employee'
             .where('user.role = :role', { role: 2 })
             .andWhere('user.approved = :approved', { approved: true })
             .getMany();
@@ -81,21 +38,27 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
             return;
         }
 
-        // Formatear la respuesta
-        const formattedDoctors = doctors.map(doctor => ({
-            id: doctor.id,
-            nombre: doctor.person.first_name,
-            apellido: doctor.person.last_name,
-            email: doctor.person.email,
-            foto: doctor.person.photo, // Incluir la foto desde la tabla People
-            //eespecialidades: doctor.employee?.specialty?.map((es) => es.specialty?.name) || []
-// Obtener los nombres de las especialidades
-        }));
+        // Formatear la respuesta incluyendo especialidades y ubicaciones
+        const formattedDoctors = doctors.map(doctor => {
+            const especialidades = doctor.person?.employee?.specialty?.map(es => es.specialty?.name) || [];
+
+            return {
+                id: doctor.id,
+                nombre: doctor.person.first_name,
+                apellido: doctor.person.last_name,
+                email: doctor.person.email,
+                foto: doctor.person.photo,
+                doctorId: doctor.person.employee.id,
+                especialidad: especialidades
+            };
+        });
+
         res.status(200).json({
             error: false,
             data: formattedDoctors
         });
     } catch (error: any) {
+        console.error("Error completo:", error);
         res.status(500).json({
             error: true,
             message: 'Error al obtener los doctores disponibles',
@@ -149,7 +112,6 @@ export const findMedic = async (req: Request, res: Response) => {
 };
 
 export const scheduleMedic = async (req: Request, res: Response) => {
-
     const { doctorId, date } = req.body;
     if (!doctorId || !date) {
         res.status(400).json({
@@ -172,17 +134,21 @@ export const scheduleMedic = async (req: Request, res: Response) => {
         return
     }
 
+    // Usamos UTC para evitar problemas con zonas horarias
     const selectedDate = new Date(date);
+
+    // Para asegurarnos de obtener el día correcto
+    const dayOfWeek = selectedDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // Obtenemos todas las citas para ese día
     const appointments = await AppDataSource.manager
         .createQueryBuilder(Appointment, 'appointment')
         .where('appointment.employee_id = :doctorId', { doctorId })
         .andWhere('DATE(appointment.appointment_date) = DATE(:date)', { date: selectedDate })
+        .andWhere('appointment.status = :status', { status: 'scheduled' }) // Solo considerar citas programadas, no canceladas
         .getMany();
 
-    const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
     const daySchedule = doctorSchedule.find(schedule => schedule.day_of_week === dayOfWeek);
-
 
     if (!daySchedule) {
         res.status(200).json({
@@ -193,13 +159,31 @@ export const scheduleMedic = async (req: Request, res: Response) => {
         });
         return
     }
+
     const timeSlots = generateTimeSlots(
         daySchedule.start_time,
         daySchedule.end_time,
-        60,
+        60, // Intervalo de 60 minutos
         selectedDate
-
     );
+
+    // Función para verificar si un slot está disponible
+    const isSlotAvailable = (slot: Date): boolean => {
+        // Hora de inicio del slot a verificar
+        const slotStartHour = slot.getHours();
+        const slotStartMinute = slot.getMinutes();
+
+        // Verificamos si hay alguna cita programada que se solape con este slot
+        return !appointments.some(appointment => {
+            const appointmentDate = new Date(appointment.appointment_date);
+            const appointmentHour = appointmentDate.getHours();
+            const appointmentMinute = appointmentDate.getMinutes();
+
+            // Consideramos que cada cita ocupa 1 hora completa
+            // Un slot está ocupado si coincide exactamente con la hora de inicio de una cita
+            return appointmentHour === slotStartHour && appointmentMinute === slotStartMinute;
+        });
+    };
 
     const availability = timeSlots.map(slot => ({
         time: slot.toLocaleTimeString('es-ES', {
@@ -207,26 +191,25 @@ export const scheduleMedic = async (req: Request, res: Response) => {
             minute: '2-digit',
             hour12: false
         }),
-        isAvailable: !appointments.some(app =>
-            app.appointment_date.getHours() === slot.getHours() &&
-            app.appointment_date.getMinutes() === slot.getMinutes()
-        )
-    }));;
+        isAvailable: isSlotAvailable(slot)
+    }));
+
+    // Obtener el día de la semana en español
+    const correctDay = getDayName(dayOfWeek);
 
     res.status(200).json({
-        error: true,
+        error: false,
         data: {
             doctorSchedule: {
                 start_time: daySchedule.start_time,
                 end_time: daySchedule.end_time,
-                day: getDayName(daySchedule.day_of_week)
+                day: correctDay
             },
             availability,
             date: selectedDate
         }
-    })
-    return
-
+    });
+    return;
 };
 
 export const createAppointment = async (req: Request, res: Response) => {
@@ -243,14 +226,21 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Parsear y ajustar la fecha y hora
+        console.log('Datos recibidos:', { date, hour, doctorId, motive });
+
         const [year, month, day] = date.split('-').map(Number);
         const [hours, minutes] = hour.split(':').map(Number);
-        const selectedDate = new Date(year, month - 1, day, hours, minutes);
-        selectedDate.setMinutes(selectedDate.getMinutes() - selectedDate.getTimezoneOffset());
-        const dayOfWeek = selectedDate.getDay();
 
-        // Verificar el horario del doctor
+        const appointmentDateString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00.000Z`;
+
+        console.log('Fecha a guardar:', appointmentDateString);
+
+        const selectedDate = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+        console.log('Fecha seleccionada (UTC):', selectedDate.toISOString());
+
+        const dayOfWeek = selectedDate.getUTCDay();
+
         const doctorSchedule = await AppDataSource.manager
             .createQueryBuilder(DoctorSchedule, 'schedule')
             .leftJoinAndSelect('schedule.doctor', 'doctor')
@@ -265,7 +255,6 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Verificar si el doctor trabaja ese día
         const daySchedule = doctorSchedule.find(schedule => schedule.day_of_week === dayOfWeek);
         if (!daySchedule) {
             res.status(400).json({
@@ -275,12 +264,15 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Verificar si el horario está ocupado
         const existingAppointment = await AppDataSource.manager
             .createQueryBuilder(Appointment, 'appointment')
             .where('appointment.employee_id = :doctorId', { doctorId })
-            .andWhere('appointment.appointment_date = :date', {
-                date: selectedDate.toISOString()
+            .andWhere('appointment.status = :status', { status: 'scheduled' })
+            .andWhere("TO_CHAR(appointment.appointment_date, 'YYYY-MM-DD') = :dateStr", {
+                dateStr: `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+            })
+            .andWhere("TO_CHAR(appointment.appointment_date, 'HH24:MI') = :timeStr", {
+                timeStr: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
             })
             .getOne();
 
@@ -292,7 +284,6 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Obtener doctor y paciente con sus relaciones
         const doctor = await AppDataSource.manager.findOne(Employee, {
             where: { id: doctorId },
             relations: ['person']
@@ -319,18 +310,22 @@ export const createAppointment = async (req: Request, res: Response) => {
             return;
         }
 
-        // Crear nueva cita
-        const appointmentRepository = AppDataSource.getRepository(Appointment);
-        const appointment = appointmentRepository.create({
-            appointment_date: selectedDate,
-            reason: motive,
-            status: 'scheduled',
-            patient: patient,
-            doctor: doctor
-        });
+        const result = await AppDataSource.createQueryBuilder()
+            .insert()
+            .into(Appointment)
+            .values({
+                appointment_date: () => `TO_TIMESTAMP('${appointmentDateString}', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
+                reason: motive,
+                status: 'scheduled',
+                patient: patient,
+                doctor: doctor
+            })
+            .returning('*')
+            .execute();
 
-        // Guardar la cita
-        const savedAppointment = await appointmentRepository.save(appointment);
+        const savedAppointment = result.raw[0];
+
+        console.log('Cita guardada con fecha:', savedAppointment.appointment_date);
 
         res.status(201).json({
             error: false,
@@ -361,6 +356,7 @@ export const createAppointment = async (req: Request, res: Response) => {
         });
     }
 };
+
 export const activesAppointment = async (req: Request, res: Response) => {
 
     try {
@@ -498,6 +494,91 @@ export const cancelAppointment = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({
             error: error.message
+        });
+    }
+};
+
+export const getAllPatientAppointments = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            res.status(400).json({
+                error: true,
+                message: 'El ID del paciente es requerido'
+            });
+            return;
+        }
+
+        // Obtener todas las citas del paciente sin filtrar por estado
+        const appointments = await AppDataSource.manager
+            .createQueryBuilder(Appointment, 'appointment')
+            .select([
+                'appointment.id as appointment_id',
+                'appointment.appointment_date as appointment_date',
+                'appointment.reason as reason',
+                'appointment.status as status',
+                'appointment.treatment as treatment',
+                'appointment.cancellation_reason as cancellation_reason',
+                'doctor.id as doctor_id',
+                'doctorPerson.first_name as doctorPerson_first_name',
+                'doctorPerson.last_name as doctorPerson_last_name',
+                'doctorPerson.photo as doctorPerson_photo',
+                'patient.id as patient_id',
+                'patientPerson.first_name as patientPerson_first_name',
+                'patientPerson.last_name as patientPerson_last_name'
+            ])
+            .leftJoinAndSelect('appointment.patient', 'patient')
+            .leftJoinAndSelect('appointment.doctor', 'doctor')
+            .leftJoinAndSelect('doctor.person', 'doctorPerson')
+            .leftJoinAndSelect('patient.person', 'patientPerson')
+            .where('appointment.patient_id = :id', { id })
+            .orderBy('appointment.appointment_date', 'DESC') // Las más recientes primero
+            .getRawMany();
+
+        if (appointments.length === 0) {
+            // No se encontraron citas, pero esto no es un error
+            res.status(200).json({
+                error: false,
+                message: 'El paciente no tiene citas registradas',
+                data: []
+            });
+            return;
+        }
+
+        // Formatear los datos para la respuesta
+        const appointmentData = appointments.map(app => ({
+            id: app.appointment_id,
+            fecha: app.appointment_date,
+            motivo: app.reason,
+            estado: app.status,
+            tratamiento: app.treatment,
+            motivo_cancelacion: app.cancellation_reason,
+            doctor: {
+                id: app.doctor_id,
+                nombre: app.doctorPerson_first_name,
+                apellido: app.doctorPerson_last_name,
+                foto: app.doctorPerson_photo
+            },
+            paciente: {
+                id: app.patient_id,
+                nombre: app.patientPerson_first_name,
+                apellido: app.patientPerson_last_name
+            }
+        }));
+
+        // Enviar la respuesta
+        res.status(200).json({
+            error: false,
+            data: appointmentData
+        });
+
+    } catch (error: any) {
+        console.error('Error al obtener las citas del paciente:', error);
+        res.status(500).json({
+            error: true,
+            message: 'Error al obtener las citas del paciente',
+            details: error.message
         });
     }
 };

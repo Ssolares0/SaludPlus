@@ -9,6 +9,7 @@ import { DoctorSchedule } from '../models/DoctorSchedule.entity';
 import { generateTimeSlots, getDayName } from '../helpers/slotsPacient';
 import { Patient } from '../models/Patient.entity';
 import { User } from '../models/User.entity';
+import { EmployeeSpecialty } from '../models/EmployeeSpecialties.entity';
 
 
 
@@ -66,7 +67,7 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
         // Consulta para obtener los doctores con role = 2 y approved = true
         const doctors = await AppDataSource.manager
             .createQueryBuilder(User, 'user')
-            .leftJoinAndSelect('user.person', 'person') // Relación con la tabla 'person'
+            .leftJoinAndSelect('user.person', 'person') // Relación con la tabla 'person'Relación con la tabla 'employee'
             .where('user.role = :role', { role: 2 })
             .andWhere('user.approved = :approved', { approved: true })
             .getMany();
@@ -85,16 +86,20 @@ export const doctorsAvailables = async (req: Request, res: Response) => {
             id: doctor.id,
             nombre: doctor.person.first_name,
             apellido: doctor.person.last_name,
-            email: doctor.person.email
+            email: doctor.person.email,
+            foto: doctor.person.photo, // Incluir la foto desde la tabla People
+            //eespecialidades: doctor.employee?.specialty?.map((es) => es.specialty?.name) || []
+// Obtener los nombres de las especialidades
         }));
-
         res.status(200).json({
             error: false,
             data: formattedDoctors
         });
     } catch (error: any) {
-        res.status(400).json({
-            error: error.message || 'Error al registrar el paciente'
+        res.status(500).json({
+            error: true,
+            message: 'Error al obtener los doctores disponibles',
+            details: error.message
         });
     }
 };
@@ -361,7 +366,7 @@ export const activesAppointment = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        if(!id){
+        if (!id) {
             res.status(400).json({
                 error: false,
                 message: 'El ID del paciente es requerido'
@@ -433,10 +438,10 @@ export const activesAppointment = async (req: Request, res: Response) => {
 }
 
 export const cancelAppointment = async (req: Request, res: Response) => {
-    try{
+    try {
         const { id } = req.params;
 
-        if(!id){
+        if (!id) {
             res.status(400).json({
                 error: false,
                 message: 'El ID del paciente y el ID de la cita son requeridos'
@@ -455,7 +460,7 @@ export const cancelAppointment = async (req: Request, res: Response) => {
             .getOne();
 
 
-        if(!appointment){
+        if (!appointment) {
             res.status(404).json({
                 error: false,
                 message: 'Cita no encontrada'
@@ -490,7 +495,7 @@ export const cancelAppointment = async (req: Request, res: Response) => {
         })
         return
 
-    }catch(error: any){
+    } catch (error: any) {
         res.status(400).json({
             error: error.message
         });
@@ -500,7 +505,7 @@ export const cancelAppointment = async (req: Request, res: Response) => {
 export const getAndUpdateProfile = async (req: Request, res: Response) => {
     try {
         const { id } = req.params; // ID del paciente
-        const { firstName, lastName, phone, address, birth_date, gender,photoUrl } = req.body;
+        const { firstName, lastName, phone, address, birth_date, gender, photoUrl } = req.body;
 
         // Verificar si el ID del paciente es válido
         if (!id) {
@@ -550,7 +555,7 @@ export const getAndUpdateProfile = async (req: Request, res: Response) => {
         if (address) patient.person.address = address;
         if (birth_date) patient.person.birth_date = new Date(birth_date);
         if (gender) patient.person.gender = gender;
-        if(photoUrl) patient.person.photo = photoUrl
+        if (photoUrl) patient.person.photo = photoUrl
 
         // Guardar los cambios
         await AppDataSource.manager.save(patient.person);

@@ -6,8 +6,12 @@
         </div>
         <div class="user-container" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
             <div class="user-info">
-                <span class="user-role">Médico</span>
-                <div class="user-avatar">M</div>
+                <span class="user-role">{{ doctorData?.firstName || '' }} {{ doctorData?.lastName || '' }}</span>
+                @if (doctorData?.photo) {
+                <img [src]="(doctorData?.photo || '') | safeImage" alt="Foto del doctor" class="user-avatar-img">
+                } @else {
+                <div class="user-avatar">{{ (doctorData?.firstName || 'M').charAt(0) }}</div>
+                }
                 <i-lucide [name]="ChevronDown" class="dropdown-icon"></i-lucide>
             </div>
 

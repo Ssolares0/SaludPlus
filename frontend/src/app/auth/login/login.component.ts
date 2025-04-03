@@ -167,17 +167,20 @@ export class LoginComponent implements OnInit {
         }
         else if (this.authService.isStandardResponse(response)) {
           if (response.success) {
-            localStorage.setItem('userRoleName', response.role.name);
+            localStorage.setItem('userRoleName', response.role);
             localStorage.setItem('token', response.token);
+            localStorage.setItem('userId', response.userId.toString());
 
-            switch (response.role.name) {
+            switch (response.role) {
               case 'doctor': 
+                localStorage.setItem('doctorId', response.doctorId?.toString() || '');
                 this.showSuccessModal("¡Autenticación completada exitosamente!")
                 setTimeout(() => {
                   this.router.navigate(['/doctor/appointments']);
                 }, 1500);
                 break;
               case 'paciente':
+                localStorage.setItem('patientId', response.patientId?.toString() || '');
                 this.showSuccessModal("¡Autenticación completada exitosamente!")
                 setTimeout(() => {
                   this.router.navigate(['/patients']);
@@ -190,7 +193,7 @@ export class LoginComponent implements OnInit {
         }
         else {
           console.error('Formato de respuesta no reconocido:', response);
-          this.showErrorModal('Error inesperado en la respuesta del servidor');
+          this.showErrorModal('Error inesperado en la respuesta del servidor, credenciales incorrectas o tu cuenta no ha sido activada.');
         }
       },
       error: (error) => {

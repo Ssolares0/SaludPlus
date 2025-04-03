@@ -1,5 +1,5 @@
-import { PendingPatientsResponse, PendingDoctorsResponse, ActivePatientsResponse, ActiveDoctorsResponse, AcceptUserResponse, RejectUserResponse } from "../models/admin.models";
-import { HttpClient, HttpErrorResponse} from "@angular/common/http";
+import { PendingPatientsResponse, PendingDoctorsResponse, ActivePatientsResponse, ActiveDoctorsResponse, AcceptUserResponse, RejectUserResponse, StatisticsBody, StatisticsResponse } from "../models/admin.models";
+import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -49,11 +49,23 @@ export class AdminService {
     }
 
     public rejectUser(id: number): Observable<RejectUserResponse> {
-        return this.http.delete<RejectUserResponse>(`${environment.apiUrl}/admin/delete/user`, {
-            body: { id }
-        }).pipe(
-            catchError(this.handleError)
-        );
+        return this.http.delete<RejectUserResponse>(`${environment.apiUrl}/admin/delete/user`, { body: { id } })
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getStatistics(specialty?: StatisticsBody): Observable<StatisticsResponse[]> {
+        let params = new HttpParams();
+
+        if (specialty && specialty.specialty) {
+            params = params.set('specialty', specialty.specialty);
+        }
+
+        return this.http.get<StatisticsResponse[]>(`${environment.apiUrl}/admin/report/topDoctor`, { params })
+            .pipe(
+                catchError(this.handleError)
+            );
     }
 
     private handleError(error: HttpErrorResponse) {

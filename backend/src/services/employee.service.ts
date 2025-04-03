@@ -133,6 +133,23 @@ export class EmployeService{
         }
     }
 
+    async getScheduledDoctor(
+        doctor_id: number
+    ){
+        const employeeRepositoru = AppDataSource.getRepository(DoctorSchedule);
+        const scheduled = await employeeRepositoru.find({
+            where:{
+                doctor: {
+                    id:doctor_id
+                },
+            },
+        })
+        if(!scheduled)
+            return [];
+
+        return scheduled 
+    }
+
     async doctorScheduled(
         schedule: {
             days:number[];

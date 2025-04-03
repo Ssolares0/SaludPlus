@@ -27,6 +27,7 @@ import { ModalComponent } from '../../core/components/modal/modal.component';
   templateUrl: './view-doctors.component.html',
   styleUrls: ['./view-doctors.component.css']
 })
+
 export class ViewDoctorsComponent implements OnInit {
   doctors: ActiveDoctorsResponse[] = [];
   filteredDoctors: ActiveDoctorsResponse[] = [];
@@ -67,6 +68,24 @@ export class ViewDoctorsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  getFirstName(fullName: string): string {
+    return fullName.split(' ')[0];
+  }
+
+  getFirstLastName(fullLastName: string): string {
+    return fullLastName.split(' ')[0];
+  }
+
+  getFormattedName(doctor: ActiveDoctorsResponse): string {
+    const firstName = this.getFirstName(doctor.firstame);
+    const lastName = this.getFirstLastName(doctor.lastName);
+    return `${firstName} ${lastName}`;
+  }
+
+  getFormattedDoctorName(doctor: ActiveDoctorsResponse): string {
+    return `Dr. ${this.getFormattedName(doctor)}`;
   }
 
   calculateAge(birthDate: string): number {
@@ -118,7 +137,7 @@ export class ViewDoctorsComponent implements OnInit {
     if (this.searchTerm.trim()) {
       const searchTermLower = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(doctor =>
-        `${doctor.firstame} ${doctor.lastName}`.toLowerCase().includes(searchTermLower) ||
+        this.getFormattedName(doctor).toLowerCase().includes(searchTermLower) ||
         doctor.specialty.some(s => s.specialty.name.toLowerCase().includes(searchTermLower))
       );
     }

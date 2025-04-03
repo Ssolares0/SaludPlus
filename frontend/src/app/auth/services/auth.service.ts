@@ -89,7 +89,7 @@ export class AuthService {
         formData.append('id_specialty', doctorData.id_specialty.toString());
         formData.append('name_department', doctorData.name_department);
 
-        formData.append('direccion_departmento', doctorData.direccion_departamento);
+        formData.append('direccion_departamento', doctorData.direccion_departamento);
 
         if (doctorData.photo) {
             formData.append('photo', doctorData.photo, doctorData.photo.name);

@@ -17,4 +17,4 @@
 
 [Manual de Usuario](./docs/manual-usuario.md)
 
-[Manual de Tecnico](./docs/manual-tecnico.md)
+[Manual de Técnico](./docs/manual-tecnico.md)

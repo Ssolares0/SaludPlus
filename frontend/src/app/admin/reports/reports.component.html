@@ -1,55 +1,36 @@
 <div class="reports-container">
     <div class="page-header">
         <h2>Reportes y Estadísticas</h2>
-        <div class="date-range">
-            <button class="date-btn active">Hoy</button>
-            <button class="date-btn">Esta semana</button>
-            <button class="date-btn">Este mes</button>
-            <button class="date-btn custom">
-                <i-lucide [name]="calendar" class="btn-icon"></i-lucide>
-                Personalizado
-            </button>
-        </div>
     </div>
 
+    @if (loading) {
+    <div class="loading-state">
+        <p>Cargando datos...</p>
+    </div>
+    } @else if (error) {
+    <div class="error-state">
+        <p>{{ error }}</p>
+    </div>
+    } @else {
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-header">
-                <h3>Nuevos Registros</h3>
-                <select class="stat-select">
-                    <option value="doctors">Médicos</option>
-                    <option value="patients">Pacientes</option>
-                </select>
+                <h3>Distribución por Especialidad</h3>
+                <button class="btn-icon" title="Descargar reporte" (click)="downloadSpecialtyReport()">
+                    <i-lucide [name]="download" class="btn-icon"></i-lucide>
+                </button>
             </div>
-            <div class="chart-container">
-                <div class="line-chart"></div>
+            <div class="chart-container specialty-chart-container">
+                <canvas id="specialtyDistributionChart"></canvas>
             </div>
         </div>
 
         <div class="stat-card">
             <div class="stat-header">
-                <h3>Distribución por Especialidad</h3>
+                <h3>Distribución por Género</h3>
             </div>
-            <div class="chart-container">
-                <div class="donut-chart"></div>
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <span class="legend-color" style="background-color: var(--azl-serenidad-300)"></span>
-                        <span class="legend-label">Cardiología (35%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background-color: var(--arena-suave-300)"></span>
-                        <span class="legend-label">Pediatría (25%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background-color: var(--marfil-ligero-300)"></span>
-                        <span class="legend-label">Dermatología (20%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background-color: var(--perla-cremosa-300)"></span>
-                        <span class="legend-label">Otros (20%)</span>
-                    </div>
-                </div>
+            <div class="chart-container specialty-chart-container">
+                <canvas id="genderDistributionChart"></canvas>
             </div>
         </div>
     </div>
@@ -57,10 +38,10 @@
     <div class="reports-grid">
         <div class="report-card">
             <div class="report-header">
-                <h3>Citas por Día</h3>
+                <h3>Médicos por Especialidad</h3>
                 <div class="report-actions">
-                    <button class="btn-icon" title="Descargar reporte">
-                        <i-lucide [name]="download" class="btn-icon"></i-lucide>
+                    <button class="btn-icon" title="Descargar reporte" (click)="downloadSpecialtyReport()">
+                        <i-lucide [name]="fileText" class="btn-icon"></i-lucide>
                     </button>
                 </div>
             </div>
@@ -68,23 +49,23 @@
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Total Citas</th>
-                            <th>Completadas</th>
-                            <th>Canceladas</th>
+                            <th>Especialidad</th>
+                            <th>Número de Médicos</th>
+                            <th>Porcentaje</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for (i of [1,2,3,4,5]; track $index) {
+                        @for (item of doctorsBySpecialty; track item.specialty) {
                         <tr>
-                            <td>{{ i === 1 ? '15 Mar 2024' : i === 2 ? '14 Mar 2024' : i === 3 ? '13 Mar 2024' : i === 4
-                                ? '12 Mar 2024' : '11 Mar 2024' }}</td>
-                            <td>{{ 45 - (i * 2) }}</td>
+                            <td>{{ item.specialty }}</td>
+                            <td>{{ item.count }}</td>
                             <td>
-                                <span class="status-pill success">{{ 38 - (i * 2) }}</span>
-                            </td>
-                            <td>
-                                <span class="status-pill danger">{{ 7 }}</span>
+                                <div class="progress-container">
+                                    <div class="progress-bar"
+                                        [style.width.%]="(item.count / activeDoctors.length) * 100">
+                                    </div>
+                                    <span>{{ ((item.count / activeDoctors.length) * 100).toFixed(1) }}%</span>
+                                </div>
                             </td>
                         </tr>
                         }
@@ -97,37 +78,70 @@
             <div class="report-header">
                 <h3>Médicos Más Activos</h3>
                 <div class="report-actions">
-                    <button class="btn-icon" title="Descargar reporte">
+                    <button class="btn-icon" title="Descargar reporte" (click)="downloadTopDoctorsReport()">
                         <i-lucide [name]="download" class="btn-icon"></i-lucide>
                     </button>
                 </div>
             </div>
             <div class="report-content">
-                @for (i of [1,2,3,4,5]; track $index) {
+                @if (filteredTopDoctors.length === 0) {
+                <p class="empty-message">No hay datos disponibles para mostrar.</p>
+                } @else {
+                @for (doctor of filteredTopDoctors; track doctor.id; let i = $index) {
                 <div class="doctor-ranking">
                     <div class="ranking-info">
-                        <span class="ranking-number">#{{i}}</span>
-                        <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=50&h=50&fit=crop"
-                            alt="Foto del médico" class="ranking-avatar">
+                        <span class="ranking-number">#{{i + 1}}</span>
+                        <div class="avatar-placeholder">
+                            {{ doctor.name.charAt(0) }}
+                        </div>
                         <div class="ranking-details">
-                            <p class="doctor-name">Dr. Carlos Ramírez</p>
-                            <p class="doctor-specialty">{{ i === 1 ? 'Cardiología' : i === 2 ? 'Pediatría' : i === 3 ?
-                                'Dermatología' : i === 4 ? 'Neurología' : 'Oftalmología' }}</p>
+                            <p class="doctor-name">{{ doctor.name }}</p>
+                            <p class="doctor-specialty">{{ doctor.specialty }}</p>
                         </div>
                     </div>
                     <div class="ranking-stats">
                         <div class="stat">
-                            <span class="stat-number">{{ 156 - (i * 12) }}</span>
-                            <span class="stat-label">Citas</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number">{{ 4.8 - (i * 0.1) | number:'1.1-1' }}</span>
-                            <span class="stat-label">Rating</span>
+                            <span class="stat-number">{{ doctor.patientsCount }}</span>
+                            <span class="stat-label">Pacientes</span>
                         </div>
                     </div>
                 </div>
                 }
+                }
             </div>
         </div>
     </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-icon doctors">
+                <i-lucide [name]="users" class="summary-icon-svg"></i-lucide>
+            </div>
+            <div class="summary-content">
+                <h4>Médicos Activos</h4>
+                <p class="summary-number">{{ activeDoctors.length }}</p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon patients">
+                <i-lucide [name]="users" class="summary-icon-svg"></i-lucide>
+            </div>
+            <div class="summary-content">
+                <h4>Pacientes Activos</h4>
+                <p class="summary-number">{{ activePatients.length }}</p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon specialties">
+                <i-lucide [name]="fileText" class="summary-icon-svg"></i-lucide>
+            </div>
+            <div class="summary-content">
+                <h4>Especialidades</h4>
+                <p class="summary-number">{{ specialties.length }}</p>
+            </div>
+        </div>
+    </div>
+    }
 </div>

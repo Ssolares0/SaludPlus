@@ -193,7 +193,7 @@ export class LoginComponent implements OnInit {
         }
         else {
           console.error('Formato de respuesta no reconocido:', response);
-          this.showErrorModal('Error inesperado en la respuesta del servidor');
+          this.showErrorModal('Error inesperado en la respuesta del servidor, credenciales incorrectas o tu cuenta no ha sido activada.');
         }
       },
       error: (error) => {

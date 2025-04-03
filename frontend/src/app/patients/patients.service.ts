@@ -1,4 +1,4 @@
-import { Doctor, ScheduleResponse, ActiveAppointmentsResponse, ScheduleRequest, AppointmentBody } from "./patients.models";
+import { Doctor, ScheduleResponse, ActiveAppointmentsResponse, ScheduleRequest, AppointmentBody, AppointmentHistoryResponse } from "./patients.models";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { catchError, map, throwError } from "rxjs";
 import { Injectable } from "@angular/core";
@@ -91,6 +91,17 @@ export class PatientsService {
             .pipe(
                 map(response => {
                     console.log('Respuesta del servidor al cancelar cita:', response);
+                    return response;
+                }),
+                catchError(this.handleError)
+            );
+    }
+
+    public getAppointmentHistory(patientId: number): Observable<AppointmentHistoryResponse> {
+        return this.http.get<AppointmentHistoryResponse>(`${this.apiUrl}/patient/appointments/${patientId}`)
+            .pipe(
+                map(response => {
+                    console.log('Respuesta del servidor al obtener historial de citas:', response);
                     return response;
                 }),
                 catchError(this.handleError)

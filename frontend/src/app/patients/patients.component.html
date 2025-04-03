@@ -16,6 +16,10 @@
                         Ver mis citas activas
                     </button>
                 </div>
+                <button class="secondary-button" (click)="loadAppointmentHistory()">
+                    <i class="fas fa-history"></i>
+                    Historial de citas
+                </button>
                 <!-- Botón de logout -->
                 <div class="logout-container">
                     <button class="logout-button" (click)="logout()">
@@ -241,6 +245,93 @@
                 </button>
                 <button class="secondary-button" (click)="showCancelConfirmation = false">
                     No, mantener cita
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" *ngIf="showAppointmentHistory" (click)="showAppointmentHistory = false">
+        <div class="modal-content history-modal" (click)="$event.stopPropagation()">
+            <h3 class="modal-title">Historial de Citas</h3>
+
+            <div *ngIf="loading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Cargando historial...</p>
+            </div>
+
+            <div class="filter-tabs" *ngIf="!loading && appointmentHistory.length > 0">
+                <button class="filter-button" [class.active]="selectedHistoryFilter === 'all'"
+                    (click)="filterAppointmentHistory('all')">
+                    Todas
+                </button>
+                <button class="filter-button" [class.active]="selectedHistoryFilter === 'scheduled'"
+                    (click)="filterAppointmentHistory('scheduled')">
+                    Programadas
+                </button>
+                <button class="filter-button" [class.active]="selectedHistoryFilter === 'completed'"
+                    (click)="filterAppointmentHistory('completed')">
+                    Completadas
+                </button>
+                <button class="filter-button" [class.active]="selectedHistoryFilter === 'canceled'"
+                    (click)="filterAppointmentHistory('canceled')">
+                    Canceladas
+                </button>
+            </div>
+
+            <div class="appointments-list history-list" *ngIf="!loading && getFilteredHistory().length > 0">
+                <div class="appointment-card" *ngFor="let appointment of getFilteredHistory()">
+                    <div class="appointment-header">
+                        <div class="doctor-info">
+                            <img *ngIf="appointment.doctor.foto" [src]="appointment.doctor.foto | safeImage"
+                                alt="Foto del doctor" class="doctor-thumbnail">
+                            <div class="doctor-thumbnail placeholder" *ngIf="!appointment.doctor.foto">
+                                <span>{{ appointment.doctor.nombre[0] }}{{ appointment.doctor.apellido[0] }}</span>
+                            </div>
+                            <h4>Dr. {{ appointment.doctor.nombre }} {{ appointment.doctor.apellido }}</h4>
+                        </div>
+                        <span class="appointment-status" [ngClass]="getStatusColor(appointment.estado)">
+                            {{ translateStatus(appointment.estado) }}
+                        </span>
+                    </div>
+                    <div class="appointment-details">
+                        <p><strong>Fecha:</strong> {{ appointment.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+                        <p><strong>Motivo:</strong> {{ appointment.motivo }}</p>
+
+                        <div *ngIf="appointment.tratamiento" class="treatment-section">
+                            <p><strong>Tratamiento:</strong></p>
+                            <p class="treatment-text">{{ appointment.tratamiento }}</p>
+                        </div>
+
+                        <div *ngIf="appointment.motivo_cancelacion" class="cancellation-section">
+                            <p><strong>Motivo de cancelación:</strong></p>
+                            <p class="cancellation-text">{{ appointment.motivo_cancelacion }}</p>
+                        </div>
+                    </div>
+
+                    <div class="appointment-actions" *ngIf="appointment.estado === 'scheduled'">
+                        <button class="cancel-button" (click)="confirmCancelAppointment(appointment)">
+                            Cancelar cita
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!loading && appointmentHistory.length === 0" class="no-appointments">
+                No tienes citas registradas en tu historial
+            </div>
+
+            <div *ngIf="!loading && appointmentHistory.length > 0 && getFilteredHistory().length === 0"
+                class="no-appointments">
+                No hay citas que coincidan con el filtro seleccionado
+            </div>
+
+            <div *ngIf="error" class="error-message">
+                {{ error }}
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="secondary-button" (click)="showAppointmentHistory = false">
+                    Cerrar
                 </button>
             </div>
         </div>

@@ -81,3 +81,14 @@ export interface RejectUserResponse {
     message: string;
     success: boolean;
 }
+
+export interface StatisticsResponse {
+    id: number;
+    name: string;
+    specialty: string;
+    patientsCount: string;
+}
+
+export interface StatisticsBody {
+    specialty?: string;
+}

@@ -260,3 +260,29 @@ El sistema debe permitir a los administradores gestionar usuarios, médicos y ci
 
 - Interfaz intuitiva y fácil de usar
 - Compatibilidad con principales navegadores web
+
+## Proceso en Kanban
+
+### Inicio del Sprint 1
+
+![Kanban](img/Capturas%20Kanban/Sprint%201/Principio.jpeg)
+
+### Mitad del Sprint 1
+
+![Kanban](img/Capturas%20Kanban/Sprint%201/Mitad.jpeg)
+
+### Fin del Sprint 1
+
+![Kanban](img/Capturas%20Kanban/Sprint%201/Final.jpeg)
+
+## Reunion del Sprint 1
+
+La reunion del Sprint 1 se realizó el 10 de marzo del 2025. En esta reunión se establecieron los objetivos del sprint, se definio cada una de las tecnologías a utilizar, se definieron los roles de cada uno de los integrantes del equipo y se establecieron las tareas a realizar.
+
+- Se utilizó la metodología Scrum para la gestión del proyecto. Se utilizó la herramienta [Notion](https://www.notion.so/) para la gestión de tareas y el seguimiento del proyecto.
+
+- Se utilizó la herramienta WhatsApp para la comunicación entre los integrantes del equipo.
+
+- Se utilizó la herramienta [Google meet](https://meet.google.com/) para la reunión.
+
+Dicha reunion quedo totalmente grabada y se encuentra en el siguiente [link](https://drive.google.com/file/d/1ZsZb-VwDDb3WzDNKaAUmfz68dojGZqKe/view?usp=drive_link).

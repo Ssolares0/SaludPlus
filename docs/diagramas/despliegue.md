@@ -53,7 +53,6 @@ Este diagrama representa la arquitectura de despliegue de la aplicación **Salud
 
 ## 🖼️ Diagrama Visual
 
-_Agregar aquí la imagen del diagrama de despliegue UML (puedes usar draw.io, Lucidchart, etc.)_
 
-```markdown
-![Diagrama de Despliegue](ruta/a/diagrama-despliegue.png)
+![Diagrama de Despliegue](./img/despliegue.png)
+

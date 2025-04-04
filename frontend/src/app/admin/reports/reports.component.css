@@ -86,7 +86,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.25rem;
 }
 
 .stat-header h3 {
@@ -205,6 +204,7 @@
 .report-actions {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
 }
 
 .btn-icon {
@@ -301,6 +301,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex: 1.5;
 }
 
 .ranking-number {
@@ -316,6 +317,7 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--azl-serenidad-100);
+    background-color: var(--marfil-ligero-100);
 }
 
 .ranking-details {
@@ -338,12 +340,15 @@
 .ranking-stats {
     display: flex;
     gap: 1.5rem;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .stat {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 4rem;
 }
 
 .stat-number {
@@ -402,5 +407,200 @@
 
     .stat-label {
         font-size: 0.6875rem;
+    }
+}
+
+.loading-state,
+.error-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gris);
+}
+
+.avatar-placeholder {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--azl-serenidad-400);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    border: 2px solid var(--azl-serenidad-100);
+}
+
+.progress-container {
+    width: 100%;
+    height: 1.25rem;
+    background-color: var(--marfil-ligero-100);
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--azl-serenidad-400);
+    border-radius: 1rem;
+    transition: width 0.3s ease;
+}
+
+.progress-container span {
+    position: absolute;
+    right: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--negro-suave);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.summary-card {
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.summary-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.summary-icon.doctors {
+    background-color: rgba(66, 153, 225, 0.15);
+    color: var(--azl-serenidad-500);
+}
+
+.summary-icon.patients {
+    background-color: rgba(236, 201, 75, 0.15);
+    color: #D97706;
+}
+
+.summary-icon.specialties {
+    background-color: rgba(72, 187, 120, 0.15);
+    color: #059669;
+}
+
+.summary-icon-svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.summary-content {
+    flex: 1;
+}
+
+.summary-content h4 {
+    font-size: 0.875rem;
+    color: var(--gris);
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+}
+
+.summary-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+    margin: 0;
+}
+
+.stat-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--strokes);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background-color: var(--blanco);
+    color: var(--gris);
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+@media (max-width: 640px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .report-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .stat-select {
+        flex: 1;
+    }
+}
+
+.specialty-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 0.5rem;
+}
+
+#specialtyDistributionChart {
+    max-width: 90%;
+    max-height: 90%;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .specialty-chart-container canvas {
+        max-width: 400px;
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ranking-stats {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-end;
+    }
+    
+    .stat {
+        flex-direction: row;
+        gap: 0.5rem;
+        min-width: auto;
+    }
+    
+    .report-actions {
+        flex-wrap: wrap;
     }
 }

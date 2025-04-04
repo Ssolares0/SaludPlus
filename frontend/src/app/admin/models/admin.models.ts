@@ -81,3 +81,16 @@ export interface RejectUserResponse {
     message: string;
     success: boolean;
 }
+
+export interface StatisticsResponse {
+    id: number;
+    name: string;
+    photo: string | null;
+    specialty: string;
+    patientsCount: number;
+    appointmentsCount: number;
+}
+
+export interface StatisticsBody {
+    specialty?: string;
+}

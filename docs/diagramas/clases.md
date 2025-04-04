@@ -84,7 +84,5 @@ El diagrama de clases representa la estructura lógica del sistema **SaludPlus**
 
 ## 🖼️ Diagrama Visual
 
-Aqui va el diagrama UML
-verificar si estan bien las clases
-```markdown
-![Diagrama de Clases](ruta/a/diagrama-clases.png)
+
+![Diagrama de Clases](./img/diagrama_clases.png)

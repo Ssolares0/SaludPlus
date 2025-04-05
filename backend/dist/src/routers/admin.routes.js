@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.adminRouter = void 0;
+const express_1 = require("express");
+const admin_controller_1 = require("../controller/admin.controller");
+const router = (0, express_1.Router)();
+exports.adminRouter = router;
+router.get('/pending/patients', admin_controller_1.getPatientPending);
+router.get('/pending/doctors', admin_controller_1.getDoctorPending);
+router.get('/active/patients', admin_controller_1.getActivePatient);
+router.get('/active/doctors', admin_controller_1.getActiveDoctor);
+router.delete('/delete/user', admin_controller_1.deleteUser);
+router.get('/report/topDoctor', admin_controller_1.getTopDoctors);

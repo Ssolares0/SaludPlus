@@ -17,3 +17,6 @@ Este diagrama representa las interacciones principales que los distintos actores
 ## 📷 Diagrama Visual
 
 ![Diagrama de Casos de Uso](./img/caso_de_uso.png)
+---
+
+> 📌 Ver: [Diagrama de clases ](../diagramas/clases.md) para detalles.

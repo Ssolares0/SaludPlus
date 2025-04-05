@@ -62,56 +62,56 @@
 - Daily 1 - 22 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Definicion del Segundo sprint
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Creacion de modelos para registrar contactos de emergencia, citas
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No
 
 - Daily 2 - 24 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Creacion de modelos para registrar contactos de emergencia, citas
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Crear las relaciones de los pacientes con las citas y los doctores con las citas
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No
 
 - Daily 3 - 25 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Crear las relaciones de los pacientes con las citas y los doctores con las citas
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Creacion de endpoint para mandar correo al momento de cancelar una cita
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No
 
 - Daily 4 - 26 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Creacion de endpoint para mandar correo al momento de cancelar una cita
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Realizar todos los endpoints relacionados con doctores
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - NO hay un campo en la base de datos para poder indicar si un doctor esta activo o desactivado
 
 - Daily 5 - 27 de marzo de 2025
 
-  - ¿Qué hice ayer?
-    - Respuesta
+  - Qué hice ayer?
+    - Realizar todos los endpoints relacionados con doctores
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Realizar todos los endpoints relacionados con el administrador del sistema
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No puedo probar reportes ya que no hay suficientes registros en la base de datos.
 
 - Daily 6 - 28 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Realizar todos los endpoints relacionados con el administrador del sistema
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Creacion de pruebas unitarias
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No
 
 #### Moisés Antonio Conde Hernández - 202000127
 

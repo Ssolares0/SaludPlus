@@ -64,56 +64,56 @@
 - Daily 1 - 12 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Se definio el primer sprint
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Creacion de la estructura del backend con node ts
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - NO se tuvo obstaculos
 
 - Daily 2 - 14 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Se creo la estructura del backend con node Typescrip
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Conectar la base de datos con el backend
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - NO se tuvo obstaculos
 
 - Daily 3 - 15 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Se conecto la base de datos con el backend
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Creacion de los modelos de la base de datos
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No conocia mucho sobre TypeORM
 
 - Daily 4 - 16 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Creacion de los modelos de la base de datos
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Creacion de los endpoints para registrar pacientes y doctores
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - para mapear tablas debia colocar el nombre identico al que tiene en la base de datos
 
 - Daily 5 - 17 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Creacion de los endpoints para registrar pacientes y doctores
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Implementar relacion en la tabla doctores con las especialidades y con departamentos
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - La base de datos no cuenta con un campo para guardar la direccion del medico directamente
 
 - Daily 6 - 18 de marzo de 2025
 
   - ¿Qué hice ayer?
-    - Respuesta
+    - Implementar relacion en la tabla doctores con las especialidades y con departamentos
   - ¿Qué voy a hacer hoy?
-    - Respuesta
+    - Realizar pruebas para todas las validaciones
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
-    - Respuesta
+    - No
 
 #### Moisés Antonio Conde Hernández - 202000127
 

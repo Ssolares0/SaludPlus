@@ -56,3 +56,6 @@ Este diagrama representa los componentes principales que conforman la plataforma
 ## 🖼️ Diagrama Visual
 
 ![Diagrama de Componentes](./img/image.png)
+
+---
+> 📌 Ver: [Diagrama de despliegue](../diagramas/despliegue.md) para detalles.

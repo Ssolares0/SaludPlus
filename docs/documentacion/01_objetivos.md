@@ -15,3 +15,7 @@ Desarrollar una plataforma web denominada SaludPlus que permita la comunicación
 - Llevar a cabo una correcta documentación de los procesos realizados para realizar el proyecto.
 
 - Realizar pruebas unitarias de forma correcta para garantizar que el software funciona correctamente
+
+---
+
+> 📌 Ver: [Requerimientos](../documentacion/02_requerimientos.md) para detalles.

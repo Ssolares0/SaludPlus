@@ -172,3 +172,6 @@ Historial de acciones para auditoría del sistema.
 ## 🖼️ ER 
 
 ![er](./img/erd.png)
+
+---
+> 📌 Ver: [Diagrama de secuencias](../diagramas/secuencias.md) para detalles.

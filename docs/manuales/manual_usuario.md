@@ -113,3 +113,19 @@ Si encuentras errores o necesitas ayuda técnica, contacta con soporte desde la 
 | **Departamento** | Clínica, área médica o sede física               |
 
 ---
+
+## Imagenes
+
+### Login
+![alt text](../interfaces/img/Auth/Login.png)
+
+### Registrar Paciente
+![alt text](image.png)
+
+### Registrar medico
+![alt text](<../interfaces/img/Auth/Registro médico.png>)
+
+### Seleccionar Cuenta
+![alt text](<../interfaces/img/Auth/Seleccionar tipo cuenta.png>)
+
+> 📌 Ver: [Imganes del sitio](../interfaces/prototipos.md) para detalles.

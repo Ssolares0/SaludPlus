@@ -1,4 +1,4 @@
-## 📘 MANUAL TÉCNICO – *SaludPlus*
+## 📘 MANUAL TÉCNICO – _SaludPlus_
 
 ### 1. 🧾 Descripción General del Sistema
 
@@ -20,25 +20,27 @@
 
 ### 3. 🛠️ Requisitos Técnicos
 
-| Componente     | Versión Recomendada     |
-|----------------|-------------------------|
-| Node.js        | ≥ 18.x                  |
-| Angular CLI    | ≥ 16.x                  |
-| PostgreSQL     | ≥ 13.x                  |
-| Docker         | ≥ 20.x                  |
-| Docker Compose | ≥ 1.29                  |
+| Componente     | Versión Recomendada |
+| -------------- | ------------------- |
+| Node.js        | ≥ 18.x              |
+| Angular CLI    | ≥ 16.x              |
+| PostgreSQL     | ≥ 13.x              |
+| Docker         | ≥ 20.x              |
+| Docker Compose | ≥ 1.29              |
 
 ---
 
 ### 4. ⚙️ Instalación y Configuración
 
 #### 📂 Clonar el repositorio
+
 ```bash
 git clone falta el link brrr
 cd saludplus
 ```
 
 #### 🐳 Usar Docker
+
 ```bash
 docker-compose up --build
 ```
@@ -46,7 +48,9 @@ docker-compose up --build
 > Esto levanta los servicios: frontend, backend y base de datos.
 
 #### 🔐 Variables de entorno
+
 Crear archivo `.env` en el backend con:
+
 ```env
 DB_HOST=db
 DB_PORT=5432
@@ -80,12 +84,12 @@ SMTP_PASS=clave_secreta
 
 ### 7. 📡 API REST
 
-| Método | Endpoint              | Descripción                   |
-|--------|------------------------|-------------------------------|
-| GET    | `/api/users`          | Obtener todos los usuarios    |
-| POST   | `/api/appointments`   | Crear una cita                |
-| PUT    | `/api/users/:id`      | Actualizar un usuario         |
-| DELETE | `/api/patients/:id`   | Eliminar paciente             |
+| Método | Endpoint            | Descripción                |
+| ------ | ------------------- | -------------------------- |
+| GET    | `/api/users`        | Obtener todos los usuarios |
+| POST   | `/api/appointments` | Crear una cita             |
+| PUT    | `/api/users/:id`    | Actualizar un usuario      |
+| DELETE | `/api/patients/:id` | Eliminar paciente          |
 
 > 📌 Se recomienda usar Postman para probar la API (colección incluida si la tienes).
 
@@ -117,6 +121,7 @@ saludplus/
 ### 9. 📦 Despliegue
 
 #### Producción en servidor
+
 1. Configura variables de entorno.
 2. Usa `docker-compose up -d`.
 3. Configura dominio + SSL (ej: con Nginx + certbot).
@@ -133,3 +138,5 @@ saludplus/
 ### 11. 📈 Diagramas
 
 > 📌 Ver: [Diagramas](../diagramas/casos_uso.md) para detalles.
+
+> 📌 Ver: [README Principal](../../README.md) para detalles.

@@ -1,0 +1,469 @@
+.view-doctors-container {
+    padding: 2rem;
+    background-color: var(--marfil-ligero-100);
+    border-radius: 1rem;
+    min-height: 100%;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-header h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--gris);
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-input {
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid var(--strokes);
+    border-radius: 0.75rem;
+    width: 300px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    background-color: var(--blanco);
+    height: 2.75rem;
+}
+
+.search-input:focus {
+    border-color: var(--azl-serenidad-400);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--strokes);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    min-width: 200px;
+    background-color: var(--blanco);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 2.75rem;
+}
+
+.filter-select:focus {
+    border-color: var(--azl-serenidad-400);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid var(--azl-serenidad-100);
+    border-top-color: var(--azl-serenidad-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+.loading-spinner-small {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--azl-serenidad-100);
+    border-top-color: var(--azl-serenidad-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-icon,
+.empty-icon {
+    width: 3rem;
+    height: 3rem;
+    color: var(--rojo);
+    margin-bottom: 1rem;
+}
+
+.empty-icon {
+    color: var(--gris);
+}
+
+.doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.doctor-card {
+    background-color: var(--blanco);
+    border-radius: 1rem;
+    border: 1px solid var(--strokes);
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.doctor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-header {
+    position: relative;
+    height: 7.5rem;
+    background-color: var(--azl-serenidad-100);
+    display: flex;
+    justify-content: center;
+}
+
+.doctor-avatar {
+    width: 6.25rem;
+    height: 6.25rem;
+    border-radius: 50%;
+    border: 4px solid var(--blanco);
+    position: absolute;
+    bottom: -3.125rem;
+    object-fit: cover;
+}
+
+.default-avatar {
+    background-color: var(--azl-serenidad-500);
+    color: var(--blanco);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.doctor-badges {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.specialty-badge {
+    background-color: var(--azl-serenidad-500);
+    color: var(--blanco);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.status-badge .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-badge.active {
+    background-color: var(--arena-suave-100);
+    color: var(--arena-suave-500);
+}
+
+.doctor-info {
+    margin-top: 3.75rem;
+    padding: 1.25rem;
+}
+
+.doctor-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--negro-suave);
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.info-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--azl-serenidad-400);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: 1px;
+}
+
+.info-text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: var(--gris);
+    margin-bottom: 0.125rem;
+}
+
+.info-value {
+    font-size: 0.875rem;
+    color: var(--negro-suave);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.gender-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    width: fit-content;
+}
+
+.gender-badge.male {
+    background-color: var(--azl-serenidad-100);
+    color: var(--azl-serenidad-500);
+}
+
+.gender-badge.female {
+    background-color: var(--arena-suave-100);
+    color: var(--terracota-suave);
+}
+
+.gender-badge.other {
+    background-color: var(--gris-neutro-claro);
+    color: var(--gris);
+}
+
+.doctor-actions {
+    padding: 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+    border-top: 1px solid var(--strokes);
+}
+
+.btn-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 2.75rem;
+    outline: none;
+    border: none;
+}
+
+.btn-action.delete {
+    background-color: var(--azl-serenidad-500);
+    color: var(--blanco);
+}
+
+.btn-action.delete:hover {
+    background-color: var(--azl-serenidad-400);
+}
+
+.btn-action .btn-icon {
+    width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.processing-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gris);
+    font-size: 0.875rem;
+    padding: 0.75rem;
+    background-color: var(--gris-neutro-claro);
+    border-radius: 0.75rem;
+    width: 100%;
+}
+
+.processing-action .loading-spinner-small {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.pagination-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--strokes);
+    background-color: var(--blanco);
+    color: var(--gris);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn:not(:disabled):hover {
+    background-color: var(--arena-suave-100);
+    color: var(--azl-serenidad-500);
+}
+
+.pagination-btn .btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.page-number {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--strokes);
+    background-color: var(--blanco);
+    color: var(--gris);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+    font-size: 0.875rem;
+}
+
+.page-number.active {
+    background-color: var(--azl-serenidad-500);
+    color: var(--blanco);
+    border-color: var(--azl-serenidad-500);
+}
+
+.page-number:hover:not(.active) {
+    background-color: var(--arena-suave-100);
+    color: var(--azl-serenidad-500);
+}
+
+@media (max-width: 768px) {
+    .view-doctors-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-actions {
+        flex-direction: column;
+    }
+
+    .search-input,
+    .filter-select {
+        width: 100%;
+    }
+
+    .doctors-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pagination-numbers {
+        display: none;
+    }
+}

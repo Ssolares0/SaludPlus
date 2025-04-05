@@ -1,0 +1,193 @@
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>Mi Perfil</h1>
+        <p>Información personal y profesional</p>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando información del perfil...</p>
+    </div>
+    }
+
+    @if (error) {
+    <div class="error-state">
+        <p>{{ error }}</p>
+    </div>
+    }
+
+    @if (!loading && !error && doctor) {
+    <div class="profile-content">
+        <div class="profile-sidebar">
+            <div class="profile-photo-container">
+                <input type="file" id="profileImageInput" accept="image/*" (change)="onFileSelected($event)"
+                    class="file-input" #fileInput>
+                <button type="button" class="profile-image-button" (click)="fileInput.click()"
+                    aria-label="Cambiar foto de perfil">
+                    <div class="profile-image">
+                        @if (photoPreview) {
+                        <img [src]="photoPreview" class="profile-image-preview" alt="Vista previa de foto">
+                        } @else if (doctor.photo) {
+                        <img [src]="doctor.photo | safeImage" class="profile-image-preview" alt="Foto de perfil">
+                        } @else {
+                        <div class="profile-avatar">
+                            {{ doctor.firstame[0] }}
+                        </div>
+                        }
+                    </div>
+                </button>
+                <p class="upload-help">Haz clic para cambiar tu foto de perfil</p>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-primary" [disabled]="profileForm.invalid || uploadingPhoto"
+                    (click)="saveProfile()">
+                    @if (uploadingPhoto) {
+                    <div class="button-spinner"></div>
+                    <span>Guardando...</span>
+                    } @else {
+                    <span>Guardar cambios</span>
+                    }
+                </button>
+                <button class="btn btn-outline" [disabled]="uploadingPhoto" (click)="resetForm()">Cancelar</button>
+            </div>
+        </div>
+
+        <div class="profile-form">
+            <form [formGroup]="profileForm">
+                <div class="form-section">
+                    <h2>Información Personal</h2>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="firstName">Nombre*</label>
+                            <input type="text" id="firstName" formControlName="firstName">
+                            @if (isFieldInvalid('firstName')) {
+                            <div class="error-message">{{ getErrorMessage('firstName') }}</div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Apellido*</label>
+                            <input type="text" id="lastName" formControlName="lastName">
+                            @if (isFieldInvalid('lastName')) {
+                            <div class="error-message">{{ getErrorMessage('lastName') }}</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="dpi">DPI*</label>
+                            <input type="text" id="dpi" formControlName="dpi">
+                            @if (isFieldInvalid('dpi')) {
+                            <div class="error-message">{{ getErrorMessage('dpi') }}</div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label for="birthDate">Fecha de nacimiento*</label>
+                            <input type="date" id="birthDate" formControlName="birthDate">
+                            @if (isFieldInvalid('birthDate')) {
+                            <div class="error-message">{{ getErrorMessage('birthDate') }}</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="gender">Género*</label>
+                            <select id="gender" formControlName="gender">
+                                <option value="" disabled>Selecciona tu género</option>
+                                <option value="1">Masculino</option>
+                                <option value="2">Femenino</option>
+                                <option value="3">Otro</option>
+                            </select>
+                            @if (isFieldInvalid('gender')) {
+                            <div class="error-message">{{ getErrorMessage('gender') }}</div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Teléfono*</label>
+                            <input type="tel" id="phone" formControlName="phone">
+                            @if (isFieldInvalid('phone')) {
+                            <div class="error-message">{{ getErrorMessage('phone') }}</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="address">Dirección*</label>
+                        <input type="text" id="address" formControlName="address">
+                        @if (isFieldInvalid('address')) {
+                        <div class="error-message">{{ getErrorMessage('address') }}</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-divider"></div>
+
+                <div class="form-section">
+                    <h2>Información Profesional</h2>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="collegiateNumber">Número de colegiado*</label>
+                            <input type="text" id="collegiateNumber" formControlName="collegiateNumber">
+                            @if (isFieldInvalid('collegiateNumber')) {
+                            <div class="error-message">{{ getErrorMessage('collegiateNumber') }}</div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label for="specialty">Especialidad*</label>
+                            <select id="specialty" formControlName="specialty">
+                                <option value="" disabled>Selecciona tu especialidad</option>
+                                @for (specialty of specialties; track specialty.id) {
+                                <option [value]="specialty.id">{{ specialty.name }}</option>
+                                }
+                            </select>
+                            @if (isFieldInvalid('specialty')) {
+                            <div class="error-message">{{ getErrorMessage('specialty') }}</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="department">Departamento*</label>
+                            <select id="department" formControlName="department">
+                                <option value="" disabled>Selecciona el departamento</option>
+                                @for (department of departments; track department) {
+                                <option [value]="department">{{ department }}</option>
+                                }
+                            </select>
+                            @if (isFieldInvalid('department')) {
+                            <div class="error-message">{{ getErrorMessage('department') }}</div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label for="clinicAddress">Dirección de la clínica*</label>
+                            <input type="text" id="clinicAddress" formControlName="clinicAddress">
+                            @if (isFieldInvalid('clinicAddress')) {
+                            <div class="error-message">{{ getErrorMessage('clinicAddress') }}</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-divider"></div>
+
+                <div class="form-section">
+                    <h2>Información de Cuenta</h2>
+                    <div class="form-group full-width">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" formControlName="email" class="disabled-input">
+                        <p class="input-help">El correo electrónico no puede ser modificado.</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+
+    <app-modal [isVisible]="showModal" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        (close)="onCloseModal()">
+    </app-modal>
+</div>

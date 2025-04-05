@@ -1,0 +1,144 @@
+<div class="schedules-container">
+    <div class="page-header">
+        <div class="header-title">
+            <h1>Gestión de Horarios</h1>
+            <p>Configure sus días y horas de atención</p>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Cargando horarios...</p>
+    </div>
+    } @else if (error) {
+    <div class="error-state">
+        <p>Ocurrió un error al cargar los horarios. Intente de nuevo más tarde.</p>
+        <button class="btn-reload" (click)="loadSchedules()">
+            <i-lucide [name]="RefreshCw" class="btn-icon"></i-lucide>
+            Reintentar
+        </button>
+    </div>
+    } @else {
+    <div class="schedule-content">
+        <div class="schedule-card">
+            <div class="card-header">
+                <h2>Horario actual</h2>
+            </div>
+
+            @if (schedules.length > 0) {
+            <div class="current-schedule">
+                <div class="schedule-info">
+                    <div class="info-item">
+                        <i-lucide [name]="Calendar" class="info-icon"></i-lucide>
+                        <div class="info-content">
+                            <span class="info-label">Días de atención</span>
+                            <span class="info-value">
+                                {{ getWorkingDaysText() }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Clock" class="info-icon"></i-lucide>
+                        <div class="info-content">
+                            <span class="info-label">Horario</span>
+                            <span class="info-value">{{ doctorSchedule.startTime }} - {{ doctorSchedule.endTime
+                                }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Clock" class="info-icon"></i-lucide>
+                        <div class="info-content">
+                            <span class="info-label">Duración de consulta</span>
+                            <span class="info-value">1 hora</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (schedules.length === 0) {
+            <div class="no-schedule">
+                <div class="empty-state">
+                    <i-lucide [name]="Calendar" class="empty-icon"></i-lucide>
+                    <p>No cuentas con un horario configurado, crea uno</p>
+                    <p class="empty-subtitle">Configure sus días y horarios usando el formulario</p>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div class="schedule-form-card">
+            <h2>Configurar horario</h2>
+
+            <div class="form-section">
+                <h3>Días de atención</h3>
+                <p class="section-description">Seleccione los días en los que atenderá pacientes</p>
+
+                <div class="days-selector">
+                    @for (day of availableDays; track day.value) {
+                    <div class="day-item" [class.selected]="isDaySelected(day.value)" (click)="toggleDay(day.value)">
+                        <div class="day-checkbox">
+                            @if (isDaySelected(day.value)) {
+                            <i-lucide [name]="Check"></i-lucide>
+                            }
+                        </div>
+                        <span>{{ day.label }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Horario de atención</h3>
+                <p class="section-description">Establezca el rango horario en el que atenderá pacientes</p>
+
+                <div class="time-range-selector">
+                    <div class="time-input-group">
+                        <label for="startTime">Hora inicio</label>
+                        <div class="time-input">
+                            <i-lucide [name]="Clock" class="time-icon"></i-lucide>
+                            <select id="startTime" [(ngModel)]="doctorSchedule.startTime">
+                                @for (time of availableStartTimes; track time) {
+                                <option [value]="time">{{ time }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="time-input-group">
+                        <label for="endTime">Hora fin</label>
+                        <div class="time-input">
+                            <i-lucide [name]="Clock" class="time-icon"></i-lucide>
+                            <select id="endTime" [(ngModel)]="doctorSchedule.endTime">
+                                @for (time of availableEndTimes; track time) {
+                                <option [value]="time">{{ time }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-primary" [disabled]="saving" (click)="confirmSaveSchedules()">
+                    @if (saving) {
+                    <div class="loading-spinner-small"></div>
+                    <span>Guardando...</span>
+                    } @else {
+                    <i-lucide [name]="Save" class="btn-icon"></i-lucide>
+                    <span>Guardar cambios</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

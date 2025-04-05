@@ -1,0 +1,155 @@
+<div class="view-doctors-container">
+    <div class="page-header">
+        <h2>Lista de Médicos</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" [(ngModel)]="searchTerm" (input)="filterDoctors()"
+                    placeholder="Buscar por nombre o especialidad..." class="search-input">
+            </div>
+            <div class="filter-box">
+                <select [(ngModel)]="selectedSpecialty" (change)="filterDoctors()" class="filter-select">
+                    <option value="all">Todas las especialidades</option>
+                    @for (specialty of getUniqueSpecialties(); track specialty) {
+                    <option [value]="specialty">{{ specialty }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Cargando médicos...</p>
+    </div>
+    } @else if (error) {
+    <div class="error-state">
+        <i-lucide [name]="UserX" class="error-icon"></i-lucide>
+        <p>{{ error }}</p>
+    </div>
+    } @else if (filteredDoctors.length === 0) {
+    <div class="empty-state">
+        <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+        <p>No se encontraron médicos</p>
+    </div>
+    } @else {
+    <div class="doctors-grid">
+        @for (doctor of getCurrentPageItems(); track doctor.id) {
+        <div class="doctor-card">
+            <div class="doctor-header">
+                @if (doctor.photo) {
+                <img [src]="doctor.photo | safeImage" [alt]="doctor.firstame" class="doctor-avatar">
+                } @else {
+                <div class="doctor-avatar default-avatar">
+                    {{ getInitials(doctor.firstame, doctor.lastName) }}
+                </div>
+                }
+                <div class="doctor-badges">
+                    @for (spec of doctor.specialty; track spec.id) {
+                    <span class="specialty-badge">{{ spec.specialty.name }}</span>
+                    }
+                    <span class="status-badge active">
+                        <i-lucide [name]="Circle" class="icon" [size]="10"></i-lucide>
+                        Activo
+                    </span>
+                </div>
+            </div>
+
+            <div class="doctor-info">
+                <h3>Dr. {{ getFormattedName(doctor) }}</h3>
+
+                <div class="info-list">
+                    <div class="info-item">
+                        <i-lucide [name]="CreditCard" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">DPI</span>
+                            <span class="info-value">{{ doctor.dpi }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Calendar" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Fecha de Nacimiento</span>
+                            <span class="info-value">{{ formatDate(doctor.birht_date) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="User2" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Género</span>
+                            <span class="info-value gender-badge" [ngClass]="getGenderClass(doctor.gender)">
+                                {{ getGenderText(doctor.gender) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="FileText" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Colegiado</span>
+                            <span class="info-value">{{ doctor.number_col }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <i-lucide [name]="Phone" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value">{{ doctor.phone }}</span>
+                        </div>
+                    </div>
+
+                    @for (dept of doctor.department; track dept.id) {
+                    <div class="info-item">
+                        <i-lucide [name]="Building" class="info-icon"></i-lucide>
+                        <div class="info-text">
+                            <span class="info-label">Departamento - Ubicación</span>
+                            <span class="info-value">{{ dept.department.name }} - {{ dept.department.location }}</span>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="doctor-actions">
+                @if (isProcessingDoctor(doctor.id)) {
+                <div class="processing-action">
+                    <div class="loading-spinner-small"></div>
+                    <span>Procesando...</span>
+                </div>
+                } @else {
+                <button class="btn-action delete" (click)="confirmDeactivateDoctor(doctor)">
+                    <i-lucide [name]="UserX" class="btn-icon"></i-lucide>
+                    Dar de baja
+                </button>
+                }
+            </div>
+        </div>
+        }
+    </div>
+
+    <div class="pagination">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+            <i-lucide [name]="ChevronLeft" class="btn-icon"></i-lucide>
+        </button>
+        <div class="pagination-numbers">
+            @for (page of getPageNumbers(); track page) {
+            <button class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+                {{ page }}
+            </button>
+            }
+        </div>
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+            <i-lucide [name]="ChevronRight" class="btn-icon"></i-lucide>
+        </button>
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

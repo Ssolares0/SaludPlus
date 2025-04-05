@@ -15,6 +15,6 @@
 
 # Manuales del proyecto
 
-[Manual de Usuario](./docs/manual-usuario.md)
+[Manual de Usuario](./docs/manuales/manual_usuario.md)
 
-[Manual de Técnico](./docs/manual-tecnico.md)
+[Manual de Técnico](./docs/manuales/manual_tecnico.md)

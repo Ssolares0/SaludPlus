@@ -390,3 +390,5 @@
     - Respuesta
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
     - Respuesta
+
+> 📌 Ver: [Scrum](../documentacion/03_scrum.md) para detalles.

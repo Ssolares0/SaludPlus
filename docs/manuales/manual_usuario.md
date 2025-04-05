@@ -1,4 +1,4 @@
-# 📘 MANUAL DE USUARIO – *SaludPlus*
+# 📘 MANUAL DE USUARIO – _SaludPlus_
 
 ## 1. 🧾 Introducción
 
@@ -14,23 +14,25 @@ Proporcionar una herramienta web eficiente y moderna para mejorar la organizaci�
 
 ## 3. 🧍 Tipos de Usuario
 
-| Rol         | Funcionalidades Principales                                               |
-|-------------|----------------------------------------------------------------------------|
-| **Paciente** | Agendar citas, consultar historial médico, recibir notificaciones         |
-| **Médico**   | Ver agenda de citas, registrar tratamientos, administrar disponibilidad    |
-| **Recepción**| Gestionar pacientes, confirmar/cancelar citas, generar reportes           |
-| **Administrador** | Control total del sistema: usuarios, roles, parámetros globales     |
+| Rol               | Funcionalidades Principales                                             |
+| ----------------- | ----------------------------------------------------------------------- |
+| **Paciente**      | Agendar citas, consultar historial médico, recibir notificaciones       |
+| **Médico**        | Ver agenda de citas, registrar tratamientos, administrar disponibilidad |
+| **Recepción**     | Gestionar pacientes, confirmar/cancelar citas, generar reportes         |
+| **Administrador** | Control total del sistema: usuarios, roles, parámetros globales         |
 
 ---
 
 ## 4. 🖥️ Acceso a la Plataforma
 
 ### ✅ Requisitos:
+
 - Navegador web actualizado (Chrome, Firefox, Edge)
 - Conexión a internet
 - URL del sistema (proporcionada por la clínica)
 
 ### 🔐 Inicio de Sesión:
+
 1. Accede al sitio: `https://saludplus.com/login`
 2. Ingresa tu correo electrónico y contraseña.
 3. Haz clic en **Iniciar sesión**.
@@ -105,27 +107,33 @@ Si encuentras errores o necesitas ayuda técnica, contacta con soporte desde la 
 
 ## 12. 🧩 Glosario Rápido
 
-| Término         | Definición                                       |
-|------------------|--------------------------------------------------|
-| **Especialidad** | Rama médica (Ej: cardiología, pediatría)         |
-| **Agenda Médica**| Calendario de citas por médico                   |
-| **Historial**    | Registro clínico de citas y tratamientos         |
-| **Departamento** | Clínica, área médica o sede física               |
+| Término           | Definición                               |
+| ----------------- | ---------------------------------------- |
+| **Especialidad**  | Rama médica (Ej: cardiología, pediatría) |
+| **Agenda Médica** | Calendario de citas por médico           |
+| **Historial**     | Registro clínico de citas y tratamientos |
+| **Departamento**  | Clínica, área médica o sede física       |
 
 ---
 
 ## Imagenes
 
 ### Login
+
 ![alt text](../interfaces/img/Auth/Login.png)
 
 ### Registrar Paciente
+
 ![alt text](image.png)
 
 ### Registrar medico
+
 ![alt text](<../interfaces/img/Auth/Registro médico.png>)
 
 ### Seleccionar Cuenta
+
 ![alt text](<../interfaces/img/Auth/Seleccionar tipo cuenta.png>)
 
-> 📌 Ver: [Imganes del sitio](../interfaces/prototipos.md) para detalles.
+> 📌 Ver: [Prototipos de Interfaces](../interfaces/prototipos.md) para detalles.
+
+> 📌 Ver: [README Principal](../../README.md) para detalles.

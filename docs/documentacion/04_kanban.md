@@ -34,4 +34,4 @@
 
 ---
 
-> 📌 Ver: [Git](../documentacion/05_git.md) para detalles.
+> 📌 Ver: [Pruebas Unitarias](../documentacion/06_pruebas_unitarias.md) para detalles.

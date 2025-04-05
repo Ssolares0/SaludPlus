@@ -336,3 +336,5 @@
     - creacion de endpoint register admin
   - ¿Hay algún impedimento que necesito que me ayuden a solucionar?
     - ninguino
+
+> 📌 Ver: [Scrum](../../documentacion/03_scrum.md) para detalles.

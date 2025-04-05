@@ -15,4 +15,4 @@ La reunion del Sprint 1 se realizó el 10 de marzo del 2025. En esta reunión se
 
 Dicha reunion quedo totalmente grabada y se encuentra en el siguiente [link](https://drive.google.com/file/d/1ZsZb-VwDDb3WzDNKaAUmfz68dojGZqKe/view?usp=drive_link).
 
-> 📌 Ver: [Scrum](../documentacion/03_scrum.md) para detalles.
+> 📌 Ver: [Scrum](../../documentacion/03_scrum.md) para detalles.

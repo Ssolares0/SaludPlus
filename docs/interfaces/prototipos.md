@@ -67,3 +67,5 @@
   ![Modal Advertencia](img/Auth/Modal%20Advertencia.png)
 
   ---
+
+> 📌 Ver: [Manual Usuario](../manuales/manual_usuario.md) para detalles.

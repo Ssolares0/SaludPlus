@@ -31,3 +31,7 @@
 - **Fin**
 
 ![Fin](img/Sprint%202/Final.jpeg)
+
+---
+
+> 📌 Ver: [Git](../documentacion/05_git.md) para detalles.

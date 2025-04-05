@@ -56,3 +56,7 @@ Este diagrama representa la arquitectura de despliegue de la aplicación **Salud
 
 ![Diagrama de Despliegue](./img/despliegue.png)
 
+---
+
+> 📌 Ver: [Diagrama de modelo de datos](../diagramas/modelo_datos.md) para detalles.
+

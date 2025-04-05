@@ -18,3 +18,6 @@ El paciente interactúa con la interfaz web para solicitar una cita. El frontend
 ## 🖼️ Diagrama Visual
 
 ![alt text](img/secuencia.png)
+
+---
+> 📌 Ver: [Documentacion Objetivos](../documentacion/01_objetivos.md) para detalles.

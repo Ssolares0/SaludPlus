@@ -129,3 +129,7 @@ saludplus/
 - Guardar eventos en la tabla `action_events`.
 
 ---
+
+### 11. 📈 Diagramas
+
+> 📌 Ver: [Diagramas](../diagramas/casos_uso.md) para detalles.

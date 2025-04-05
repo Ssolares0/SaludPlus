@@ -8,3 +8,7 @@
 ## Daily
 
 ## Retrospectiva
+
+---
+
+> 📌 Ver: [Kanban](../documentacion/04_kanban.md) para detalles.

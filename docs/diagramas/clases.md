@@ -86,3 +86,6 @@ El diagrama de clases representa la estructura lógica del sistema **SaludPlus**
 
 
 ![Diagrama de Clases](./img/diagrama_clases.png)
+
+-----
+> 📌 Ver: [Diagrama de componentes](../diagramas/componentes.md) para detalles.

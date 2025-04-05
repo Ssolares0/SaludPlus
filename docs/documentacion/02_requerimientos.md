@@ -672,3 +672,7 @@ Como administrador, quiero generar reportes sobre la actividad en la plataforma 
 ### Prioridad
 
 - Baja
+
+---
+
+> 📌 Ver: [Scrum](../documentacion/03_scrum.md) para detalles.

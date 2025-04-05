@@ -23,3 +23,7 @@
 | Josué David Porres Gómez         | 202112026 | 100% |             |
 | Jonathan Alexander Aguilar Reyes | 202106003 | 100% |             |
 | Marco Sebastián Solares España   | 202004822 | 100% |             |
+
+---
+
+> 📌 Ver: [Prototipos](../interfaces/prototipos.md) para detalles.

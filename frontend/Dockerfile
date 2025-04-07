@@ -1,13 +1,14 @@
-FROM node:18 as build
+FROM node:18-alpine
+
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
-COPY . .
-RUN npm run build
+RUN npm install -g @angular/cli
+RUN chmod +x node_modules/.bin/ng
 
-FROM nginx:alpine
-COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/templates/default.conf.template
-ENV PORT=8080
-EXPOSE 8080
-CMD /bin/sh -c "envsubst '\$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+COPY . .
+
+EXPOSE 4200
+
+CMD ["ng", "serve", "--host", "0.0.0.0", "--disable-host-check", "--poll=2000"]

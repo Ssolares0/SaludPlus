@@ -5,3 +5,4 @@ coverage/
 build/
 .vscode/
 .idea/
+dist/

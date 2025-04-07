@@ -10,6 +10,7 @@ services:
       - app-network
     environment:
       - NODE_ENV=production
+      - NODE_OPTIONS=--dns-result-order=ipv4first
 
   frontend:
     build:
@@ -24,10 +25,8 @@ services:
 networks:
   app-network:
     driver: bridge
-    enable_ipv6: true  
+    enable_ipv6: false 
     ipam:
       config:
         - subnet: 172.20.0.0/16
           gateway: 172.20.0.1
-        - subnet: 2001:db8::/64 
-          gateway: 2001:db8::1

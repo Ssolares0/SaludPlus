@@ -37,6 +37,10 @@ export class Person {
   @Column({type:'varchar', length: 200})
   address!: string | null;
 
+  @Column({type:'varchar', length: 200})
+  file_path!: string | null;
+
+
   @OneToOne(() => User, (user) => user.person)
   user!: User;
 

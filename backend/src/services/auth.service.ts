@@ -31,44 +31,56 @@ export class AuthService {
     gender: string; //1 hombre, 0 mujer
     phone: string;
     address: string;
-    role_id: number;
+    role_id: number;//3 paciente, 2 doctor, 1 admin
 
 
   },
-    file?: Express.Multer.File
+    photo: Express.Multer.File,
+    dpi_file: Express.Multer.File
   ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
+      // subi foto 
+      const photoname = `${uuidv4()}_${photo.originalname}`;
+      const dpi_name = `${uuidv4()}_${photo.originalname}`;
 
-      const person = new Person();
-      // subi foto si tiene
-      if (file) {
-        const filename = `${uuidv4()}_${file.originalname}`;
-        const s3Client = new S3Client({
-          region: process.env.AWS_REGION,
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-          },
-        });
+      const s3Client = new S3Client({
+        region: process.env.AWS_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      });
 
-        await s3Client.send(
-          new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET!,
-            Key: `fotos/${filename}`,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-          })
-        );
+      //enviar foto
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET!,
+          Key: `fotos/${photoname}`,
+          Body: photo.buffer,
+          ContentType: photo.mimetype,
+        })
+      );
+      //enviar dpi 
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET!,
+          Key: `file/${dpi_name}`,
+          Body: dpi_file.buffer,
+          ContentType: dpi_file.mimetype,
+        })
+      );
 
-        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
-        person.photo = photoUrl;
-      }
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${photoname}`;
+      const dpiUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/file/${dpi_name}`;
+
+      
+    
       // 1. Crear Persona
-
+      const person = new Person();
       person.first_name = patientData.firstName;
       person.last_name = patientData.lastName;
       person.national_id = patientData.dpi;
@@ -77,6 +89,8 @@ export class AuthService {
       person.gender = patientData.gender;
       person.phone = patientData.phone;
       person.address = patientData.address;
+      person.photo = photoUrl;
+      person.file_path = dpiUrl;
       await queryRunner.manager.save(person);
 
       // 2. Crear Usuario (con contraseña encriptada)
@@ -122,7 +136,7 @@ export class AuthService {
       address: string;
       role_id: number;
     },
-    file?: Express.Multer.File
+    file: Express.Multer.File
   ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
@@ -211,16 +225,19 @@ export class AuthService {
       name_department: string;
       direccion_departamento: string;
     },
-    file: Express.Multer.File
+    photo: Express.Multer.File,
+    cv_file: Express.Multer.File
   ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      if (!file) throw new Error('La foto de perfil es obligatoria');
+    
       //subir a s3
-      const filename = `${uuidv4()}_${file.originalname}`;
+      const photo_name = `${uuidv4()}_${photo.originalname}`;
+      const cv_name = `${uuidv4()}_${cv_file.originalname}`;
+
       const s3Client = new S3Client({
         region: process.env.AWS_REGION,
         credentials: {
@@ -232,13 +249,23 @@ export class AuthService {
       await s3Client.send(
         new PutObjectCommand({
           Bucket: process.env.S3_BUCKET!,
-          Key: `fotos/${filename}`,
-          Body: file.buffer,
-          ContentType: file.mimetype,
+          Key: `fotos/${photo_name}`,
+          Body: photo.buffer,
+          ContentType: photo.mimetype,
+        })
+      );
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET!,
+          Key: `file/${cv_name}`,
+          Body: cv_file.buffer,
+          ContentType: cv_file.mimetype,
         })
       );
 
-      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${photo_name}`;
+      const cvUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/file/${cv_name}`;
+
 
       //Crear Persona
       const person = new Person();
@@ -251,6 +278,7 @@ export class AuthService {
       person.phone = doctorData.phone;
       person.address = doctorData.address;
       person.photo = photoUrl;
+      person.file_path = cvUrl;
       await queryRunner.manager.save(person);
 
       // Crear Usuario

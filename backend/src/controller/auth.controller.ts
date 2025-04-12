@@ -1,12 +1,20 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 
-
 export const registerPatient = async (req: Request, res: Response) => {
   try {
     const authService = new AuthService();
-    const files = req.file;
-    const result = await authService.registerPatient(req.body, files);
+    
+    //get files
+    const files = req.files as {[filename:string]: Express.Multer.File[]};
+
+    const photo = files['photo'][0];
+    const dpi_file = files['pdf'][0];
+
+    if (!photo) throw new Error("La foto de perfil es requerida");
+    if (!dpi_file) throw new Error("El documento de identificacion es necesario");
+
+    const result = await authService.registerPatient(req.body, photo, dpi_file);
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({
@@ -19,11 +27,16 @@ export const registerPatient = async (req: Request, res: Response) => {
 export const registerDoctor = async (req: Request, res: Response) => {
   try {
     const authService = new AuthService();
-    const files = req.file;
+    //get files
+    const files = req.files as {[filename:string]: Express.Multer.File[]};
 
-    if (!files) throw new Error('Foto de perfil requerida');
+    const photo = files['photo'][0];
+    const cv_file = files['pdf'][0];
 
-    const result = await authService.registerDoctor(req.body, files);
+    if (!photo) throw new Error("La foto de perfil es requerida");
+    if (!cv_file) throw new Error("El documento de identificacion es necesario");
+
+    const result = await authService.registerDoctor(req.body, photo, cv_file );
     res.status(201).json(result);
   } catch (error: any) {
     res.status(400).json({
@@ -80,6 +93,7 @@ export const registerAdmin = async (req: Request, res: Response) => {
   try {
     const authService = new AuthService();
     const files = req.file;
+    if (!files) throw new Error("Foto de perfil requerida")
     const result = await authService.registerAdmin(req.body, files);
     res.status(201).json(result);
   } catch (error: any) {

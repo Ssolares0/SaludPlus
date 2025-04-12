@@ -91,9 +91,13 @@
                 <div class="doctor-ranking">
                     <div class="ranking-info">
                         <span class="ranking-number">#{{i + 1}}</span>
+                        @if (doctor.photo) {
+                        <img [src]="doctor.photo | safeImage" class="ranking-avatar" alt="Foto de {{doctor.name}}">
+                        } @else {
                         <div class="avatar-placeholder">
                             {{ doctor.name.charAt(0) }}
                         </div>
+                        }
                         <div class="ranking-details">
                             <p class="doctor-name">{{ doctor.name }}</p>
                             <p class="doctor-specialty">{{ doctor.specialty }}</p>
@@ -103,6 +107,10 @@
                         <div class="stat">
                             <span class="stat-number">{{ doctor.patientsCount }}</span>
                             <span class="stat-label">Pacientes</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">{{ doctor.appointmentsCount }}</span>
+                            <span class="stat-label">Citas</span>
                         </div>
                     </div>
                 </div>

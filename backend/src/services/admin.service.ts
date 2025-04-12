@@ -5,24 +5,24 @@ import { Appointment } from "../models/Appointments.entity";
 import { Employee } from "../models/Employe.entity";
 
 
-export class AdminService{
+export class AdminService {
     async pendientPatient() {
-        try{
+        try {
             const patientRepository = AppDataSource.getRepository(User);
 
             const patients = await patientRepository.find({
-                where:{
-                    role:{
-                        id:3,
+                where: {
+                    role: {
+                        id: 3,
                     },
-                    approved:IsNull(),
+                    approved: IsNull(),
                 },
-                relations:['person'],
+                relations: ['person'],
             })
 
-            if(patients){
-                let respu:any[] = [];
-                for(const per of patients){
+            if (patients) {
+                let respu: any[] = [];
+                for (const per of patients) {
                     respu.push({
                         id: per.id,
                         firstame: per.person.first_name,
@@ -33,33 +33,33 @@ export class AdminService{
                         photo: per.person.photo,
                         addres: per.person.address
                     })
-                } 
+                }
                 return respu
             }
 
-            return {message: "No hay pacientes pendientes"};
-        }catch(error: any){
+            return { message: "No hay pacientes pendientes" };
+        } catch (error: any) {
             throw error
         }
     }
 
-    async pendientDoctor(){
-        try{
+    async pendientDoctor() {
+        try {
             const doctorPatient = AppDataSource.getRepository(User);
 
             const doctors = await doctorPatient.find({
-                where:{
-                    role:{
-                        id:2,
+                where: {
+                    role: {
+                        id: 2,
                     },
-                    approved:IsNull(),
+                    approved: IsNull(),
                 },
-                relations:['person','person.employee','person.employee.specialty.specialty', 'person.employee.department.department'],
+                relations: ['person', 'person.employee', 'person.employee.specialty.specialty', 'person.employee.department.department'],
             })
 
-            if(doctors){
-                let respu:any[] = [];
-                for(const per of doctors){
+            if (doctors) {
+                let respu: any[] = [];
+                for (const per of doctors) {
                     respu.push({
                         id: per.id,
                         firstame: per.person.first_name,
@@ -75,33 +75,33 @@ export class AdminService{
                         department: per.person.employee.department
 
                     })
-                } 
+                }
                 return respu
             }
 
-            return {message: "No hay doctores pendientes"};
-        }catch(error: any){
+            return { message: "No hay doctores pendientes" };
+        } catch (error: any) {
             throw error
         }
     }
 
-    async activePatients(){
-        try{
+    async activePatients() {
+        try {
             const patientRepository = AppDataSource.getRepository(User);
 
             const patients = await patientRepository.find({
-                where:{
-                    role:{
-                        id:3,
+                where: {
+                    role: {
+                        id: 3,
                     },
-                    approved:true,
+                    approved: true,
                 },
-                relations:['person'],
+                relations: ['person'],
             })
 
-            if(patients){
-                let respu:any[] = [];
-                for(const per of patients){
+            if (patients) {
+                let respu: any[] = [];
+                for (const per of patients) {
                     respu.push({
                         id: per.id,
                         firstame: per.person.first_name,
@@ -112,33 +112,33 @@ export class AdminService{
                         photo: per.person.photo,
                         addres: per.person.address
                     })
-                } 
+                }
                 return respu
             }
 
-            return {message: "No hay pacientes activos"};
-        }catch(error: any){
+            return { message: "No hay pacientes activos" };
+        } catch (error: any) {
             throw error
         }
     }
 
-    async activeDoctors(){
-        try{
+    async activeDoctors() {
+        try {
             const doctorPatient = AppDataSource.getRepository(User);
 
             const doctors = await doctorPatient.find({
-                where:{
-                    role:{
-                        id:2,
+                where: {
+                    role: {
+                        id: 2,
                     },
-                    approved:true,
+                    approved: true,
                 },
-                relations:['person','person.employee','person.employee.specialty.specialty', 'person.employee.department.department'],
+                relations: ['person', 'person.employee', 'person.employee.specialty.specialty', 'person.employee.department.department'],
             })
 
-            if(doctors){
-                let respu:any[] = [];
-                for(const per of doctors){
+            if (doctors) {
+                let respu: any[] = [];
+                for (const per of doctors) {
                     respu.push({
                         id: per.id,
                         firstame: per.person.first_name,
@@ -153,68 +153,72 @@ export class AdminService{
                         specialty: per.person.employee.specialty,
                         department: per.person.employee.department
                     })
-                } 
+                }
                 return respu
             }
 
-            return {message: "No hay doctores activos"};
-        }catch(error: any){
+            return { message: "No hay doctores activos" };
+        } catch (error: any) {
             throw error
         }
     }
 
     async deleteUser(userId: number) {
         const user = await AppDataSource.manager.findOne(User, {
-          where: { id: userId },
+            where: { id: userId },
         });
-    
+
         if (!user) {
-          throw new Error('Usuario no encontrado');
+            throw new Error('Usuario no encontrado');
         }
         user.approved = false;
         await AppDataSource.manager.save(user);
-    
+
         return { message: "Usuario dado de baja correctamente", success: true };
     }
 
-    async topDoctors(specialty: string){
-        try{
+    async topDoctors(specialty: string) {
+        try {
             const query = AppDataSource.createQueryBuilder(Employee, "doctor")
-            .select([
-                "doctor.id AS id",
-                "person.first_name AS firstName",
-                "person.last_name AS lastName",
-                "specialty.name AS specialty",
-                "COUNT(DISTINCT appointment.patient_id) AS patientsCount", // Pacientes únicos
-            ])
-            .innerJoin("doctor.appointments", "appointment", "appointment.status = :status", {
-                status: "completed",
-            })
-            .innerJoin("doctor.person", "person")
-            .leftJoin("doctor.specialty", "employee_specialty")
-            .leftJoin("employee_specialty.specialty", "specialty")
-            .groupBy("doctor.id, person.first_name, person.last_name, specialty.name")
-            .orderBy("patientsCount", "DESC")
-            .limit(Number(10));
-
-            // Filtrar por especialidad si se proporciona
+                .select([
+                    "doctor.id AS id",
+                    "person.first_name AS firstName",
+                    "person.last_name AS lastName",
+                    "person.photo AS photo",
+                    "specialty.name AS specialty",
+                    "COUNT(DISTINCT appointment.patient_id) AS patientsCount",
+                    "COUNT(appointment.id) AS appointmentsCount"
+                ])
+                .innerJoin("doctor.person", "person")
+                .innerJoin("person.user", "user", "user.approved = :approved", { approved: true })
+                .leftJoin("doctor.specialty", "employee_specialty")
+                .leftJoin("employee_specialty.specialty", "specialty")
+                .leftJoin("doctor.appointments", "appointment", "appointment.status = :status", {
+                    status: "completed",
+                })
+                .groupBy("doctor.id, person.first_name, person.last_name, person.photo, specialty.name")
+                .orderBy("patientsCount", "DESC")
+                .addOrderBy("doctor.id", "ASC") 
+                .limit(Number(10));
+    
             if (specialty) {
-            query.andWhere("specialty.name ILIKE :specialty", { specialty: `%${specialty}%` });
+                query.andWhere("specialty.name ILIKE :specialty", { specialty: `%${specialty}%` });
             }
-
+    
             const result = await query.getRawMany();
-
-            // Formatear respuesta
+    
             const topDoctors = result.map((doctor) => ({
-            id: doctor.id,
-            name: `${doctor.firstname} ${doctor.lastname}`,
-            specialty: doctor.specialty || "Sin especialidad registrada",
-            patientsCount: doctor.patientscount,
+                id: doctor.id,
+                name: `${doctor.firstname} ${doctor.lastname}`,
+                photo: doctor.photo,
+                specialty: doctor.specialty || "Sin especialidad registrada",
+                patientsCount: parseInt(doctor.patientscount) || 0,
+                appointmentsCount: parseInt(doctor.appointmentscount) || 0 
             }));
-
+    
             return topDoctors;
-
-        }catch(error: any){
+    
+        } catch (error: any) {
             throw error
         }
     }

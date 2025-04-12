@@ -2,7 +2,7 @@ import { application, Router } from 'express';
 import {
     activesAppointment, cancelAppointment, createAppointment,
     doctorsAvailables,
-    findMedic, getAndUpdateProfile, scheduleMedic
+    findMedic, getAndUpdateProfile, scheduleMedic, getAllPatientAppointments
 } from '../controller/patient.controller';
 import multer from 'multer';
 
@@ -12,6 +12,11 @@ router.get(
     '/doctors/:id',
     doctorsAvailables
 );
+
+router.get(
+    '/appointments/:id',
+    getAllPatientAppointments
+)
 
 router.post(
     '/doctors-speciality',

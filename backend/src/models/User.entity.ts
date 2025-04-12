@@ -19,11 +19,14 @@ export class User {
   @Column({type:'bytea', nullable:true})
   remember_token?: Buffer;
 
-  @Column({type:'date', nullable:true})
-  email_verified_at?: Date;
+  @Column({type:'varchar', nullable:true})
+  token_email_verified?: string;
 
   @Column({type:'boolean', default: false})
   approved!: boolean | null;
+
+  @Column({type:'boolean', default: false})
+  email_verification_token!: boolean | null;
 
 
   // Relación Muchos a Uno (N Usuarios → 1 Rol)

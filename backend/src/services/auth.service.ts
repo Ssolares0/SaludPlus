@@ -17,6 +17,8 @@ import { commonParams } from '@aws-sdk/client-s3/dist-types/endpoint/EndpointPar
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import { generateEmailToken } from '../utils/token';
+import { sendVerificationEmail } from '../utils/email';
 const JWT_SECRET = 'AYD12025';
 configDotenv();
 
@@ -104,6 +106,13 @@ export class AuthService {
         throw new Error('Rol no encontrado');
       }
       user.role = role;
+
+      //generar token e enviar correo 
+      const token = generateEmailToken();
+
+      await sendVerificationEmail(patientData.email, token)
+      user.token_email_verified = token;
+
       await queryRunner.manager.save(user);
 
       // 3. Crear Paciente
@@ -114,7 +123,7 @@ export class AuthService {
 
       await queryRunner.commitTransaction();
       return { success: true, userId: user.id };
-    } catch (error) {
+    } catch (error: any) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
@@ -188,7 +197,6 @@ export class AuthService {
       user.email = adminData.email;
       user.password = await hashPassword(adminData.password);
       user.remember_token = await hashPassword(adminData.seconf_password);
-      user.email_verified_at = new Date();
       user.person = person;
       const role = await AppDataSource.manager.findOne(Role, { where: { id: adminData.role_id }, });
       if (!role) {
@@ -287,14 +295,20 @@ export class AuthService {
       user.email = doctorData.email;
       user.password = await hashPassword(doctorData.password);
       user.person = person;
-      user.remember_token = undefined;
-      user.email_verified_at = undefined;
 
       const role = await AppDataSource.manager.findOne(Role, { where: { id: doctorData.role_id }, });
       if (!role) {
         throw new Error('Rol no encontrado');
       }
       user.role = role;
+
+      //generar token e enviar correo 
+      const token = generateEmailToken();
+
+      await sendVerificationEmail(doctorData.email, token)
+      user.token_email_verified = token;
+
+
       await queryRunner.manager.save(user);
 
       //Crear Empleado 
@@ -352,16 +366,27 @@ export class AuthService {
     if (!passwordMatch) {
       throw new Error('Contraseña incorrecta, prueba de nuevo!');
     }
-    console.log(user.role.name);
-    if (user.role.name !== 'administrador' && !user.approved) {
-      return { success: false, message: "Usuario no aprobado" };
-    }
+    
 
     const token = jwt.sign({ id: user.id, rol: user.role.name }, JWT_SECRET, { expiresIn: '1h' });
 
     if (user.role.name === 'administrador') {
       return { token, requiresAuth2: true };
     }
+
+
+    if(user.role.name !== "administrador" && !user.email_verification_token && !user.approved){
+      return {token, requireAuthEmail: true, message:"Usurio sin email verificado y sin aprovacion"}
+    }
+
+    if(user.role.name !== "administrador" && !user.email_verification_token){
+      return {token, requireAuthEmail: true, message:"Usuario sin email verificado"}
+    }
+
+    if (user.role.name !== 'administrador' && !user.approved) {
+      return { success: false, message: "Usuario no aprobado" };
+    }
+
 
     let patientId = null;
     let doctorId = null;
@@ -408,6 +433,60 @@ export class AuthService {
     await AppDataSource.manager.save(user);
 
     return { message: "Usuario validado correctamente", success: true };
+  }
+
+  async emailVerifacated(token:string, token_email: string){
+    try{
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      //obtener token para verificar email de este usuario 
+      const user = await AppDataSource.manager.findOne(User, {
+        where: { id: decoded.id },
+        relations: ['person', 'role']
+      });
+
+      if(!user) throw new Error('Usuario no existe');
+      if(user.token_email_verified===token_email){
+        //aprobar email del usuario
+        await AppDataSource.manager.update(User, decoded.id,{email_verification_token:true})
+        if(!user.approved){
+          return {message: "Email validado correctamente, pero usuario no aprobado", success: false};
+        }
+
+        let patientId = null;
+        let doctorId = null;
+
+        if (user.role.name === 'paciente') {
+          const patient = await AppDataSource.manager.findOne(Patient, {
+            where: { person: { id: user.person.id } },
+          });
+          if (patient) {
+            patientId = patient.id;
+          }
+        } else if (user.role.name === 'doctor') {
+          const employee = await AppDataSource.manager.findOne(Employee, {
+            where: { person: { id: user.person.id } },
+          });
+          if (employee) {
+            doctorId = employee.id;
+          }
+        }
+        return { 
+          message: "Email validado correctamente, usuario ya aprobado",
+          success: true, 
+          role: user.role.name,
+          userId: user.id,
+          peopleId: user.person.id,
+          token,
+          patientId,
+          doctorId
+        };
+      }
+
+      return {message:"Token no valido para este email", success:false};
+
+    }catch(error:any){
+      throw error;
+    }
   }
 
   async approvedAdmin(token: string, files: Express.Multer.File) {

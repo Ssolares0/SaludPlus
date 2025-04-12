@@ -1,5 +1,5 @@
 import { application, Router } from 'express';
-import { registerPatient, registerDoctor,login, approverUser, approverAdmin, registerAdmin} from '../controller/auth.controller';
+import { registerPatient, registerDoctor,login, approverUser, approverAdmin, registerAdmin, verifiqueEmail} from '../controller/auth.controller';
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -50,6 +50,10 @@ router.post(
     login
 );
 
+router.post(
+  '/verifique/email',
+  verifiqueEmail
+)
 router.post(
     '/admin/auth2',
     upload.single('archivo'),

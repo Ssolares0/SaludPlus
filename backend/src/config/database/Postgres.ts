@@ -18,6 +18,8 @@ import { EmployeeDepartmetn } from '../../models/EmployeeDepartment.entity';
 import { EmployeeSpecialty } from '../../models/EmployeeSpecialties.entity';
 import { PatientDepartment } from '../../models/PatientDepartment.entity';
 import { Specialty } from '../../models/Specialty.entity';
+import { Medication } from "../../models/Medications.entity";
+import { Treatment } from "../../models/Treatments.entity";
 
 // Forzar IPv4 para las conexiones
 dns.setDefaultResultOrder('ipv4first');
@@ -61,7 +63,7 @@ export const AppDataSource = new DataSource({
     entities: [
         User, Person, Employee, Patient, Role, Department,
         Appointment, DoctorSchedule, EmergencyContact,
-        EmployeeDepartmetn, EmployeeSpecialty, PatientDepartment, Specialty
+        EmployeeDepartmetn, EmployeeSpecialty, PatientDepartment, Specialty, Medication, Treatment
     ],
     synchronize: false,
     ssl: true,

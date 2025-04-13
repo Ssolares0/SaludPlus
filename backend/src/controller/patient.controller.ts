@@ -583,6 +583,55 @@ export const getAllPatientAppointments = async (req: Request, res: Response) => 
     }
 };
 
+export const getMedications = async (req: Request, res: Response) => {
+    try{
+        const {id} = req.params;
+
+        if(!id) throw new Error("El id del paciente es requerido");
+
+        const user = await AppDataSource.manager.findOneBy(Patient, {id:Number(id)})
+
+        if(!user) throw new Error("el usuario no existe en el sistemas");
+
+        const lastAppointment = await AppDataSource.getRepository(Appointment)
+        .createQueryBuilder('appointment')
+        .innerJoinAndSelect('appointment.treatment', 'treatment')
+        .innerJoinAndSelect('treatment.medications', 'medications')
+        .innerJoinAndSelect('appointment.doctor', 'doctor')
+        .innerJoinAndSelect('doctor.person', 'person')
+        .innerJoinAndSelect('doctor.specialty', 'employeeSpecialty')
+        .innerJoinAndSelect('employeeSpecialty.specialty', 'specialty')
+        .where('appointment.patient_id = :id', { id })
+        .orderBy('appointment.appointment_date', 'DESC')
+        .getOne()
+
+
+        
+        if(!lastAppointment) throw new Error("El usuario no tiene citas en el sistema");
+        
+        res.status(200).json({
+            appointmentDate: lastAppointment.appointment_date,
+            doctor_name: `${lastAppointment.doctor.person.first_name} ${lastAppointment.doctor.person.last_name}`,
+            doctor_speciality: lastAppointment.doctor.specialty.map(x => x.specialty.name),
+            diagnosis: lastAppointment.treatment.diagnosis,
+            medications: lastAppointment.treatment.medications.map((med) => ({
+              name: med.name,
+              dosage: med.quantity,
+              duration: med.duration,
+              instructions: med.dosage_description,
+            })),
+            doctor_number: lastAppointment.doctor.employee_number
+        });
+
+    }catch(error: any){
+        res.status(500).json({
+            error: true,
+            message: 'Error al obtener los medicamentos del paciente',
+            details: error.message
+        });
+    }
+}
+
 export const getAndUpdateProfile = async (req: Request, res: Response) => {
     try {
         const { id } = req.params; // ID del paciente

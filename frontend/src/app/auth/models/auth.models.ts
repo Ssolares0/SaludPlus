@@ -42,6 +42,7 @@ export interface PatientRegisterData {
     address: string;
     role_id: number;
     photo?: File;
+    document?: File;
 }
 
 export interface DoctorRegisterData {

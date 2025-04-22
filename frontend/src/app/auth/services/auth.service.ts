@@ -66,6 +66,10 @@ export class AuthService {
             formData.append('photo', patientData.photo, patientData.photo.name);
         }
 
+        if (patientData.document) {
+            formData.append('pdf', patientData.document, patientData.document.name);
+        }
+
         return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/patient`, formData)
             .pipe(
                 catchError(this.handleError)

@@ -64,4 +64,13 @@ export interface DoctorRegisterData {
     document: File;        
 }
 
+export interface ValidateEmailBody {
+    token: string;  
+    token_email: string;
+}
+
+export interface ValidateEmailResponse {
+    
+}
+
 export type LoginResponseUnion = LoginResponse | LoginAdminResponse;

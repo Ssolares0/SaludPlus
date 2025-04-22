@@ -325,6 +325,50 @@ input[type="date"]:focus::-webkit-datetime-edit {
     color: var(--negro-suave);
 }
 
+.pdf-input-wrapper {
+    display: flex;
+    align-items: center;
+    min-height: 58px;
+    padding: 0 16px;
+    border: 1px solid var(--strokes);
+    border-radius: 8px;
+    background: var(--blanco);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.pdf-input-wrapper:hover {
+    border-color: var(--azl-serenidad-400);
+}
+
+.pdf-input-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    color: var(--negro-suave);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pdf-input-placeholder span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pdf-input-placeholder i-lucide {
+    flex-shrink: 0;
+    color: var(--azl-serenidad-500);
+}
+
+.btn-register:disabled {
+    background: var(--gris);
+    cursor: not-allowed;
+}
+
 @media (max-width: 1440px) {
     .form-row {
         flex-direction: column;

@@ -60,7 +60,8 @@ export interface DoctorRegisterData {
     id_specialty: number;
     name_department: string;
     direccion_departamento: string;  
-    photo: File;              
+    photo: File;      
+    document: File;        
 }
 
 export type LoginResponseUnion = LoginResponse | LoginAdminResponse;

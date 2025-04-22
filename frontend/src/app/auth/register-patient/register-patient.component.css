@@ -195,10 +195,12 @@ select:focus {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-.btn-register:hover {
+.btn-register:hover:not(:disabled) {
     background: var(--azl-serenidad-400);
 }
 
@@ -292,6 +294,46 @@ select:focus {
     color: var(--terracota-suave);
     font-size: 32px;
     font-weight: 600;
+}
+
+/* Estilos para el input de PDF */
+.pdf-input-wrapper {
+    display: flex;
+    align-items: center;
+    min-height: 58px;
+    padding: 0 16px;
+    border: 1px solid var(--strokes);
+    border-radius: 8px;
+    background: var(--blanco);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.pdf-input-wrapper:hover {
+    border-color: var(--azl-serenidad-400);
+}
+
+.pdf-input-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    color: var(--negro-suave);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pdf-input-placeholder span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pdf-input-placeholder i-lucide {
+    flex-shrink: 0;
+    color: var(--azl-serenidad-500);
 }
 
 input[type="date"] {

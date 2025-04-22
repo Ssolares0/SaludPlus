@@ -384,7 +384,7 @@ export class AuthService {
     }
 
     if (user.role.name !== 'administrador' && !user.approved) {
-      return { success: false, message: "Usuario no aprobado" };
+      return { success: false, message: "Usuario no aprobado", requireAuthEmail: false};
     }
 
 

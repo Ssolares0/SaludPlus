@@ -17,6 +17,8 @@ import { commonParams } from '@aws-sdk/client-s3/dist-types/endpoint/EndpointPar
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import { generateEmailToken } from '../utils/token';
+import { sendVerificationEmail } from '../utils/email';
 const JWT_SECRET = 'AYD12025';
 configDotenv();
 
@@ -31,44 +33,56 @@ export class AuthService {
     gender: string; //1 hombre, 0 mujer
     phone: string;
     address: string;
-    role_id: number;
+    role_id: number;//3 paciente, 2 doctor, 1 admin
 
 
   },
-    file?: Express.Multer.File
+    photo: Express.Multer.File,
+    dpi_file: Express.Multer.File
   ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
+      // subi foto 
+      const photoname = `${uuidv4()}_${photo.originalname}`;
+      const dpi_name = `${uuidv4()}_${photo.originalname}`;
 
-      const person = new Person();
-      // subi foto si tiene
-      if (file) {
-        const filename = `${uuidv4()}_${file.originalname}`;
-        const s3Client = new S3Client({
-          region: process.env.AWS_REGION,
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-          },
-        });
+      const s3Client = new S3Client({
+        region: process.env.AWS_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      });
 
-        await s3Client.send(
-          new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET!,
-            Key: `fotos/${filename}`,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-          })
-        );
+      //enviar foto
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET!,
+          Key: `fotos/${photoname}`,
+          Body: photo.buffer,
+          ContentType: photo.mimetype,
+        })
+      );
+      //enviar dpi 
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET!,
+          Key: `file/${dpi_name}`,
+          Body: dpi_file.buffer,
+          ContentType: dpi_file.mimetype,
+        })
+      );
 
-        const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
-        person.photo = photoUrl;
-      }
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${photoname}`;
+      const dpiUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/file/${dpi_name}`;
+
+      
+    
       // 1. Crear Persona
-
+      const person = new Person();
       person.first_name = patientData.firstName;
       person.last_name = patientData.lastName;
       person.national_id = patientData.dpi;
@@ -77,6 +91,8 @@ export class AuthService {
       person.gender = patientData.gender;
       person.phone = patientData.phone;
       person.address = patientData.address;
+      person.photo = photoUrl;
+      person.file_path = dpiUrl;
       await queryRunner.manager.save(person);
 
       // 2. Crear Usuario (con contraseña encriptada)
@@ -90,6 +106,13 @@ export class AuthService {
         throw new Error('Rol no encontrado');
       }
       user.role = role;
+
+      //generar token e enviar correo 
+      const token = generateEmailToken();
+
+      await sendVerificationEmail(patientData.email, token)
+      user.token_email_verified = token;
+
       await queryRunner.manager.save(user);
 
       // 3. Crear Paciente
@@ -100,7 +123,7 @@ export class AuthService {
 
       await queryRunner.commitTransaction();
       return { success: true, userId: user.id };
-    } catch (error) {
+    } catch (error: any) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
@@ -122,7 +145,7 @@ export class AuthService {
       address: string;
       role_id: number;
     },
-    file?: Express.Multer.File
+    file: Express.Multer.File
   ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
@@ -174,7 +197,6 @@ export class AuthService {
       user.email = adminData.email;
       user.password = await hashPassword(adminData.password);
       user.remember_token = await hashPassword(adminData.seconf_password);
-      user.email_verified_at = new Date();
       user.person = person;
       const role = await AppDataSource.manager.findOne(Role, { where: { id: adminData.role_id }, });
       if (!role) {
@@ -211,16 +233,19 @@ export class AuthService {
       name_department: string;
       direccion_departamento: string;
     },
-    file: Express.Multer.File
+    photo: Express.Multer.File,
+    cv_file: Express.Multer.File
   ) {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      if (!file) throw new Error('La foto de perfil es obligatoria');
+    
       //subir a s3
-      const filename = `${uuidv4()}_${file.originalname}`;
+      const photo_name = `${uuidv4()}_${photo.originalname}`;
+      const cv_name = `${uuidv4()}_${cv_file.originalname}`;
+
       const s3Client = new S3Client({
         region: process.env.AWS_REGION,
         credentials: {
@@ -232,13 +257,23 @@ export class AuthService {
       await s3Client.send(
         new PutObjectCommand({
           Bucket: process.env.S3_BUCKET!,
-          Key: `fotos/${filename}`,
-          Body: file.buffer,
-          ContentType: file.mimetype,
+          Key: `fotos/${photo_name}`,
+          Body: photo.buffer,
+          ContentType: photo.mimetype,
+        })
+      );
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET!,
+          Key: `file/${cv_name}`,
+          Body: cv_file.buffer,
+          ContentType: cv_file.mimetype,
         })
       );
 
-      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${filename}`;
+      const photoUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/fotos/${photo_name}`;
+      const cvUrl = `http://${process.env.S3_BUCKET}.s3.amazonaws.com/file/${cv_name}`;
+
 
       //Crear Persona
       const person = new Person();
@@ -251,6 +286,7 @@ export class AuthService {
       person.phone = doctorData.phone;
       person.address = doctorData.address;
       person.photo = photoUrl;
+      person.file_path = cvUrl;
       await queryRunner.manager.save(person);
 
       // Crear Usuario
@@ -259,14 +295,20 @@ export class AuthService {
       user.email = doctorData.email;
       user.password = await hashPassword(doctorData.password);
       user.person = person;
-      user.remember_token = undefined;
-      user.email_verified_at = undefined;
 
       const role = await AppDataSource.manager.findOne(Role, { where: { id: doctorData.role_id }, });
       if (!role) {
         throw new Error('Rol no encontrado');
       }
       user.role = role;
+
+      //generar token e enviar correo 
+      const token = generateEmailToken();
+
+      await sendVerificationEmail(doctorData.email, token)
+      user.token_email_verified = token;
+
+
       await queryRunner.manager.save(user);
 
       //Crear Empleado 
@@ -324,16 +366,27 @@ export class AuthService {
     if (!passwordMatch) {
       throw new Error('Contraseña incorrecta, prueba de nuevo!');
     }
-    console.log(user.role.name);
-    if (user.role.name !== 'administrador' && !user.approved) {
-      return { success: false, message: "Usuario no aprobado" };
-    }
+    
 
     const token = jwt.sign({ id: user.id, rol: user.role.name }, JWT_SECRET, { expiresIn: '1h' });
 
     if (user.role.name === 'administrador') {
       return { token, requiresAuth2: true };
     }
+
+
+    if(user.role.name !== "administrador" && !user.email_verification_token && !user.approved){
+      return {token, requireAuthEmail: true, message:"Usurio sin email verificado y sin aprovacion"}
+    }
+
+    if(user.role.name !== "administrador" && !user.email_verification_token){
+      return {token, requireAuthEmail: true, message:"Usuario sin email verificado"}
+    }
+
+    if (user.role.name !== 'administrador' && !user.approved) {
+      return { success: false, message: "Usuario no aprobado" };
+    }
+
 
     let patientId = null;
     let doctorId = null;
@@ -380,6 +433,60 @@ export class AuthService {
     await AppDataSource.manager.save(user);
 
     return { message: "Usuario validado correctamente", success: true };
+  }
+
+  async emailVerifacated(token:string, token_email: string){
+    try{
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      //obtener token para verificar email de este usuario 
+      const user = await AppDataSource.manager.findOne(User, {
+        where: { id: decoded.id },
+        relations: ['person', 'role']
+      });
+
+      if(!user) throw new Error('Usuario no existe');
+      if(user.token_email_verified===token_email){
+        //aprobar email del usuario
+        await AppDataSource.manager.update(User, decoded.id,{email_verification_token:true})
+        if(!user.approved){
+          return {message: "Email validado correctamente, pero usuario no aprobado", success: false};
+        }
+
+        let patientId = null;
+        let doctorId = null;
+
+        if (user.role.name === 'paciente') {
+          const patient = await AppDataSource.manager.findOne(Patient, {
+            where: { person: { id: user.person.id } },
+          });
+          if (patient) {
+            patientId = patient.id;
+          }
+        } else if (user.role.name === 'doctor') {
+          const employee = await AppDataSource.manager.findOne(Employee, {
+            where: { person: { id: user.person.id } },
+          });
+          if (employee) {
+            doctorId = employee.id;
+          }
+        }
+        return { 
+          message: "Email validado correctamente, usuario ya aprobado",
+          success: true, 
+          role: user.role.name,
+          userId: user.id,
+          peopleId: user.person.id,
+          token,
+          patientId,
+          doctorId
+        };
+      }
+
+      return {message:"Token no valido para este email", success:false};
+
+    }catch(error:any){
+      throw error;
+    }
   }
 
   async approvedAdmin(token: string, files: Express.Multer.File) {

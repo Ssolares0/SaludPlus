@@ -17,9 +17,9 @@ export const getPendientAppointment = async (req: Request, res: Response) => {
 export const putCompleteAppointment = async(req: Request, res: Response) => {
     try {
         const employeService = new EmployeService();
-        const {doctor_id, treatment} = req.body;
+        const {diagnosis, medications} = req.body;
         const {id} = req.params;
-        const result = await employeService.completeAppointment(doctor_id, treatment, Number(id));
+        const result = await employeService.completeAppointment(medications,diagnosis, Number(id));
         res.status(201).json(result);
     } catch (error: any){
         res.status(400).json({

@@ -2,7 +2,7 @@ import { application, Router } from 'express';
 import {
     activesAppointment, cancelAppointment, createAppointment,
     doctorsAvailables,
-    findMedic, getAndUpdateProfile, scheduleMedic, getAllPatientAppointments
+    findMedic, getAndUpdateProfile, scheduleMedic, getAllPatientAppointments, getMedications,
 } from '../controller/patient.controller';
 import multer from 'multer';
 
@@ -45,6 +45,11 @@ router.delete(
 router.get(
     '/profile/:id', getAndUpdateProfile
 ); // Obtener perfil
+
+router.get(
+    '/medicati/:id', 
+    getMedications
+);
 router.put(
     '/profile/:id', getAndUpdateProfile
 );

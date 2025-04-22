@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Patient } from './Patient.entity';
 import { Employee } from './Employe.entity';
+import { Treatment } from './Treatments.entity';
 
 @Entity({name:'appointments'})
 export class Appointment {
@@ -17,9 +18,6 @@ export class Appointment {
   status!: 'scheduled' | 'canceled' | 'completed'; 
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  treatment?: string; //(si la cita se completó)
-
-  @Column({ type: 'varchar', length: 500, nullable: true })
   cancellation_reason?: string;
 
   // Relación N:1 con Pacient
@@ -31,4 +29,7 @@ export class Appointment {
   @ManyToOne(() => Employee, (doctor) => doctor.appointments)
   @JoinColumn({ name: 'employee_id' })
   doctor!: Employee;
+
+  @OneToOne(() => Treatment, (treatment) => treatment.appointment)
+  treatment!: Treatment;
 }

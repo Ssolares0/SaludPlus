@@ -10,6 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { configDotenv } from 'dotenv';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { Person } from "../models/Person.entity";
+import { Treatment } from "../models/Treatments.entity";
+import { Medication } from "../models/Medications.entity";
 
 export class EmployeService{
     async pendientAppointment(userId: number){
@@ -41,36 +43,56 @@ export class EmployeService{
         }
     }
 
-    async completeAppointment(doctor_id: number, treatment: string, appointement_id: number){
+    async completeAppointment(
+        medications: Array<{
+            name: string;
+            dosage: string;
+            duration: string;
+            instructions: string;
+        }>, 
+        diagnosis:string,
+        appointement_id: number
+    ){
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try{
-            if (!treatment?.trim()) throw new Error('El tratamiento es obligatorio para terminar la cita');
+            if (medications.length === 0) throw new Error('El tratamiento es obligatorio para terminar la cita');
 
-            const appointement = await queryRunner.manager.findOne(Appointment, {
-                where: {
-                    id: appointement_id,
-                    doctor: {
-                        id: doctor_id
-                    }
-                }
-            });
+            const appointement = await queryRunner.manager.findOneBy(Appointment, {id: appointement_id});
 
             if (!appointement) throw new Error('Cita no encontrada');
             if (appointement.status !== "scheduled") throw new Error("La cita no esta programada");
 
+            
+            // appointement.treatment = treatment;
+            const treatment = new Treatment();
+            treatment.diagnosis = diagnosis;
+            treatment.appointment = appointement;
+            await queryRunner.manager.save(treatment);
+
+            const medicationEntities = medications.map((med) => {
+                const medication = new Medication();
+                medication.name = med.name;
+                medication.quantity = med.dosage;
+                medication.duration = med.duration;
+                medication.dosage_description = med.instructions;
+                medication.treatment = treatment;
+                return medication;
+            });
+
+            await queryRunner.manager.save(medicationEntities);
+
             appointement.status = "completed";
-            appointement.treatment = treatment;
+
             await queryRunner.manager.save(appointement);
 
             await queryRunner.commitTransaction();
 
             return {
-                message: "Cita marcada como atendida"
+                message: "Cita marcada como atendida",
+                success: true
             }
-
-
         }catch (error: any){
             await queryRunner.rollbackTransaction();
             throw error;

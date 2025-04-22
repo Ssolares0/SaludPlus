@@ -7,14 +7,21 @@
                 <h2 class="brand-subtitle">SaludPlus</h2>
             </div>
             @if (isAdmin) {
-                <button type="button" class="cancel-button" (click)="cancelAdminAuth()" [disabled]="isLoading">
-                    <i-lucide class="cancel-icon" [name]="ArrowLeft"></i-lucide> 
-                    Volver
-                </button>
-                }
+            <button type="button" class="cancel-button" (click)="cancelAdminAuth()" [disabled]="isLoading">
+                <i-lucide class="cancel-icon" [name]="ArrowLeft"></i-lucide>
+                Volver
+            </button>
+            }
+            @if (requireEmailVerification) {
+            <button type="button" class="cancel-button" (click)="cancelEmailVerification()" [disabled]="isLoading">
+                <i-lucide class="cancel-icon" [name]="ArrowLeft"></i-lucide>
+                Volver
+            </button>
+            }
         </header>
         <section class="login-content">
-            @if (!isAdmin) {
+            <!-- Formulario de Login normal -->
+            @if (!isAdmin && !requireEmailVerification) {
             <h3 class="login-title">Iniciar Sesión</h3>
             <p class="login-description">Ingrese sus credenciales para iniciar sesión</p>
 
@@ -59,7 +66,10 @@
                     }
                 </button>
             </form>
-            } @else {
+            }
+
+            <!-- Formulario de Autenticación de Admin -->
+            @if (isAdmin) {
             <h3 class="login-title">Iniciar Sesión como Administrador</h3>
             <p class="login-description">Ingresa el archivo con tu contraseña encriptada</p>
 
@@ -78,7 +88,8 @@
                     </div>
                 </div>
 
-                <button type="button" class="login-button" [disabled]="isLoading || !selectedFile" (click)="submitAdminAuth($event)">
+                <button type="button" class="login-button" [disabled]="isLoading || !selectedFile"
+                    (click)="submitAdminAuth($event)">
                     @if (isLoading) {
                     <div class="spinner"></div>
                     <span>Autenticando...</span>
@@ -88,9 +99,54 @@
                 </button>
             </form>
             }
+
+            <!-- Formulario de Verificación de Email -->
+            @if (requireEmailVerification) {
+            <h3 class="login-title">Verificación de Email</h3>
+            <p class="login-description">Hemos enviado un código de verificación a <strong>{{ userEmail }}</strong>. Por
+                favor ingresa el código para continuar.</p>
+
+            <div class="email-verification-info">
+                <div class="email-icon">
+                    <i-lucide [name]="Mail" [size]="28"></i-lucide>
+                </div>
+                <p>Revisa tu bandeja de entrada y también la carpeta de spam.</p>
+            </div>
+
+            <form class="login-form" [formGroup]="emailVerifyForm" (ngSubmit)="submitEmailVerification()">
+                <div class="form-group">
+                    <label for="verificationCode" class="form-label">Código de verificación</label>
+                    <div class="input-container">
+                        <input type="text" id="verificationCode" formControlName="verificationCode"
+                            class="form-input verification-code-input"
+                            [ngClass]="{ 'form-input-error': shouldShowError('verificationCode', emailVerifyForm) }"
+                            placeholder="123456" maxlength="6" autocomplete="off" />
+                        <div class="error-container">
+                            @if (shouldShowError('verificationCode', emailVerifyForm)) {
+                            <div class="error-message">
+                                {{ getErrorMessage('verificationCode', emailVerifyForm) }}
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button" [disabled]="isLoading || emailVerifyForm.invalid">
+                    @if (isLoading) {
+                    <div class="spinner"></div>
+                    <span>Verificando...</span>
+                    } @else {
+                    <span>Verificar código</span>
+                    }
+                </button>
+            </form>
+            }
+
+            @if (!isAdmin && !requireEmailVerification) {
             <p class="register-prompt">¿No tienes una cuenta? <a class="register-link"
                     (click)="goToSelectTypeAccount()">Registrate aquí</a>
             </p>
+            }
         </section>
         <footer class="login-footer">
             <p class="copyright">© 2025 SaludPlus. Todos los derechos reservados.</p>

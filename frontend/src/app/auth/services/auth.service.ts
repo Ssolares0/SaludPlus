@@ -1,4 +1,4 @@
-import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion, AdminAuth2Response } from "../models/auth.models";
+import { EmailVerificationResponse, ValidateEmailBody, ValidateEmailResponse, LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion, AdminAuth2Response } from "../models/auth.models";
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
@@ -46,6 +46,10 @@ export class AuthService {
 
     public isAdminResponse(response: any): response is LoginAdminResponse {
         return 'token' in response && 'requiresAuth2' in response;
+    }
+
+    public isEmailVerificationResponse(response: any): response is EmailVerificationResponse {
+        return 'requireAuthEmail' in response && response.requireAuthEmail === true;
     }
 
     public registerPatient(patientData: PatientRegisterData): Observable<RegisterResponse> {
@@ -105,6 +109,14 @@ export class AuthService {
         }
 
         return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/doctor`, formData)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public validateEmail(validateEmailBody: ValidateEmailBody): Observable<ValidateEmailResponse> {
+        console.log(validateEmailBody);
+        return this.http.post<ValidateEmailResponse>(`${environment.apiUrl}/auth/verifique/email`, validateEmailBody)
             .pipe(
                 catchError(this.handleError)
             );

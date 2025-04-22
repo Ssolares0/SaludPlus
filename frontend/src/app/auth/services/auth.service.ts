@@ -66,6 +66,10 @@ export class AuthService {
             formData.append('photo', patientData.photo, patientData.photo.name);
         }
 
+        if (patientData.document) {
+            formData.append('pdf', patientData.document, patientData.document.name);
+        }
+
         return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/patient`, formData)
             .pipe(
                 catchError(this.handleError)
@@ -94,6 +98,10 @@ export class AuthService {
 
         if (doctorData.photo) {
             formData.append('photo', doctorData.photo, doctorData.photo.name);
+        }
+
+        if (doctorData.document) {
+            formData.append('pdf', doctorData.document, doctorData.document.name);
         }
 
         return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/doctor`, formData)

@@ -267,15 +267,34 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="cvPdf">CV / Hoja de vida (PDF)<span class="required">*</span></label>
+                    <div class="input-container">
+                        <div class="pdf-input-wrapper"
+                            [ngClass]="{ 'form-input-error': shouldShowError('cvDocument') }">
+                            <input type="file" accept=".pdf" id="cvPdf" #cvInput (change)="onCvFileSelected($event)"
+                                class="file-input">
+                            <div class="pdf-input-placeholder" (click)="cvInput.click()">
+                                <i-lucide [name]="FileText" [size]="24"></i-lucide>
+                                <span>{{ cvFileName || 'Seleccionar CV' }}</span>
+                            </div>
+                        </div>
+                        <div class="error-container">
+                            @if (shouldShowError('cvDocument')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('cvDocument') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-register" [disabled]="isLoading">
+                <button type="submit" class="btn-register" [disabled]="isLoading || !checkFormValidity()">
                     @if (!isLoading) {
-                        <span>Registrarme como médico</span>
+                    <span>Registrarme como médico</span>
                     } @else {
-                        <span>Registrando...</span>
+                    <span>Registrando...</span>
                     }
                 </button>
             </div>

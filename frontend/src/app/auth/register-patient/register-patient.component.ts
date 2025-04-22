@@ -5,7 +5,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { PatientRegisterData } from '../models/auth.models';
 import { AuthService } from '../services/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
-import { UserCircle2 } from 'lucide-angular';
+import { UserCircle2, FileText } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -27,12 +27,17 @@ export class RegisterPatientComponent implements OnInit {
   maxDate: string = '';
   isLoading = false;
 
+  // Nuevas variables para el PDF
+  selectedPdfFile: File | null = null;
+  pdfFileName: string = '';
+
   showModal = false;
   modalType: 'success' | 'warning' | 'error' = 'success';
   modalTitle = '';
   modalMessage = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('pdfInput') pdfInput!: ElementRef;
   @ViewChild('birthdateInput') birthdateInput!: ElementRef;
 
   constructor(
@@ -75,7 +80,9 @@ export class RegisterPatientComponent implements OnInit {
         Validators.required,
         Validators.minLength(8),
         Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).*$/)
-      ]]
+      ]],
+      // Control oculto para validar el PDF
+      documentPdf: ['', [Validators.required]]
     }, { validators: this.validateBirthdate });
 
     this.registerPatientForm.valueChanges.subscribe(() => {
@@ -175,15 +182,54 @@ export class RegisterPatientComponent implements OnInit {
     }
   }
 
+  // Nuevo método para seleccionar PDF
+  onPdfFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedPdfFile = input.files[0];
+
+      if (!this.validatePdfType(this.selectedPdfFile)) {
+        this.showWarningModal('Por favor seleccione un archivo PDF válido.');
+        this.resetPdfFile();
+        return;
+      }
+
+      if (this.selectedPdfFile.size > 10 * 1024 * 1024) {
+        this.showWarningModal('El PDF no debe exceder los 10MB.');
+        this.resetPdfFile();
+        return;
+      }
+
+      this.pdfFileName = this.selectedPdfFile.name;
+      this.registerPatientForm.patchValue({ documentPdf: this.pdfFileName });
+      this.registerPatientForm.get('documentPdf')?.updateValueAndValidity();
+      this.cdr.detectChanges();
+    }
+  }
+
   validateImageType(file: File): boolean {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
     return validTypes.includes(file.type);
+  }
+
+  // Nuevo método para validar tipo de PDF
+  validatePdfType(file: File): boolean {
+    return file.type === 'application/pdf';
   }
 
   resetProfileImage(): void {
     this.profileImageUrl = null;
     this.selectedFile = null;
     this.fileInput.nativeElement.value = '';
+  }
+
+  // Nuevo método para resetear el PDF
+  resetPdfFile(): void {
+    this.selectedPdfFile = null;
+    this.pdfFileName = '';
+    this.pdfInput.nativeElement.value = '';
+    this.registerPatientForm.patchValue({ documentPdf: '' });
+    this.registerPatientForm.get('documentPdf')?.updateValueAndValidity();
   }
 
   anyControlTouched(): boolean {
@@ -239,6 +285,9 @@ export class RegisterPatientComponent implements OnInit {
         required: 'La contraseña es requerida',
         minlength: 'La contraseña debe tener al menos 8 caracteres',
         pattern: 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial'
+      },
+      documentPdf: {
+        required: 'El documento PDF es requerido'
       }
     };
 
@@ -253,6 +302,10 @@ export class RegisterPatientComponent implements OnInit {
     return errorType ? errorMessages[fieldName][errorType] : '';
   }
 
+  checkFormValidity(): boolean {
+    return this.registerPatientForm.valid && this.selectedFile !== null && this.selectedPdfFile !== null;
+  }
+
   onSubmit(): void {
     this.submitted = true;
 
@@ -263,7 +316,23 @@ export class RegisterPatientComponent implements OnInit {
 
     this.cdr.detectChanges();
 
+    // Verificación de documentos
+    if (!this.selectedFile || !this.selectedPdfFile) {
+      let message = '';
+      if (!this.selectedFile && !this.selectedPdfFile) {
+        message = 'Debe adjuntar una foto de perfil y un documento PDF para continuar.';
+      } else if (!this.selectedFile) {
+        message = 'Debe adjuntar una foto de perfil para continuar.';
+      } else {
+        message = 'Debe adjuntar un documento PDF para continuar.';
+      }
+      
+      this.showWarningModal(message);
+      return;
+    }
+
     if (this.registerPatientForm.invalid) {
+      this.showWarningModal('Por favor complete todos los campos correctamente antes de continuar.');
       return;
     }
 
@@ -286,17 +355,18 @@ export class RegisterPatientComponent implements OnInit {
       patientData.photo = this.selectedFile;
     }
 
+    if (this.selectedPdfFile) {
+      patientData.document = this.selectedPdfFile;
+    }
+
     this.authService.registerPatient(patientData).subscribe({
       next: (response) => {
         this.isLoading = false;
-
         this.showSuccessModal('Su formulario fue completado con éxito, debe esperar la verificación del administrador para terminar el proceso de registro.');
       },
       error: (error) => {
         console.error('Error al registrar', error);
-
         this.isLoading = false;
-
         this.showErrorModal('Error al registrar: ' + error.message);
       }
     });
@@ -338,4 +408,5 @@ export class RegisterPatientComponent implements OnInit {
   }
 
   protected readonly UserCircle2 = UserCircle2;
+  protected readonly FileText = FileText;
 }

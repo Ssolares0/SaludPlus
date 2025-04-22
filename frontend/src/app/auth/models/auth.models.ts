@@ -42,6 +42,7 @@ export interface PatientRegisterData {
     address: string;
     role_id: number;
     photo?: File;
+    document?: File;
 }
 
 export interface DoctorRegisterData {
@@ -59,7 +60,17 @@ export interface DoctorRegisterData {
     id_specialty: number;
     name_department: string;
     direccion_departamento: string;  
-    photo: File;              
+    photo: File;      
+    document: File;        
+}
+
+export interface ValidateEmailBody {
+    token: string;  
+    token_email: string;
+}
+
+export interface ValidateEmailResponse {
+    
 }
 
 export type LoginResponseUnion = LoginResponse | LoginAdminResponse;

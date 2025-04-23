@@ -1,4 +1,4 @@
-import { LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion, AdminAuth2Response } from "../models/auth.models";
+import { EmailVerificationResponse, ValidateEmailBody, ValidateEmailResponse, LoginBody, LoginResponse, PatientRegisterData, RegisterResponse, DoctorRegisterData, LoginAdminResponse, LoginResponseUnion, AdminAuth2Response } from "../models/auth.models";
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
@@ -48,6 +48,10 @@ export class AuthService {
         return 'token' in response && 'requiresAuth2' in response;
     }
 
+    public isEmailVerificationResponse(response: any): response is EmailVerificationResponse {
+        return 'requireAuthEmail' in response && response.requireAuthEmail === true;
+    }
+
     public registerPatient(patientData: PatientRegisterData): Observable<RegisterResponse> {
         const formData = new FormData();
 
@@ -64,6 +68,10 @@ export class AuthService {
 
         if (patientData.photo) {
             formData.append('photo', patientData.photo, patientData.photo.name);
+        }
+
+        if (patientData.document) {
+            formData.append('pdf', patientData.document, patientData.document.name);
         }
 
         return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/patient`, formData)
@@ -96,7 +104,19 @@ export class AuthService {
             formData.append('photo', doctorData.photo, doctorData.photo.name);
         }
 
+        if (doctorData.document) {
+            formData.append('pdf', doctorData.document, doctorData.document.name);
+        }
+
         return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register/doctor`, formData)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public validateEmail(validateEmailBody: ValidateEmailBody): Observable<ValidateEmailResponse> {
+        console.log(validateEmailBody);
+        return this.http.post<ValidateEmailResponse>(`${environment.apiUrl}/auth/verifique/email`, validateEmailBody)
             .pipe(
                 catchError(this.handleError)
             );

@@ -166,11 +166,30 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="documentPdf">Documento de identificación (PDF)<span class="required">*</span></label>
+                    <div class="input-container">
+                        <div class="pdf-input-wrapper"
+                            [ngClass]="{ 'form-input-error': shouldShowError('documentPdf') }">
+                            <input type="file" accept=".pdf" id="documentPdf" #pdfInput
+                                (change)="onPdfFileSelected($event)" class="file-input">
+                            <div class="pdf-input-placeholder" (click)="pdfInput.click()">
+                                <i-lucide [name]="FileText" [size]="24"></i-lucide>
+                                <span>{{ pdfFileName || 'Seleccionar documento' }}</span>
+                            </div>
+                        </div>
+                        <div class="error-container">
+                            @if (shouldShowError('documentPdf')) {
+                            <div class="error-message">
+                                {{ getErrorMessage('documentPdf') }}
+                            </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-register" [disabled]="isLoading">
+                <button type="submit" class="btn-register" [disabled]="isLoading || !checkFormValidity()">
                     @if (isLoading) {
                     <span>Registrando...</span>
                     } @else {

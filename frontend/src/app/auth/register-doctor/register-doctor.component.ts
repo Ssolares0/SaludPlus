@@ -2,7 +2,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { LucideAngularModule } from 'lucide-angular';
-import { UserCircle2 } from 'lucide-angular';
+import { UserCircle2, FileText } from 'lucide-angular'; 
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -37,12 +37,17 @@ export class RegisterDoctorComponent implements OnInit {
     { id: 8, name: 'Oftalmología' }
   ];
 
+  // Variables para el CV
+  selectedCvFile: File | null = null;
+  cvFileName: string = '';
+
   showModal = false;
   modalType: 'success' | 'warning' | 'error' = 'success';
   modalTitle = '';
   modalMessage = '';
 
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('cvInput') cvInput!: ElementRef; 
   @ViewChild('birthdateInput') birthdateInput!: ElementRef;
 
   constructor(
@@ -94,7 +99,8 @@ export class RegisterDoctorComponent implements OnInit {
       ]],
       specialty: ['', [Validators.required]],
       clinicAddress: ['', [Validators.required]],
-      department: ['', [Validators.required]]
+      department: ['', [Validators.required]],
+      cvDocument: ['', [Validators.required]] 
     }, { validators: this.validateBirthdate });
 
     this.registerDoctorForm.valueChanges.subscribe(() => {
@@ -194,15 +200,51 @@ export class RegisterDoctorComponent implements OnInit {
     }
   }
 
+  onCvFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedCvFile = input.files[0];
+  
+      if (!this.validatePdfType(this.selectedCvFile)) {
+        this.showWarningModal('Por favor seleccione un archivo PDF válido para su CV.');
+        this.resetCvFile();
+        return;
+      }
+  
+      if (this.selectedCvFile.size > 10 * 1024 * 1024) {
+        this.showWarningModal('El CV no debe exceder los 10MB.');
+        this.resetCvFile();
+        return;
+      }
+  
+      this.cvFileName = this.selectedCvFile.name;
+      this.registerDoctorForm.patchValue({ cvDocument: this.cvFileName });
+      this.registerDoctorForm.get('cvDocument')?.updateValueAndValidity();
+      this.cdr.detectChanges();
+    }
+  }
+
   validateImageType(file: File): boolean {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
     return validTypes.includes(file.type);
+  }
+
+  validatePdfType(file: File): boolean {
+    return file.type === 'application/pdf';
   }
 
   resetProfileImage(): void {
     this.profileImageUrl = null;
     this.selectedFile = null;
     this.fileInput.nativeElement.value = '';
+  }
+
+  resetCvFile(): void {
+    this.selectedCvFile = null;
+    this.cvFileName = '';
+    this.cvInput.nativeElement.value = '';
+    this.registerDoctorForm.patchValue({ cvDocument: '' });
+    this.registerDoctorForm.get('cvDocument')?.updateValueAndValidity();
   }
 
   anyControlTouched(): boolean {
@@ -273,6 +315,9 @@ export class RegisterDoctorComponent implements OnInit {
       },
       department: {
         required: 'El departamento es requerido'
+      },
+      cvDocument: {
+        required: 'El CV es requerido'
       }
     };
 
@@ -287,6 +332,10 @@ export class RegisterDoctorComponent implements OnInit {
     return errorType ? errorMessages[fieldName][errorType] : '';
   }
 
+  checkFormValidity(): boolean {
+    return this.registerDoctorForm.valid && this.selectedFile !== null && this.selectedCvFile !== null;
+  }
+
   onSubmit(): void {
     this.submitted = true;
 
@@ -297,12 +346,22 @@ export class RegisterDoctorComponent implements OnInit {
 
     this.cdr.detectChanges();
 
-    if (this.registerDoctorForm.invalid) {
+    if (!this.selectedFile || !this.selectedCvFile) {
+      let message = '';
+      if (!this.selectedFile && !this.selectedCvFile) {
+        message = 'Debe adjuntar una foto de perfil y su CV en formato PDF para continuar.';
+      } else if (!this.selectedFile) {
+        message = 'Debe adjuntar una foto de perfil para continuar.';
+      } else {
+        message = 'Debe adjuntar su CV en formato PDF para continuar.';
+      }
+      
+      this.showWarningModal(message);
       return;
     }
 
-    if (!this.selectedFile) {
-      this.showWarningModal('Por favor seleccione una foto de perfil (requerida para médicos).');
+    if (this.registerDoctorForm.invalid) {
+      this.showWarningModal('Por favor complete todos los campos correctamente antes de continuar.');
       return;
     }
 
@@ -318,12 +377,13 @@ export class RegisterDoctorComponent implements OnInit {
       gender: this.getGenderValue(this.registerDoctorForm.value.genre),
       phone: this.registerDoctorForm.value.phone,
       address: this.registerDoctorForm.value.direction,
-      role_id: 2, 
+      role_id: 2,
       employee_number: this.registerDoctorForm.value.collegiateNumber,
       id_specialty: this.getSpecialtyId(this.registerDoctorForm.value.specialty),
       name_department: this.registerDoctorForm.value.department,
       direccion_departamento: this.registerDoctorForm.value.clinicAddress,
-      photo: this.selectedFile
+      photo: this.selectedFile,
+      document: this.selectedCvFile
     };
 
     this.authService.registerDoctor(doctorData).subscribe({
@@ -349,7 +409,7 @@ export class RegisterDoctorComponent implements OnInit {
       case 'ginecologia': return 6;
       case 'neurologia': return 7;
       case 'oftalmologia': return 8;
-      default: return 1; 
+      default: return 1;
     }
   }
 
@@ -389,4 +449,5 @@ export class RegisterDoctorComponent implements OnInit {
   }
 
   protected readonly UserCircle2 = UserCircle2;
+  protected readonly FileText = FileText;
 }

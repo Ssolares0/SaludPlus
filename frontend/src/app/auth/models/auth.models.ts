@@ -23,6 +23,13 @@ export interface LoginResponse {
     token: string;
     patientId: number | null;
     doctorId: number | null;
+    requireAuthEmail: boolean;
+}
+
+export interface EmailVerificationResponse {
+    token: string;
+    requireAuthEmail: boolean;
+    message: string;
 }
 
 export interface RegisterResponse {
@@ -42,6 +49,7 @@ export interface PatientRegisterData {
     address: string;
     role_id: number;
     photo?: File;
+    document?: File;
 }
 
 export interface DoctorRegisterData {
@@ -50,16 +58,33 @@ export interface DoctorRegisterData {
     dpi: string;
     email: string;
     password: string;
-    birth_date: string;       
-    gender: string;           
+    birth_date: string;
+    gender: string;
     phone: string;
     address: string;
-    role_id: number;           
+    role_id: number;
     employee_number: string;
     id_specialty: number;
     name_department: string;
-    direccion_departamento: string;  
-    photo: File;              
+    direccion_departamento: string;
+    photo: File;
+    document: File;
 }
 
-export type LoginResponseUnion = LoginResponse | LoginAdminResponse;
+export interface ValidateEmailBody {
+    token: string;
+    token_email: string;
+}
+
+export interface ValidateEmailResponse {
+    message: string;
+    success: boolean;
+    role: string;
+    userId: number;
+    peopleId: number;
+    token: string;
+    patientId: number | null;
+    doctorId: number | null;
+}
+
+export type LoginResponseUnion = LoginResponse | LoginAdminResponse | EmailVerificationResponse;

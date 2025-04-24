@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Role } from './Role.entity';
 import { Person } from './Person.entity';
+import { Reports } from './Reports.entity';
 
 @Entity({name:'users'})
 export class User {
@@ -38,4 +39,11 @@ export class User {
   @OneToOne(() => Person)
   @JoinColumn({ name: 'person_id' }) // Columna person_id en users
   person!: Person; // TypeORM manejará el ID automáticamente
+
+  //relacion con reportes 
+  @OneToMany(() => Reports, (report) => report.reporter)
+  reportsMade!: Reports[]
+
+  @OneToMany(() => Reports, (report) => report.reported)
+  reportsReceived!: Reports[]
 }

@@ -7,7 +7,8 @@ import {
   ClipboardList,
   FileText,
   ChevronDown,
-  LogOut
+  LogOut,
+  BugIcon,
 } from 'lucide-angular';
 
 @Component({
@@ -47,6 +48,12 @@ export class AdminLayoutComponent implements OnInit {
       active: false
     },
     {
+      label: 'Gestión de reportes',
+      icon: BugIcon,
+      route: '/admin/reports-management',
+      active: false
+    },
+    {
       label: 'Reportes',
       icon: FileText,
       route: '/admin/reports',
@@ -68,7 +75,8 @@ export class AdminLayoutComponent implements OnInit {
 
   private updateActiveItem(url: string) {
     this.navItems.forEach(item => {
-      item.active = url.includes(item.route);
+      const pattern = new RegExp(`^${item.route}(/)?$`);
+      item.active = pattern.test(url);
     });
   }
 

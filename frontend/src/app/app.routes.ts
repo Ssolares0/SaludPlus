@@ -17,6 +17,7 @@ import { SchedulesComponent } from './doctor/schedules/schedules.component';
 import { HistoryComponent } from './doctor/history/history.component';
 import { ProfileComponent } from './doctor/profile/profile.component';
 import { NotFoundComponent } from './core/components/notfound.component';
+import { ReportsManagementComponent } from './admin/reports-management/reports-management.component';
 
 export const routes: Routes = [
     {
@@ -83,6 +84,11 @@ export const routes: Routes = [
                 path: '',
                 redirectTo: 'reports',
                 pathMatch: 'full'
+            },
+            {
+                path: 'reports-management',
+                title: "Gestión de reportes",
+                component: ReportsManagementComponent
             }
         ]
     },

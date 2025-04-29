@@ -94,3 +94,29 @@ export interface StatisticsResponse {
 export interface StatisticsBody {
     specialty?: string;
 }
+
+export interface PatientReportResponse {
+    reports_id: number;
+    reports_category: string;
+    reports_description: string;
+    reporter_id: number;
+    reporter_name: string;
+    reported_id: number;
+    reported_name: string;
+    reporterRole_name: string;
+    reportedRole_name: string;
+    created_at: string;
+}
+
+export interface DoctorReportResponse {
+    reports_id: number;
+    reports_category: string;
+    reports_description: string;
+    reporter_id: number;
+    reporter_name: string;
+    reported_id: number;
+    reported_name: string;
+    reporterRole_name: string;
+    reportedRole_name: string;
+    created_at: string;
+}

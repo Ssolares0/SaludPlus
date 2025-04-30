@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPatientPending, getDoctorPending, getActivePatient, getActiveDoctor, deleteUser, getTopDoctors, getReportAgaintsDoctor, deleteReport } from "../controller/admin.controller";
+import { getPatientPending, getDoctorPending, getActivePatient, getActiveDoctor, deleteUser, getTopDoctors, getReportAgaintsDoctor, deleteReport, getReportAgaintsPatient } from "../controller/admin.controller";
 
 const router = Router();
 
@@ -41,5 +41,10 @@ router.get(
 router.delete(
     '/report/delete/:id',
     deleteReport
+)
+
+router.get(
+    '/report/againts/patient',
+    getReportAgaintsPatient
 )
 export {router as adminRouter}

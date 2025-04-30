@@ -116,3 +116,17 @@ export const getReportAgaintsPatient = async(_: Request, res: Response) => {
     } 
 }
 
+export const getActivePatientRating = async(_: Request, res: Response) => {
+    try{    
+        const adminService = new AdminService();
+
+        const result = await adminService.PatientRating();
+        res.status(201).json(result);
+
+    } catch (error: any){
+        res.status(400).json({
+            error: error.message || 'Error al obtener las calificaciones de los pacientes'
+        })
+    } 
+}
+

@@ -3,6 +3,7 @@ import { AppDataSource } from "../config/database/Postgres"
 import { User } from "../models/User.entity";
 import { Appointment } from "../models/Appointments.entity";
 import { Employee } from "../models/Employe.entity";
+import { Reports } from "../models/Reports.entity";
 
 
 export class AdminService {
@@ -222,4 +223,90 @@ export class AdminService {
             throw error
         }
     }
+
+    async reportAgainstDoctor(){
+        try{
+            return await AppDataSource.getRepository(Reports)
+            .createQueryBuilder('reports')
+            //carga relaciones 
+            .innerJoinAndSelect('reports.reporter', 'reporter')
+            .innerJoinAndSelect('reports.reported', 'reported')
+            .innerJoin('reporter.role', 'reporterRole')
+            .innerJoin('reported.role', 'reportedRole')
+            // Aplicar filtros
+            .where('reporterRole.name = :reporterRole', { reporterRole: 'paciente' })
+            // Ordenar
+            .orderBy('reports.created_at', 'DESC')
+            // Seleccionar campos específicos (opcional)
+            .select([
+                'reports.id',
+                'reports.category',
+                'reports.description',
+                'reports.created_at',
+                'reporter.id',
+                'reporter.name',
+                'reported.id',
+                'reported.name',
+                'reporterRole.name',
+                'reportedRole.name'
+            ])
+            .getRawMany();
+        } catch (error:any){
+            throw error
+        }
+    }
+
+    async reportDelete(id_report: number){
+        try{
+            await AppDataSource.manager.delete(Reports, id_report)
+            return {
+                message: "Reporte eliminado"
+            }
+
+        }catch(error:any){
+            throw error
+        }
+
+    }
+
+    async reportAgainstPatient(){
+        try{
+            return await AppDataSource.getRepository(Reports)
+            .createQueryBuilder('reports')
+            //carga relaciones 
+            .innerJoinAndSelect('reports.reporter', 'reporter')
+            .innerJoinAndSelect('reports.reported', 'reported')
+            .innerJoin('reporter.role', 'reporterRole')
+            .innerJoin('reported.role', 'reportedRole')
+            // Aplicar filtros
+            .where('reporterRole.name = :reporterRole', { reporterRole: 'doctor' })
+            // Ordenar
+            .orderBy('reports.created_at', 'DESC')
+            // Seleccionar campos específicos (opcional)
+            .select([
+                'reports.id',
+                'reports.category',
+                'reports.description',
+                'reports.created_at',
+                'reporter.id',
+                'reporter.name',
+                'reported.id',
+                'reported.name',
+                'reporterRole.name',
+                'reportedRole.name'
+            ])
+            .getRawMany();
+        } catch (error:any){
+            throw error
+        }
+    }
 }
+
+
+// select  u.name,  AVG(r.rating) as califa from users u
+// inner join people p on u.person_id = p.id
+// inner join patients pat on p.id = pat.person_id
+// inner join appointments a on pat.id = a.patient_id and a.status = 'completed'
+// inner join ratings r on a.id = r.appointment_id and r.rater_role = 'doctor'
+// where u.role_id = 3 and u.approved = true and u.email_verification_token = true
+// group by u.name

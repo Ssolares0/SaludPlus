@@ -73,3 +73,46 @@ export const getTopDoctors = async(req: Request, res: Response) => {
         });
     }
 }
+
+export const getReportAgaintsDoctor = async(_: Request, res: Response) => {
+    try{    
+        const adminService = new AdminService();
+
+        const result = await adminService.reportAgainstDoctor();
+        res.status(201).json(result);
+
+    } catch (error: any){
+        res.status(400).json({
+            error: error.message || 'Error al obtener los reportes contra medicos'
+        })
+    } 
+}
+
+export const deleteReport = async(req: Request, res: Response) => {
+    try{    
+        const adminService = new AdminService();
+
+        const result = await adminService.reportDelete(Number(req.params.id));
+        res.status(201).json(result);
+
+    } catch (error: any){
+        res.status(400).json({
+            error: error.message || 'Error al eleminar el reporte contra medicos'
+        })
+    } 
+}
+
+export const getReportAgaintsPatient = async(_: Request, res: Response) => {
+    try{    
+        const adminService = new AdminService();
+
+        const result = await adminService.reportAgainstPatient();
+        res.status(201).json(result);
+
+    } catch (error: any){
+        res.status(400).json({
+            error: error.message || 'Error al obtener los reportes contra medicos'
+        })
+    } 
+}
+

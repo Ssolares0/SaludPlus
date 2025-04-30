@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Patient } from './Patient.entity';
 import { Employee } from './Employe.entity';
 import { Treatment } from './Treatments.entity';
+import { Rating } from './Ratings.entity';
 
 @Entity({name:'appointments'})
 export class Appointment {
@@ -32,4 +33,8 @@ export class Appointment {
 
   @OneToOne(() => Treatment, (treatment) => treatment.appointment)
   treatment!: Treatment;
+
+   // Relación One-to-Many (1 cita puede tener múltiples calificaciones)
+   @OneToMany(() => Rating, (rating) => rating.appointment)
+   ratings!: Rating[];
 }

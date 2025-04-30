@@ -300,7 +300,31 @@ export class AdminService {
             throw error
         }
     }
+
+    async PatientRating(){
+        return await AppDataSource.getRepository(User)
+        .createQueryBuilder('user')
+        .innerJoinAndSelect('user.person', 'person')
+        .innerJoinAndSelect('person.patient', 'patient')
+        .innerJoinAndSelect('patient.appointments', 'appointment', 'appointment.status = :status', {
+            status: 'completed',
+        })
+        .innerJoin('appointment.ratings', 'rating', 'rating.rater_role = :raterRole',{
+            raterRole: 'doctor',
+        })
+        .where('user.role_id = :roleId', {roleId: 3})
+        .andWhere('user.approved = :approved', {approved: true})
+        .andWhere('user.email_verification_token IS NOT NULL')
+        .select([
+            'user.name AS name',
+            'ROUND(AVG(rating.rating),2) AS average_rating',
+        ])
+        .groupBy('user.name')
+        .getRawMany();
+    }
 }
+
+
 
 
 // select  u.name,  AVG(r.rating) as califa from users u

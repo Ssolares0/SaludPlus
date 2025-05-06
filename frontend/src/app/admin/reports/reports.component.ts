@@ -30,6 +30,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     patients: { male: 0, female: 0, other: 0 }
   };
 
+  chartsInitialized = false;
   totalDoctors = 0;
   totalPatients = 0;
 
@@ -49,6 +50,12 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => this.initializeCharts(), 1000);
+  }
+
+  ngAfterViewChecked(): void {
+    if (!this.loading && !this.error && !this.chartsInitialized) {
+      this.initializeCharts();
+    }
   }
 
   loadAllData(): void {
@@ -75,8 +82,6 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         this.calculateGenderDistribution(this.activeDoctors, this.activePatients);
 
         this.loading = false;
-
-        setTimeout(() => this.updateCharts(), 100);
       },
       error: (err) => {
         console.error('Error al cargar datos:', err);
@@ -190,18 +195,23 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
   private initializeCharts(): void {
     try {
-      this.initSpecialtyDistributionChart();
-      this.initGenderDistributionChart();
+      const specialtyCanvas = document.getElementById('specialtyDistributionChart') as HTMLCanvasElement;
+      const genderCanvas = document.getElementById('genderDistributionChart') as HTMLCanvasElement;
 
-      this.updateCharts();
+      // Solo inicializar si ambos canvas existen
+      if (specialtyCanvas && genderCanvas) {
+        this.initSpecialtyDistributionChart();
+        this.initGenderDistributionChart();
+        this.updateCharts();
+        this.chartsInitialized = true;
+      }
     } catch (error) {
       console.error("Error al inicializar gráficos:", error);
     }
   }
 
   private updateCharts(): void {
-    if (!this.charts) {
-      console.warn("Los gráficos no están inicializados aún");
+    if (!this.chartsInitialized || !this.charts) {
       return;
     }
 
@@ -271,7 +281,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
     const initialData = this.doctorsBySpecialty.length > 0
       ? this.doctorsBySpecialty.slice(0, 5).map(item => item.count)
-      : [1, 1, 1, 1, 1]; 
+      : [1, 1, 1, 1, 1];
 
     const initialLabels = this.doctorsBySpecialty.length > 0
       ? this.doctorsBySpecialty.slice(0, 5).map(item => item.specialty)
@@ -302,7 +312,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true, 
+        maintainAspectRatio: true,
         layout: {
           padding: {
             top: 10,

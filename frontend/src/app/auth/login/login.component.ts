@@ -3,9 +3,9 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@an
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { LoginBody } from '../models/auth.models';
+import { LoginBody, ValidateEmailBody, ValidateEmailResponse, LoginResponse } from '../models/auth.models';
 import { ModalComponent } from '../../core/components/modal/modal.component';
-import { LucideAngularModule, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Mail } from 'lucide-angular'; // Añadir ícono Mail
 
 @Component({
   selector: 'app-login',
@@ -16,9 +16,12 @@ import { LucideAngularModule, ArrowLeft } from 'lucide-angular';
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  emailVerifyForm!: FormGroup;
   submitted = false;
   isLoading = false;
   isAdmin = false;
+  requireEmailVerification = false;
+  userEmail = '';
 
   selectedFile: File | null = null;
   selectedFileName: string = '';
@@ -55,10 +58,23 @@ export class LoginComponent implements OnInit {
       ]]
     });
 
+    this.emailVerifyForm = this.formBuilder.group({
+      verificationCode: ['', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(6),
+        Validators.pattern('^[0-9]+$')
+      ]]
+    });
+
     this.loginForm.valueChanges.subscribe(() => {
       if (this.anyControlTouched()) {
         this.cdr.detectChanges();
       }
+    });
+
+    this.emailVerifyForm.valueChanges.subscribe(() => {
+      this.cdr.detectChanges();
     });
   }
 
@@ -68,13 +84,13 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  shouldShowError(fieldName: string): boolean {
-    const field = this.loginForm.get(fieldName);
+  shouldShowError(fieldName: string, form: FormGroup = this.loginForm): boolean {
+    const field = form.get(fieldName);
     return field ? (field.invalid && field.touched) : false;
   }
 
-  getErrorMessage(fieldName: string): string {
-    const field = this.loginForm.get(fieldName);
+  getErrorMessage(fieldName: string, form: FormGroup = this.loginForm): string {
+    const field = form.get(fieldName);
     if (!field || !field.errors) return '';
 
     if (fieldName === 'email') {
@@ -84,6 +100,12 @@ export class LoginComponent implements OnInit {
 
     if (fieldName === 'password') {
       if (field.errors['required']) return 'La contraseña es requerida';
+    }
+
+    if (fieldName === 'verificationCode') {
+      if (field.errors['required']) return 'El código de verificación es requerido';
+      if (field.errors['minlength'] || field.errors['maxlength']) return 'El código debe tener 6 dígitos';
+      if (field.errors['pattern']) return 'El código debe contener solo números';
     }
 
     return '';
@@ -110,7 +132,7 @@ export class LoginComponent implements OnInit {
     this.authService.loginAdmin(this.selectedFile).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
+
         if (response.success) {
           if (response.token) {
             localStorage.setItem('token', response.token);
@@ -130,6 +152,63 @@ export class LoginComponent implements OnInit {
         this.showErrorModal('El archivo de autenticación no es válido o hubo un error en el servidor. Por favor, intente de nuevo.');
       }
     })
+  }
+
+  submitEmailVerification() {
+    if (this.emailVerifyForm.invalid) {
+      Object.keys(this.emailVerifyForm.controls).forEach(key => {
+        const control = this.emailVerifyForm.get(key);
+        control?.markAsTouched();
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    const verificationBody: ValidateEmailBody = {
+      token: localStorage.getItem('tempToken') || '',
+      token_email: this.emailVerifyForm.value.verificationCode
+    };
+
+    this.authService.validateEmail(verificationBody).subscribe({
+      next: (response: ValidateEmailResponse) => {
+        this.isLoading = false;
+
+        if (response.success) {
+          localStorage.removeItem('tempToken');
+          localStorage.setItem('userRoleName', response.role);
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('userId', response.userId.toString());
+
+          switch (response.role) {
+            case 'doctor':
+              localStorage.setItem('doctorId', response.doctorId?.toString() || '');
+              this.showSuccessModal("¡Verificación de email exitosa! Redirigiendo al panel de doctor.");
+              setTimeout(() => {
+                this.router.navigate(['/doctor/appointments']);
+              }, 1500);
+              break;
+            case 'paciente':
+              localStorage.setItem('patientId', response.patientId?.toString() || '');
+              this.showSuccessModal("¡Verificación de email exitosa! Redirigiendo al panel de paciente.");
+              setTimeout(() => {
+                this.router.navigate(['/patients']);
+              }, 1500);
+              break;
+            default:
+              this.showWarningModal("Cuenta verificada pero el rol no es reconocido.");
+              break;
+          }
+        } else {
+          this.showErrorModal(response.message || 'Error al verificar el código');
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar email:', error);
+        this.isLoading = false;
+        this.showErrorModal('El código proporcionado no es válido o ha expirado. Por favor, intente de nuevo.');
+      }
+    });
   }
 
   onSubmit() {
@@ -165,22 +244,32 @@ export class LoginComponent implements OnInit {
             this.isAdmin = true;
           }
         }
-        else if (this.authService.isStandardResponse(response)) {
-          if (response.success) {
-            localStorage.setItem('userRoleName', response.role);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('userId', response.userId.toString());
+        else if (this.authService.isEmailVerificationResponse(response)) {
+          localStorage.setItem('tempToken', response.token);
 
-            switch (response.role) {
-              case 'doctor': 
-                localStorage.setItem('doctorId', response.doctorId?.toString() || '');
+          this.requireEmailVerification = true;
+          this.userEmail = this.loginForm.value.email;
+
+          this.showWarningModal('Por favor, verifica tu email antes de continuar. Se ha enviado un código de verificación a tu correo.');
+        }
+        else if (this.authService.isStandardResponse(response)) {
+          const standardResponse = response as LoginResponse;
+
+          if (standardResponse.success) {
+            localStorage.setItem('userRoleName', standardResponse.role);
+            localStorage.setItem('token', standardResponse.token);
+            localStorage.setItem('userId', standardResponse.userId.toString());
+
+            switch (standardResponse.role) {
+              case 'doctor':
+                localStorage.setItem('doctorId', standardResponse.doctorId?.toString() || '');
                 this.showSuccessModal("¡Autenticación completada exitosamente!")
                 setTimeout(() => {
                   this.router.navigate(['/doctor/appointments']);
                 }, 1500);
                 break;
               case 'paciente':
-                localStorage.setItem('patientId', response.patientId?.toString() || '');
+                localStorage.setItem('patientId', standardResponse.patientId?.toString() || '');
                 this.showSuccessModal("¡Autenticación completada exitosamente!")
                 setTimeout(() => {
                   this.router.navigate(['/patients']);
@@ -188,7 +277,7 @@ export class LoginComponent implements OnInit {
                 break;
             }
           } else {
-            this.showErrorModal(response.message || 'Credenciales incorrectas');
+            this.showErrorModal(standardResponse.message || 'Credenciales incorrectas');
           }
         }
         else {
@@ -218,11 +307,25 @@ export class LoginComponent implements OnInit {
     this.showModal = true;
   }
 
+  private showWarningModal(message: string) {
+    this.modalType = 'warning';
+    this.modalTitle = '¡Advertencia!';
+    this.modalMessage = message;
+    this.showModal = true;
+  }
+
   cancelAdminAuth(): void {
     localStorage.removeItem('isAdmin');
     this.isAdmin = false;
     this.selectedFile = null;
     this.selectedFileName = '';
+  }
+
+  cancelEmailVerification(): void {
+    localStorage.removeItem('tempToken');
+    this.requireEmailVerification = false;
+    this.userEmail = '';
+    this.emailVerifyForm.reset();
   }
 
   onCloseModal(): void {
@@ -234,4 +337,5 @@ export class LoginComponent implements OnInit {
   }
 
   protected readonly ArrowLeft = ArrowLeft;
+  protected readonly Mail = Mail;
 }

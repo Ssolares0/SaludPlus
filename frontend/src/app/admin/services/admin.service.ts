@@ -1,4 +1,4 @@
-import { PendingPatientsResponse, PendingDoctorsResponse, ActivePatientsResponse, ActiveDoctorsResponse, AcceptUserResponse, RejectUserResponse, StatisticsBody, StatisticsResponse } from "../models/admin.models";
+import { PatientReportResponse, DoctorReportResponse, PendingPatientsResponse, PendingDoctorsResponse, ActivePatientsResponse, ActiveDoctorsResponse, AcceptUserResponse, RejectUserResponse, StatisticsBody, StatisticsResponse } from "../models/admin.models";
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { catchError, throwError } from "rxjs";
@@ -63,6 +63,20 @@ export class AdminService {
         }
 
         return this.http.get<StatisticsResponse[]>(`${environment.apiUrl}/admin/report/topDoctor`, { params })
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getPatientsReport(id: number): Observable<PatientReportResponse[]> {
+        return this.http.get<PatientReportResponse[]>(`${environment.apiUrl}/admin/report/againts/patient`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    public getDoctorsReport(id: number): Observable<DoctorReportResponse[]> {
+        return this.http.get<DoctorReportResponse[]>(`${environment.apiUrl}/admin/report/againts/doctor`)
             .pipe(
                 catchError(this.handleError)
             );

@@ -1,1 +1,157 @@
-<p>reports-management works!</p>
+<div class="reports-management-container">
+    <div class="page-header">
+        <h2>Gestión de Reportes</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()"
+                    placeholder="Buscar por nombre o descripción..." class="search-input">
+            </div>
+            <div class="filter-box">
+                <select [(ngModel)]="selectedUserType" (change)="applyFilters()" class="filter-select">
+                    <option value="all">Todos los tipos</option>
+                    <option value="doctor">Reportes sobre médicos</option>
+                    <option value="patient">Reportes sobre pacientes</option>
+                </select>
+            </div>
+            <div class="filter-box">
+                <select [(ngModel)]="selectedCategory" (change)="applyFilters()" class="filter-select">
+                    <option value="all">Todas las categorías</option>
+                    <option *ngFor="let category of availableCategories" [value]="category">{{ category }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-tabs">
+        <button class="tab-button" [class.active]="activeTab === 'pending'" (click)="setActiveTab('pending')">
+            Reportes Pendientes
+            <span class="badge" *ngIf="getPendingReportsCount() > 0">{{ getPendingReportsCount() }}</span>
+        </button>
+        <button class="tab-button" [class.active]="activeTab === 'resolved'" (click)="setActiveTab('resolved')">
+            Reportes Resueltos
+        </button>
+    </div>
+
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando reportes...</p>
+    </div>
+    } @else if (errorMessage) {
+    <div class="error-container">
+        <div class="empty-state">
+            <i-lucide [name]="AlertTriangle" class="empty-icon"></i-lucide>
+            <h3>Error al cargar datos</h3>
+            <p>{{ errorMessage }}</p>
+            <button class="btn-retry" (click)="loadReports()">Reintentar</button>
+        </div>
+    </div>
+    } @else {
+    <div class="reports-list">
+        @for (report of filteredReports; track report.reports_id) {
+        <div class="report-card" [class.resolved]="report.status === 'resolved'">
+            <div class="report-header">
+                <div class="report-type" [class.doctor-type]="report.reportedRole_name === 'doctor'"
+                    [class.patient-type]="report.reportedRole_name === 'paciente'">
+                    <i-lucide [name]="report.reportedRole_name === 'doctor' ? User : Users"
+                        class="type-icon"></i-lucide>
+                    <span>{{ report.reportedRole_name === 'doctor' ? 'Médico' : 'Paciente' }}</span>
+                </div>
+                <div class="report-date">
+                    <i-lucide [name]="Calendar" class="date-icon"></i-lucide>
+                    <span>{{ formatDate(report.created_at) }}</span>
+                </div>
+                <div class="report-category">
+                    <span class="category-badge">{{ report.reports_category }}</span>
+                </div>
+            </div>
+
+            <div class="report-content">
+                <div class="reported-info">
+                    <h3>Usuario Reportado</h3>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <div class="default-avatar">{{ getInitials(report.reported_name) }}</div>
+                        </div>
+                        <div class="user-details">
+                            <p class="user-name">{{ report.reported_name }}</p>
+                            <p class="user-role">{{ getUserRoleLabel(report.reportedRole_name) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reporter-info">
+                    <h3>Reportado por</h3>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <div class="default-avatar">{{ getInitials(report.reporter_name) }}</div>
+                        </div>
+                        <div class="user-details">
+                            <p class="user-name">{{ report.reporter_name }}</p>
+                            <p class="user-role">{{ getUserRoleLabel(report.reporterRole_name) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-description">
+                <h3>Descripción del reporte</h3>
+                <p>{{ report.reports_description }}</p>
+            </div>
+
+            <div class="report-actions">
+                @if (report.status !== 'resolved') {
+                <button class="btn-accept" (click)="confirmResolveReport(report)">
+                    <i-lucide [name]="CheckCircle" class="btn-icon"></i-lucide>
+                    Marcar como resuelto
+                </button>
+                <button class="btn-reject" (click)="confirmDismissReport(report)">
+                    <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
+                    Descartar reporte
+                </button>
+                @if (report.reportedRole_name === 'doctor' || report.reportedRole_name === 'paciente') {
+                <button class="btn-ban" (click)="confirmBanUser(report)">
+                    <i-lucide [name]="UserX" class="btn-icon"></i-lucide>
+                    Suspender usuario
+                </button>
+                }
+                } @else {
+                <div class="resolved-status">
+                    <i-lucide [name]="CheckCircle" class="resolved-icon"></i-lucide>
+                    <span>Reporte resuelto</span>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        @empty {
+        <div class="no-results">
+            <div class="empty-state">
+                <i-lucide [name]="ClipboardList" class="empty-icon"></i-lucide>
+                <h3>No hay reportes {{ activeTab === 'pending' ? 'pendientes' : 'resueltos' }}</h3>
+                <p>
+                    @if (searchTerm || selectedCategory !== 'all' || selectedUserType !== 'all') {
+                    No se encontraron reportes con los filtros aplicados
+                    } @else {
+                    No hay reportes {{ activeTab === 'pending' ? 'pendientes' : 'resueltos' }} en este momento
+                    }
+                </p>
+                @if (searchTerm || selectedCategory !== 'all' || selectedUserType !== 'all') {
+                <button class="btn-clear-filters" (click)="clearFilters()">
+                    <i-lucide [name]="FilterX" class="btn-icon"></i-lucide>
+                    Limpiar filtros
+                </button>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Confirmar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

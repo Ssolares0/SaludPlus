@@ -120,3 +120,7 @@ export interface DoctorReportResponse {
     reportedRole_name: string;
     created_at: string;
 }
+
+export type UnifiedReportType = (PatientReportResponse | DoctorReportResponse) & {
+    status: 'pending' | 'resolved';
+};

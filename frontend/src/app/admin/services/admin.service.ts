@@ -82,6 +82,13 @@ export class AdminService {
             );
     }
 
+    public confirmReport(id: number): Observable<any> {
+        return this.http.delete(`${environment.apiUrl}/admin/report/delete/${id}`)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
     private handleError(error: HttpErrorResponse) {
         let errorMessage = '';
 

@@ -23,16 +23,6 @@
         </div>
     </div>
 
-    <div class="report-tabs">
-        <button class="tab-button" [class.active]="activeTab === 'pending'" (click)="setActiveTab('pending')">
-            Reportes Pendientes
-            <span class="badge" *ngIf="getPendingReportsCount() > 0">{{ getPendingReportsCount() }}</span>
-        </button>
-        <button class="tab-button" [class.active]="activeTab === 'resolved'" (click)="setActiveTab('resolved')">
-            Reportes Resueltos
-        </button>
-    </div>
-
     @if (isLoading) {
     <div class="loading-container">
         <div class="loading-spinner"></div>
@@ -50,7 +40,7 @@
     } @else {
     <div class="reports-list">
         @for (report of filteredReports; track report.reports_id) {
-        <div class="report-card" [class.resolved]="report.status === 'resolved'">
+        <div class="report-card">
             <div class="report-header">
                 <div class="report-type" [class.doctor-type]="report.reportedRole_name === 'doctor'"
                     [class.patient-type]="report.reportedRole_name === 'paciente'">
@@ -101,27 +91,14 @@
             </div>
 
             <div class="report-actions">
-                @if (report.status !== 'resolved') {
                 <button class="btn-accept" (click)="confirmResolveReport(report)">
                     <i-lucide [name]="CheckCircle" class="btn-icon"></i-lucide>
                     Marcar como resuelto
                 </button>
-                <button class="btn-reject" (click)="confirmDismissReport(report)">
-                    <i-lucide [name]="XCircle" class="btn-icon"></i-lucide>
-                    Descartar reporte
-                </button>
-                @if (report.reportedRole_name === 'doctor' || report.reportedRole_name === 'paciente') {
                 <button class="btn-ban" (click)="confirmBanUser(report)">
                     <i-lucide [name]="UserX" class="btn-icon"></i-lucide>
                     Suspender usuario
                 </button>
-                }
-                } @else {
-                <div class="resolved-status">
-                    <i-lucide [name]="CheckCircle" class="resolved-icon"></i-lucide>
-                    <span>Reporte resuelto</span>
-                </div>
-                }
             </div>
         </div>
         }
@@ -130,12 +107,12 @@
         <div class="no-results">
             <div class="empty-state">
                 <i-lucide [name]="ClipboardList" class="empty-icon"></i-lucide>
-                <h3>No hay reportes {{ activeTab === 'pending' ? 'pendientes' : 'resueltos' }}</h3>
+                <h3>No hay reportes pendientes</h3>
                 <p>
                     @if (searchTerm || selectedCategory !== 'all' || selectedUserType !== 'all') {
                     No se encontraron reportes con los filtros aplicados
                     } @else {
-                    No hay reportes {{ activeTab === 'pending' ? 'pendientes' : 'resueltos' }} en este momento
+                    No hay reportes pendientes en este momento
                     }
                 </p>
                 @if (searchTerm || selectedCategory !== 'all' || selectedUserType !== 'all') {

@@ -9,8 +9,7 @@ import {
 import { AdminService } from '../services/admin.service';
 import { 
   PatientReportResponse, 
-  DoctorReportResponse,
-  UnifiedReportType 
+  DoctorReportResponse
 } from '../models/admin.models';
 import { ModalComponent } from '../../core/components/modal/modal.component';
 import { forkJoin } from 'rxjs';
@@ -40,27 +39,30 @@ export class ReportsManagementComponent implements OnInit {
   protected readonly FilterX = FilterX;
   protected readonly UserX = UserX;
 
+  // Reports data
   patientReports: PatientReportResponse[] = [];
   doctorReports: DoctorReportResponse[] = [];
-  allReports: UnifiedReportType[] = [];
-  filteredReports: UnifiedReportType[] = [];
+  allReports: (PatientReportResponse | DoctorReportResponse)[] = [];
+  filteredReports: (PatientReportResponse | DoctorReportResponse)[] = [];
   
+  // UI state
   isLoading = true;
   errorMessage = '';
-  activeTab: 'pending' | 'resolved' = 'pending';
   
+  // Filters
   searchTerm = '';
   selectedCategory = 'all';
   selectedUserType = 'all';
   availableCategories: string[] = [];
 
+  // Modal state
   modalVisible = false;
   modalType: 'success' | 'warning' | 'error' = 'warning';
   modalTitle = '';
   modalMessage = '';
   modalShowConfirmButton = true;
-  currentAction: 'resolve' | 'dismiss' | 'ban' | null = null;
-  selectedReport: UnifiedReportType | null = null;
+  currentAction: 'resolve' | 'ban' | null = null;
+  selectedReport: (PatientReportResponse | DoctorReportResponse) | null = null;
 
   constructor(private adminService: AdminService) {}
 
@@ -80,9 +82,14 @@ export class ReportsManagementComponent implements OnInit {
         this.patientReports = results.patients || [];
         this.doctorReports = results.doctors || [];
 
-        this.processReports();
+        // Combine all reports
+        this.allReports = [...this.patientReports, ...this.doctorReports];
         
+        // Extract unique categories for filtering
         this.extractCategories();
+        
+        // Apply initial filters
+        this.applyFilters();
         
         this.isLoading = false;
       },
@@ -92,26 +99,6 @@ export class ReportsManagementComponent implements OnInit {
         this.isLoading = false;
       }
     });
-  }
-
-  processReports(): void {
-    const patientReportsUnified: UnifiedReportType[] = this.patientReports.map(report => ({
-      ...report,
-      status: this.getRandomStatus() 
-    }));
-
-    const doctorReportsUnified: UnifiedReportType[] = this.doctorReports.map(report => ({
-      ...report,
-      status: this.getRandomStatus()
-    }));
-
-    this.allReports = [...patientReportsUnified, ...doctorReportsUnified];
-
-    this.applyFilters();
-  }
-
-  getRandomStatus(): 'pending' | 'resolved' {
-    return Math.random() > 0.3 ? 'pending' : 'resolved';
   }
 
   extractCategories(): void {
@@ -126,16 +113,10 @@ export class ReportsManagementComponent implements OnInit {
     this.availableCategories = Array.from(categories);
   }
 
-  setActiveTab(tab: 'pending' | 'resolved'): void {
-    this.activeTab = tab;
-    this.applyFilters();
-  }
-
   applyFilters(): void {
     let filtered = [...this.allReports];
     
-    filtered = filtered.filter(report => report.status === this.activeTab);
-    
+    // Filter by user type
     if (this.selectedUserType !== 'all') {
       filtered = filtered.filter(report => {
         if (this.selectedUserType === 'doctor') {
@@ -146,12 +127,14 @@ export class ReportsManagementComponent implements OnInit {
       });
     }
     
+    // Filter by category
     if (this.selectedCategory !== 'all') {
       filtered = filtered.filter(report => 
         report.reports_category === this.selectedCategory
       );
     }
     
+    // Filter by search term
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(report => 
@@ -199,31 +182,18 @@ export class ReportsManagementComponent implements OnInit {
     }
   }
 
-  getPendingReportsCount(): number {
-    return this.allReports.filter(report => report.status === 'pending').length;
-  }
-
-  confirmResolveReport(report: UnifiedReportType): void {
+  // Action handlers
+  confirmResolveReport(report: PatientReportResponse | DoctorReportResponse): void {
     this.selectedReport = report;
     this.currentAction = 'resolve';
     this.modalType = 'warning';
     this.modalTitle = 'Confirmar acción';
-    this.modalMessage = `¿Está seguro que desea marcar como resuelto el reporte sobre ${report.reported_name}?`;
+    this.modalMessage = `¿Está seguro que desea marcar como resuelto el reporte sobre ${report.reported_name}? Esta acción eliminará el reporte permanentemente.`;
     this.modalShowConfirmButton = true;
     this.modalVisible = true;
   }
 
-  confirmDismissReport(report: UnifiedReportType): void {
-    this.selectedReport = report;
-    this.currentAction = 'dismiss';
-    this.modalType = 'warning';
-    this.modalTitle = 'Confirmar acción';
-    this.modalMessage = `¿Está seguro que desea descartar el reporte sobre ${report.reported_name}?`;
-    this.modalShowConfirmButton = true;
-    this.modalVisible = true;
-  }
-
-  confirmBanUser(report: UnifiedReportType): void {
+  confirmBanUser(report: PatientReportResponse | DoctorReportResponse): void {
     this.selectedReport = report;
     this.currentAction = 'ban';
     this.modalType = 'error';
@@ -239,48 +209,82 @@ export class ReportsManagementComponent implements OnInit {
       return;
     }
 
-    setTimeout(() => {
-      switch (this.currentAction) {
-        case 'resolve':
-          this.resolveReport(this.selectedReport!);
-          break;
-        case 'dismiss':
-          this.dismissReport(this.selectedReport!);
-          break;
-        case 'ban':
-          this.banUser(this.selectedReport!);
-          break;
+    this.isLoading = true;
+
+    switch (this.currentAction) {
+      case 'resolve':
+        this.resolveReport(this.selectedReport);
+        break;
+      case 'ban':
+        this.banUser(this.selectedReport);
+        break;
+    }
+  }
+
+  resolveReport(report: PatientReportResponse | DoctorReportResponse): void {
+    if (!report.reports_id) {
+      this.showErrorModal('No se pudo identificar el ID del reporte.');
+      this.isLoading = false;
+      return;
+    }
+
+    // Usar el servicio para marcar como resuelto (eliminar) el reporte
+    this.adminService.confirmReport(report.reports_id).subscribe({
+      next: () => {
+        this.isLoading = false;
+        // Eliminar el reporte del arreglo local
+        this.allReports = this.allReports.filter(r => r.reports_id !== report.reports_id);
+        this.applyFilters();
+        this.showSuccessModal('Reporte marcado como resuelto exitosamente.');
+      },
+      error: (err) => {
+        console.error('Error al resolver el reporte:', err);
+        this.isLoading = false;
+        this.showErrorModal('No se pudo marcar el reporte como resuelto. Por favor, intente nuevamente.');
       }
+    });
 
-      this.closeModal();
-    }, 500);
+    this.closeModal();
   }
 
-  resolveReport(report: UnifiedReportType): void {
-    const index = this.allReports.findIndex(r => r.reports_id === report.reports_id);
-    if (index !== -1) {
-      this.allReports[index] = { ...report, status: 'resolved' };
-      this.showSuccessModal('Reporte marcado como resuelto exitosamente.');
+  banUser(report: PatientReportResponse | DoctorReportResponse): void {
+    // Primero intentar obtener el ID del usuario a suspender
+    const userId = this.getUserId(report);
+    
+    if (!userId) {
+      this.showErrorModal('No se pudo identificar el ID del usuario para suspender.');
+      this.isLoading = false;
+      return;
     }
-    this.applyFilters();
+
+    // Usar el servicio para suspender al usuario
+    this.adminService.rejectUser(userId).subscribe({
+      next: () => {
+        this.isLoading = false;
+        // Eliminar también el reporte
+        if (report.reports_id) {
+          this.adminService.confirmReport(report.reports_id).subscribe({
+            next: () => {
+              this.allReports = this.allReports.filter(r => r.reports_id !== report.reports_id);
+              this.applyFilters();
+            },
+            error: (err) => console.error('Error al eliminar el reporte tras suspensión:', err)
+          });
+        }
+        this.showSuccessModal(`Usuario ${report.reported_name} suspendido exitosamente.`);
+      },
+      error: (err) => {
+        console.error('Error al suspender al usuario:', err);
+        this.isLoading = false;
+        this.showErrorModal('No se pudo suspender al usuario. Por favor, intente nuevamente.');
+      }
+    });
+
+    this.closeModal();
   }
 
-  dismissReport(report: UnifiedReportType): void {
-    const index = this.allReports.findIndex(r => r.reports_id === report.reports_id);
-    if (index !== -1) {
-      this.allReports[index] = { ...report, status: 'resolved' };
-      this.showSuccessModal('Reporte descartado exitosamente.');
-    }
-    this.applyFilters();
-  }
-
-  banUser(report: UnifiedReportType): void {
-    const index = this.allReports.findIndex(r => r.reports_id === report.reports_id);
-    if (index !== -1) {
-      this.allReports[index] = { ...report, status: 'resolved' };
-      this.showSuccessModal(`Usuario ${report.reported_name} suspendido exitosamente.`);
-    }
-    this.applyFilters();
+  private getUserId(report: PatientReportResponse | DoctorReportResponse): number | null {
+    return report.reported_id || null;
   }
 
   closeModal(): void {
@@ -292,6 +296,14 @@ export class ReportsManagementComponent implements OnInit {
   showSuccessModal(message: string): void {
     this.modalType = 'success';
     this.modalTitle = '¡Acción completada!';
+    this.modalMessage = message;
+    this.modalShowConfirmButton = false;
+    this.modalVisible = true;
+  }
+
+  showErrorModal(message: string): void {
+    this.modalType = 'error';
+    this.modalTitle = 'Error';
     this.modalMessage = message;
     this.modalShowConfirmButton = false;
     this.modalVisible = true;

@@ -30,7 +30,7 @@ describe('AuthService - login', () => {
   });
 
   // --------------------------------------------
-  // Caso 3: Usuario no aprobado (no admin)
+  // Caso: Usuario no aprobado (no admin)
   // --------------------------------------------
   it('debe retornar "Usuario no aprobado" para usuarios no administradores', async () => {
     const unapprovedUser = { ...mockUser, approved: false, role: { name: 'médico' } };
@@ -43,8 +43,9 @@ describe('AuthService - login', () => {
     });
 
     expect(result).toEqual({
-      success: false,
-      message: "Usuario no aprobado"
+      requireAuthEmail: true,
+      message: "Usurio sin email verificado y sin aprovacion",
+      token:"fake_token"
     });
   });
 });

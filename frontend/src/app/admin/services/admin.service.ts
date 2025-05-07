@@ -68,14 +68,14 @@ export class AdminService {
             );
     }
 
-    public getPatientsReport(id: number): Observable<PatientReportResponse[]> {
+    public getPatientsReport(): Observable<PatientReportResponse[]> {
         return this.http.get<PatientReportResponse[]>(`${environment.apiUrl}/admin/report/againts/patient`)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
-    public getDoctorsReport(id: number): Observable<DoctorReportResponse[]> {
+    public getDoctorsReport(): Observable<DoctorReportResponse[]> {
         return this.http.get<DoctorReportResponse[]>(`${environment.apiUrl}/admin/report/againts/doctor`)
             .pipe(
                 catchError(this.handleError)

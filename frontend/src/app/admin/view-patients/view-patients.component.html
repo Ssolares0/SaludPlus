@@ -1,0 +1,132 @@
+<div class="view-patients-container">
+    <div class="page-header">
+        <h2>Lista de Pacientes</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" [(ngModel)]="searchTerm" (input)="searchPatients()"
+                    placeholder="Buscar por nombre..." class="search-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="patients-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Edad</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Género</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (loading) {
+                <tr>
+                    <td colspan="6">
+                        <div class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <p>Cargando pacientes...</p>
+                        </div>
+                    </td>
+                </tr>
+                } @else if (error) {
+                <tr>
+                    <td colspan="6">
+                        <div class="error-state">
+                            <i-lucide [name]="UserX" class="error-icon"></i-lucide>
+                            <p>{{ error }}</p>
+                        </div>
+                    </td>
+                </tr>
+                } @else if (filteredPatients.length === 0) {
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+                            <p>No se encontraron pacientes</p>
+                        </div>
+                    </td>
+                </tr>
+                } @else {
+                @for (patient of getCurrentPageItems(); track patient.id) {
+                <tr>
+                    <td>
+                        <div class="patient-info">
+                            <div class="patient-avatar" [class.has-image]="patient.photo">
+                                @if (patient.photo) {
+                                <img [src]="patient.photo" [alt]="patient.firstame">
+                                } @else {
+                                <div class="avatar-initials">
+                                    {{ getInitials(patient.firstame, patient.lastName) }}
+                                </div>
+                                }
+                            </div>
+                            <div class="patient-name-container">
+                                <p class="patient-name">{{ patient.firstame }} {{ patient.lastName }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="cell-content">{{ calculateAge(patient.birht_date) }} años</div>
+                    </td>
+                    <td>
+                        <div class="cell-content">{{ patient.phone }}</div>
+                    </td>
+                    <td>
+                        <div class="cell-content address-cell" title="{{ patient.addres }}">{{ patient.addres }}</div>
+                    </td>
+                    <td>
+                        <div class="cell-content">
+                            <span class="gender-badge" [ngClass]="getGenderClass(patient.gender)">
+                                {{ getGenderText(patient.gender) }}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            @if (isProcessingPatient(patient.id)) {
+                            <div class="processing-action">
+                                <div class="loading-spinner-small"></div>
+                                <span>Procesando...</span>
+                            </div>
+                            } @else {
+                            <button class="btn-icon btn-delete" title="Dar de baja"
+                                (click)="confirmRejectPatient(patient)">
+                                <i-lucide [name]="UserX" class="icon"></i-lucide>
+                            </button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!loading && !error && filteredPatients.length > 0) {
+    <div class="pagination">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+            <i-lucide [name]="ChevronLeft" class="icon"></i-lucide>
+        </button>
+        <div class="pagination-numbers">
+            @for (page of getPageNumbers(); track page) {
+            <button class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+                {{ page }}
+            </button>
+            }
+        </div>
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+            <i-lucide [name]="ChevronRight" class="icon"></i-lucide>
+        </button>
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

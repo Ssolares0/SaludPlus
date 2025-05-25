@@ -1,0 +1,126 @@
+export interface PendingPatientsResponse {
+    id: number;
+    firstame: string; 
+    lastName: string;
+    birht_date: string;
+    gender: string;
+    phone: string;
+    photo: string | null;
+    addres: string;
+}
+
+export interface SpecialtyInfo {
+    id: number;
+    name: string;
+    description: string;
+}
+
+export interface DoctorSpecialty {
+    id: number;
+    specialty: SpecialtyInfo;
+}
+
+export interface DepartmentInfo {
+    id: number;
+    name: string;
+    location: string;
+}
+
+export interface DoctorDepartment {
+    id: number;
+    department: DepartmentInfo;
+}
+
+export interface PendingDoctorsResponse {
+    id: number;
+    firstame: string;
+    lastName: string;
+    dpi: string;
+    birht_date: string;
+    gender: string;
+    phone: string;
+    photo: string | null;
+    addres: string;
+    number_col: string;
+    specialty: DoctorSpecialty[];
+    department: DoctorDepartment[];
+}
+
+export interface ActivePatientsResponse {
+    id: number;
+    firstame: string; 
+    lastName: string;
+    birht_date: string;
+    gender: string;
+    phone: string;
+    photo: string | null;
+    addres: string;
+}
+
+export interface ActiveDoctorsResponse {
+    id: number;
+    firstame: string;
+    lastName: string;
+    dpi: string;
+    birht_date: string;
+    gender: string;
+    phone: string;
+    photo: string | null;
+    addres: string;
+    number_col: string;
+    specialty: DoctorSpecialty[];
+    department: DoctorDepartment[];
+}
+
+export interface AcceptUserResponse {
+    message: string;
+    success: boolean;
+}
+
+export interface RejectUserResponse {
+    message: string;
+    success: boolean;
+}
+
+export interface StatisticsResponse {
+    id: number;
+    name: string;
+    photo: string | null;
+    specialty: string;
+    patientsCount: number;
+    appointmentsCount: number;
+}
+
+export interface StatisticsBody {
+    specialty?: string;
+}
+
+export interface PatientReportResponse {
+    reports_id: number;
+    reports_category: string;
+    reports_description: string;
+    reporter_id: number;
+    reporter_name: string;
+    reported_id: number;
+    reported_name: string;
+    reporterRole_name: string;
+    reportedRole_name: string;
+    created_at: string;
+}
+
+export interface DoctorReportResponse {
+    reports_id: number;
+    reports_category: string;
+    reports_description: string;
+    reporter_id: number;
+    reporter_name: string;
+    reported_id: number;
+    reported_name: string;
+    reporterRole_name: string;
+    reportedRole_name: string;
+    created_at: string;
+}
+
+export type UnifiedReportType = (PatientReportResponse | DoctorReportResponse) & {
+    status: 'pending' | 'resolved';
+};

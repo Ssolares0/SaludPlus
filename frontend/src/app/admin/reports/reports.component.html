@@ -1,0 +1,155 @@
+<div class="reports-container">
+    <div class="page-header">
+        <h2>Reportes y Estadísticas</h2>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">
+        <p>Cargando datos...</p>
+    </div>
+    } @else if (error) {
+    <div class="error-state">
+        <p>{{ error }}</p>
+    </div>
+    } @else {
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Distribución por Especialidad</h3>
+                <button class="btn-icon" title="Descargar reporte" (click)="downloadSpecialtyReport()">
+                    <i-lucide [name]="download" class="btn-icon"></i-lucide>
+                </button>
+            </div>
+            <div class="chart-container specialty-chart-container">
+                <canvas id="specialtyDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Distribución por Género</h3>
+            </div>
+            <div class="chart-container specialty-chart-container">
+                <canvas id="genderDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="report-card">
+            <div class="report-header">
+                <h3>Médicos por Especialidad</h3>
+                <div class="report-actions">
+                    <button class="btn-icon" title="Descargar reporte" (click)="downloadSpecialtyReport()">
+                        <i-lucide [name]="fileText" class="btn-icon"></i-lucide>
+                    </button>
+                </div>
+            </div>
+            <div class="report-content">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Especialidad</th>
+                            <th>Número de Médicos</th>
+                            <th>Porcentaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of doctorsBySpecialty; track item.specialty) {
+                        <tr>
+                            <td>{{ item.specialty }}</td>
+                            <td>{{ item.count }}</td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar"
+                                        [style.width.%]="(item.count / activeDoctors.length) * 100">
+                                    </div>
+                                    <span>{{ ((item.count / activeDoctors.length) * 100).toFixed(1) }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-header">
+                <h3>Médicos Más Activos</h3>
+                <div class="report-actions">
+                    <button class="btn-icon" title="Descargar reporte" (click)="downloadTopDoctorsReport()">
+                        <i-lucide [name]="download" class="btn-icon"></i-lucide>
+                    </button>
+                </div>
+            </div>
+            <div class="report-content">
+                @if (filteredTopDoctors.length === 0) {
+                <p class="empty-message">No hay datos disponibles para mostrar.</p>
+                } @else {
+                @for (doctor of filteredTopDoctors; track doctor.id; let i = $index) {
+                <div class="doctor-ranking">
+                    <div class="ranking-info">
+                        <span class="ranking-number">#{{i + 1}}</span>
+                        @if (doctor.photo) {
+                        <img [src]="doctor.photo | safeImage" class="ranking-avatar" alt="Foto de {{doctor.name}}">
+                        } @else {
+                        <div class="avatar-placeholder">
+                            {{ doctor.name.charAt(0) }}
+                        </div>
+                        }
+                        <div class="ranking-details">
+                            <p class="doctor-name">{{ doctor.name }}</p>
+                            <p class="doctor-specialty">{{ doctor.specialty }}</p>
+                        </div>
+                    </div>
+                    <div class="ranking-stats">
+                        <div class="stat">
+                            <span class="stat-number">{{ doctor.patientsCount }}</span>
+                            <span class="stat-label">Pacientes</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">{{ doctor.appointmentsCount }}</span>
+                            <span class="stat-label">Citas</span>
+                        </div>
+                    </div>
+                </div>
+                }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-icon doctors">
+                <i-lucide [name]="users" class="summary-icon-svg"></i-lucide>
+            </div>
+            <div class="summary-content">
+                <h4>Médicos Activos</h4>
+                <p class="summary-number">{{ activeDoctors.length }}</p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon patients">
+                <i-lucide [name]="users" class="summary-icon-svg"></i-lucide>
+            </div>
+            <div class="summary-content">
+                <h4>Pacientes Activos</h4>
+                <p class="summary-number">{{ activePatients.length }}</p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon specialties">
+                <i-lucide [name]="fileText" class="summary-icon-svg"></i-lucide>
+            </div>
+            <div class="summary-content">
+                <h4>Especialidades</h4>
+                <p class="summary-number">{{ specialties.length }}</p>
+            </div>
+        </div>
+    </div>
+    }
+</div>

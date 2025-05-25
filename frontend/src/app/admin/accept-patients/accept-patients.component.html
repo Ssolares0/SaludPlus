@@ -1,0 +1,99 @@
+<div class="accept-patients-container">
+    <div class="page-header">
+        <h2>Solicitudes de Pacientes Pendientes</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" [(ngModel)]="searchTerm" (input)="searchPatients()"
+                    placeholder="Buscar por nombre..." class="search-input">
+            </div>
+        </div>
+    </div>
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando solicitudes de pacientes...</p>
+    </div>
+    } @else if (errorMessage) {
+    <div class="error-container">
+        <div class="empty-state">
+            <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+            <h3>Error al cargar datos</h3>
+            <p>{{ errorMessage }}</p>
+            <button class="btn-retry" (click)="loadPendingPatients()">Reintentar</button>
+        </div>
+    </div>
+    } @else {
+    <div class="patients-grid">
+        @for (patient of filteredPatients; track patient.id) {
+        <div class="patient-card">
+            <div class="patient-header">
+                <div class="patient-avatar">
+                    @if (patient.photo && isValidImageUrl(patient.photo)) {
+                    <img [src]="patient.photo | safeImage" alt="Foto del paciente"
+                        (error)="handleImageError($event, patient)">
+                    <div class="default-avatar" style="display: none;">{{ patient.firstame[0] }}{{ patient.lastName[0]
+                        }}</div>
+                    } @else {
+                    <div class="default-avatar">{{ patient.firstame[0] }}{{ patient.lastName[0] }}</div>
+                    }
+                </div>
+                <div class="patient-info">
+                    <h3>{{ patient.firstame }} {{ patient.lastName }}</h3>
+                    <span class="patient-dpi">Tel: {{ patient.phone }}</span>
+                </div>
+            </div>
+
+            <div class="patient-details">
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <i-lucide [name]="User" class="detail-icon"></i-lucide>
+                        <span>{{ getGenderText(patient.gender) }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i-lucide [name]="Calendar" class="detail-icon"></i-lucide>
+                        <span>{{ formatDate(patient.birht_date) }}</span>
+                    </div>
+                </div>
+                <div class="detail-item address-item">
+                    <i-lucide [name]="Mail" class="detail-icon"></i-lucide>
+                    <span>{{ patient.addres }}</span>
+                </div>
+            </div>
+
+            <div class="patient-actions">
+                @if (isProcessingPatient(patient.id)) {
+                <div class="processing-action">
+                    <div class="loading-spinner-small"></div>
+                    <span>Procesando...</span>
+                </div>
+                } @else {
+                <button class="btn-accept" title="Aceptar solicitud" (click)="confirmAcceptPatient(patient)">
+                    <i-lucide [name]="Check" class="btn-icon"></i-lucide>
+                    <span>Aceptar</span>
+                </button>
+                <button class="btn-reject" title="Rechazar solicitud" (click)="confirmRejectPatient(patient)">
+                    <i-lucide [name]="X" class="btn-icon"></i-lucide>
+                    <span>Rechazar</span>
+                </button>
+                }
+            </div>
+        </div>
+        }
+
+        @empty {
+        <div class="no-results">
+            <div class="empty-state">
+                <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+                <h3>No hay solicitudes pendientes</h3>
+                <p>No se encontraron solicitudes de pacientes para revisar</p>
+            </div>
+        </div>
+        }
+    </div>
+    }
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Aceptar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

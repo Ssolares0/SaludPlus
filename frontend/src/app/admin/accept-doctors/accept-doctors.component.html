@@ -1,0 +1,122 @@
+<div class="accept-doctors-container">
+    <div class="page-header">
+        <h2>Solicitudes de Médicos Pendientes</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <i-lucide [name]="Search" class="search-icon"></i-lucide>
+                <input type="text" [(ngModel)]="searchTerm" (input)="searchDoctors()"
+                    placeholder="Buscar por nombre o DPI..." class="search-input">
+            </div>
+            <div class="filter-box">
+                <select [(ngModel)]="selectedSpecialty" (change)="searchDoctors()" class="filter-select">
+                    <option value="all">Todas las especialidades</option>
+                    @for (doctor of pendingDoctors; track doctor.id) {
+                    @for (spec of doctor.specialty; track spec.id) {
+                    <option [value]="spec.specialty.name.toLowerCase()">{{ spec.specialty.name }}</option>
+                    }
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Cargando solicitudes de médicos...</p>
+    </div>
+    } @else if (errorMessage) {
+    <div class="error-container">
+        <div class="empty-state">
+            <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+            <h3>Error al cargar datos</h3>
+            <p>{{ errorMessage }}</p>
+            <button class="btn-retry" (click)="loadPendingDoctors()">Reintentar</button>
+        </div>
+    </div>
+    } @else {
+    <div class="doctors-grid">
+        @for (doctor of filteredDoctors; track doctor.id) {
+        <div class="doctor-card">
+            <div class="doctor-header">
+                <div class="doctor-avatar">
+                    @if (doctor.photo) {
+                    <img [src]="doctor.photo | safeImage" [alt]="'Foto de ' + doctor.firstame">
+                    } @else {
+                    <div class="default-avatar">{{ doctor.firstame[0] }}{{ doctor.lastName[0] }}</div>
+                    }
+                </div>
+                <div class="doctor-info">
+                    <h3 class="truncate" title="Dr. {{ doctor.firstame }} {{ doctor.lastName }}">Dr. {{ doctor.firstame
+                        }} {{ doctor.lastName }}</h3>
+                    <p class="doctor-specialty line-clamp-2" title="{{ getSpecialtiesText(doctor) }}">{{
+                        getSpecialtiesText(doctor) }}</p>
+                </div>
+            </div>
+
+            <div class="doctor-details">
+                <div class="detail-item">
+                    <i-lucide [name]="FileText" class="detail-icon"></i-lucide>
+                    <span class="truncate" title="DPI: {{ doctor.dpi }}">DPI: {{ doctor.dpi }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="User" class="detail-icon"></i-lucide>
+                    <span>{{ doctor.gender === '1' ? 'Masculino' : doctor.gender === '2' ? 'Femenino' : 'Otro' }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Award" class="detail-icon"></i-lucide>
+                    <span class="truncate" title="Colegiado: {{ doctor.number_col }}">Colegiado: {{ doctor.number_col
+                        }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Building" class="detail-icon"></i-lucide>
+                    <span class="line-clamp-2" title="{{ getDepartmentsText(doctor) }}">{{ getDepartmentsText(doctor)
+                        }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i-lucide [name]="Phone" class="detail-icon"></i-lucide>
+                    <span class="truncate" title="{{ doctor.phone }}">{{ doctor.phone }}</span>
+                </div>
+            </div>
+
+            <div class="doctor-actions">
+                @if (isProcessingDoctor(doctor.id)) {
+                <div class="processing-action">
+                    <div class="loading-spinner-small"></div>
+                    <span>Procesando...</span>
+                </div>
+                } @else {
+                <button class="btn-accept" (click)="confirmAcceptDoctor(doctor)">
+                    <i-lucide [name]="Check" class="btn-icon"></i-lucide>
+                    Aceptar
+                </button>
+                <button class="btn-reject" (click)="confirmRejectDoctor(doctor)">
+                    <i-lucide [name]="X" class="btn-icon"></i-lucide>
+                    Rechazar
+                </button>
+                }
+            </div>
+        </div>
+        }
+
+        @empty {
+        <div class="no-results">
+            <div class="empty-state">
+                <i-lucide [name]="UserX" class="empty-icon"></i-lucide>
+                <h3>No hay solicitudes pendientes</h3>
+                <p>No se encontraron solicitudes de médicos para revisar</p>
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <app-modal [isVisible]="modalVisible" [type]="modalType" [title]="modalTitle" [message]="modalMessage"
+        [showConfirmButton]="modalShowConfirmButton" confirmButtonText="Confirmar" cancelButtonText="Cancelar"
+        (close)="closeModal()" (confirm)="onConfirmAction()">
+    </app-modal>
+</div>

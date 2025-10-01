@@ -53,10 +53,18 @@ jobs:
           exit 1
         fi
         
+    - name: Verify files for deployment
+      run: |
+        echo "📂 Files that will be deployed:"
+        ls -la frontend/dist/frontend/browser/
+        echo "📊 Total files: $(find frontend/dist/frontend/browser/ -type f | wc -l)"
+        echo "📄 HTML files found: $(find frontend/dist/frontend/browser/ -name "*.html" | wc -l)"
+        
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       if: github.ref == 'refs/heads/main'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./frontend/dist/frontend/browser
         enable_jekyll: false
+        force_orphan: true

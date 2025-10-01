@@ -14,13 +14,13 @@ export const demoInterceptor: HttpInterceptorFn = (req, next) => {
   // Interceptar login
   if (url.includes('/auth/login') && req.method === 'POST') {
     const body = req.body as any;
-    const user = demoConfig.demoUsers.find(u => 
+    const user = demoConfig.demoUsers.find(u =>
       u.email === body.email && u.password === body.password
     );
 
     if (user) {
       let response: any;
-      
+
       if (user.role === 'admin') {
         response = {
           token: user.token,

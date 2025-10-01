@@ -4,9 +4,18 @@ on:
   push:
     branches: [ main ]
 
+# Configurar permisos para el GITHUB_TOKEN
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
     - name: Checkout
@@ -60,11 +69,17 @@ jobs:
         echo "📊 Total files: $(find frontend/dist/frontend/browser/ -type f | wc -l)"
         echo "📄 HTML files found: $(find frontend/dist/frontend/browser/ -name "*.html" | wc -l)"
         
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      if: github.ref == 'refs/heads/main'
+      
+    - name: Upload to GitHub Pages
+      uses: actions/upload-pages-artifact@v3
       if: github.ref == 'refs/heads/main'
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/dist/frontend/browser
-        enable_jekyll: false
-        force_orphan: true
+        path: ./frontend/dist/frontend/browser
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      if: github.ref == 'refs/heads/main'

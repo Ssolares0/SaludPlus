@@ -3,8 +3,6 @@ name: Deploy Angular to GitHub Pages
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build-and-deploy:
@@ -31,15 +29,34 @@ jobs:
         cd frontend
         npm run build:github
         
+    - name: List build output (debug)
+      run: |
+        echo "Listing build output structure:"
+        ls -la frontend/dist/
+        echo "Listing frontend build files:"
+        ls -la frontend/dist/frontend/
+        echo "Listing browser directory (Angular 18+):"
+        ls -la frontend/dist/frontend/browser/ || echo "browser directory not found"
+        
     - name: Copy index.html to 404.html
       run: |
-        cd frontend/dist/frontend
-        cp index.html 404.html
+        # Angular 18+ uses browser subdirectory
+        if [ -f "frontend/dist/frontend/browser/index.html" ]; then
+          cp frontend/dist/frontend/browser/index.html frontend/dist/frontend/browser/404.html
+          echo "✅ 404.html created successfully in browser directory"
+        elif [ -f "frontend/dist/frontend/index.html" ]; then
+          cp frontend/dist/frontend/index.html frontend/dist/frontend/404.html
+          echo "✅ 404.html created successfully in root directory"
+        else
+          echo "❌ index.html not found, listing all HTML files:"
+          find frontend/dist -name "*.html" -type f || echo "No HTML files found"
+          exit 1
+        fi
         
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       if: github.ref == 'refs/heads/main'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/dist/frontend
+        publish_dir: ./frontend/dist/frontend/browser
         enable_jekyll: false

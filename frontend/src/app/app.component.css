@@ -1,0 +1,20 @@
+/* Ajustar el contenido cuando el banner demo esté presente */
+:host {
+  display: block;
+}
+
+/* El contenido principal debe ajustarse cuando el banner esté visible */
+router-outlet + * {
+  margin-top: 0;
+}
+
+/* Estilos globales para la demo */
+:host ::ng-deep .demo-banner ~ * {
+  padding-top: 120px; /* Espacio para el banner en móvil */
+}
+
+@media (min-width: 768px) {
+  :host ::ng-deep .demo-banner ~ * {
+    padding-top: 80px; /* Espacio para el banner en desktop */
+  }
+}
